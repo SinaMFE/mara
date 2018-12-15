@@ -1,0 +1,36 @@
+{
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "",
+    "build": "",
+    "changelog": "lerna-changelog"
+  },
+  "devDependencies": {
+    "eslint": "^5.10.0",
+    "execa": "^1.0.0",
+    "globby": "^8.0.1",
+    "husky": "^1.2.1",
+    "jest": "^23.6.0",
+    "lerna": "^3.6.0",
+    "lerna-changelog": "^0.8.2",
+    "lint-staged": "^8.1.0",
+    "prettier": "^1.15.3"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,md,css,html}": [
+      "prettier --write",
+      "git add"
+    ],
+    "yarn.lock": [
+      "git rm --cached"
+    ]
+  }
+}
