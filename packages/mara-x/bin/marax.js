@@ -1,19 +1,19 @@
 #!/usr/bin/env node
-
 'use strict'
 
 const chalk = require('chalk')
 const semver = require('semver')
-const requiredVersion = require('../package.json').engines.node
 const paths = require('../config/paths')
+const requiredVersion = require('../package.json').engines.node
+const currentNodeVersion = process.versions.node
 
 // node >= 8.0.0
-if (!semver.satisfies(process.version, requiredVersion)) {
+if (!semver.satisfies(currentNodeVersion, requiredVersion)) {
   console.log(
     chalk.red(
-      `You are using Node ${
-        process.version
-      }, but vue-cli-service requires Node ${requiredVersion}.\nPlease upgrade your Node version.\n`
+      `You are running Node ${currentNodeVersion}.\n` +
+        `but @mara/x requires Node ${requiredVersion}.\n` +
+        'Please update your version of Node.\n'
     )
   )
   process.exit(1)
@@ -35,9 +35,7 @@ const cmdMap = {
   test: 'test',
   build: 'build',
   lib: 'buildLib',
-  'wx-dev': 'wx-dev-server',
-  'wx-build': 'wx-build',
-  dll: 'dll',
+  dll: 'dll'
 }
 const cmd = cmdMap[args._[0]]
 
@@ -58,10 +56,8 @@ if (args.v) {
   console.log(require(paths.maraPackageJson).version, '\n')
 } else if (!cmd) {
   console.log('\nUnknown script "' + rawArgv + '".')
-  console.log('Perhaps you need to update webpack-marauder?')
-  console.log(
-    'See: https://github.com/SinaMFE/webpack-marauder/blob/master/README.md'
-  )
+  console.log('Perhaps you need to update @mara/x?')
+  console.log('See: https://github.com/SinaMFE/marauder/blob/master/README.md')
   process.exit(0)
 } else {
   require(`../build/${cmd}`)(args)
