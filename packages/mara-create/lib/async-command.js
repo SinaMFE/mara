@@ -15,5 +15,5 @@ module.exports = options => ({
   handler(argv) {
     let res = options.handler(argv)
     if (res && res.then) res.then(success, fail)
-  },
+  }
 })

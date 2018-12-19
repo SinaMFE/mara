@@ -1,23 +1,13 @@
-# eslint-config-sinamfe
+# @mara/create
 
-## 安装
+用于生成项目
 
-```bash
-yarn add eslint-config-sinamfe
-```
+## 流程
 
-## 配置
-
-在项目根目录下建立 `.eslintrc.yml` 文件，写入配置：
-
-```javascript
-extends: 'eslint-config-sinamfe'
-```
-
-### 严格模式
-
-默认情况下，eslint-config-sinamfe 只校验语法错误，如需校验编码风格，可启用严格模式：
-
-```javascript
-extends: 'eslint-config-sinamfe/strict'
-```
+- 创建或检查应用目录
+- 生成预置 package.json，添加依赖字段
+- 安装 @mara/x 及 App 框架依赖
+- 从 @mara/x 中提取项目模板
+- 更新 package.json 余项字段
+- 生成项目 src 目录及配置文件
+- (如果不存在)初始化 git 仓库
