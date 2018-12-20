@@ -27,7 +27,7 @@ for (let key in options) {
   }
 
   if (oopt['alias']) {
-    mriOpt.alias.push(key)
+    mriOpt.alias[key] = oopt['alias']
   }
 
   // default 可能为布尔值，因此使用属性存在判断
