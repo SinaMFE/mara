@@ -48,22 +48,41 @@ function couldUseYarn() {
   }
 }
 
-module.exports = async function(argv) {
-  const { appDirectory, useNpm, ts: useTs, template } = argv
-  let usePnp = argv.usePnp
-
+module.exports = async function(options) {
+  const { appDirectory, useNpm, ts: useTs, template } = options
+  let usePnp = options.usePnp
   const root = path.resolve(appDirectory)
+  const inCurrent = appDirectory === '.'
+  const originalDirectory = process.cwd()
   const appName = path.basename(root)
 
   checkAppName(appName)
 
-  // 创建项目目录
-  fs.ensureDirSync(appDirectory)
+  if (options.force) {
+    await fs.remove(appDirectory)
+  }
 
   // 验证项目目录是否可安全初始化
-  if (!isSafeToCreateProjectIn(root, appDirectory)) {
-    process.exit(1)
+  if (
+    fs.existsSync(appDirectory) &&
+    !isSafeToCreateProjectIn(root, appDirectory)
+  ) {
+    const { yes } = await inquirer.prompt([
+      {
+        name: 'yes',
+        type: 'confirm',
+        message: `Do you want to overwrite them?`
+      }
+    ])
+
+    if (!yes) return
+
+    console.log(`\nRemoving ${chalk.cyan(root)}...`)
+    await fs.remove(root)
   }
+
+  // 创建项目目录
+  fs.ensureDirSync(appDirectory)
 
   console.log(`Creating project in ${chalk.green(root)}.`)
   console.log()
@@ -73,9 +92,7 @@ module.exports = async function(argv) {
     // 默认以文件夹名作为 name
     name: appName,
     version: '0.1.0',
-    private: true,
-    dependencies: {},
-    devDependencies: {}
+    private: true
   }
 
   fs.writeFileSync(
@@ -108,5 +125,13 @@ module.exports = async function(argv) {
     }
   }
 
-  generate(root, appName, useYarn, usePnp, useTs, template)
+  return generate({
+    root,
+    appName,
+    useYarn,
+    usePnp,
+    useTs,
+    originalDirectory,
+    template
+  })
 }

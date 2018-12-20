@@ -1,8 +1,9 @@
-const fs = require('fs-extra')
+const os = require('os')
 const dns = require('dns')
 const tmp = require('tmp')
 const url = require('url')
 const path = require('path')
+const fs = require('fs-extra')
 const chalk = require('chalk')
 const semver = require('semver')
 const execa = require('execa')
@@ -86,8 +87,9 @@ function checkIfOnline(useYarn) {
   }
 
   return new Promise(resolve => {
-    dns.lookup('registry.yarnpkg.com', err => {
+    dns.lookup('registry.npm.taobao.org', err => {
       let proxy
+
       if (err != null && (proxy = getProxy())) {
         // If a proxy is defined, we likely can't resolve external hostnames.
         // Try to resolve the proxy name as an indication of a connection.
@@ -279,8 +281,8 @@ function setCaretRangeForRuntimeDeps(packageName) {
     process.exit(1)
   }
 
-  makeCaretRange(packageJson.dependencies, 'react')
-  makeCaretRange(packageJson.dependencies, 'react-dom')
+  makeCaretRange(packageJson.dependencies, 'vue')
+  makeCaretRange(packageJson.dependencies, 'vue-template-compiler')
 
   fs.writeFileSync(packagePath, JSON.stringify(packageJson, null, 2) + os.EOL)
 }
@@ -396,12 +398,9 @@ function isSafeToCreateProjectIn(root, name) {
     )
     console.log()
     for (const file of conflicts) {
-      console.log(`  ${file}`)
+      console.log(chalk.red(`  ${file}`))
     }
     console.log()
-    console.log(
-      'Either try using a new directory name, or remove the files listed above.'
-    )
 
     return false
   }

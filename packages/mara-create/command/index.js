@@ -8,15 +8,9 @@ module.exports = asyncCommand({
   command: 'create <app-directory> [options]',
   desc: 'create a new project powered by @mara/x',
   builder(yargs) {
-    yargs
-      .positional('app-directory', {
-        describe: 'project directory',
-        type: 'string'
-      })
-      .options(options)
+    yargs.options(options)
   },
   async handler(argv) {
-    create(argv)
-    console.log('success')
+    await create(argv)
   }
 })

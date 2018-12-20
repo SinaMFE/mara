@@ -18,5 +18,11 @@ module.exports = {
     default: false,
     describe: 'use component template',
     type: 'boolean'
+  },
+  force: {
+    default: false,
+    alias: 'f',
+    describe: 'overwrite target directory if it exists',
+    type: 'boolean'
   }
 }
