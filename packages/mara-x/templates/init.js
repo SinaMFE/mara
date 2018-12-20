@@ -105,8 +105,8 @@ function fillAppContentFiles(tmplType, ownPath, appPath) {
 
 function getGitUserInfo() {
   try {
-    const name = execa.sync('git', ['config', 'user.name'])
-    const email = execa.sync('git', ['config', 'user.email'])
+    const { stdout: name } = execa.sync('git', ['config', 'user.name'])
+    const { stdout: email } = execa.sync('git', ['config', 'user.email'])
 
     return `${name} <${email}>`
   } catch (e) {
@@ -173,7 +173,7 @@ module.exports = function(appPath, appName, originalDirectory, tmplType) {
   const runScript = useYarn ? 'yarn' : 'npm run'
 
   console.log()
-  console.log(`Success! Created ${appName} at ${appPath}`)
+  console.log(`Successfully created project ${chalk.green(appName)}.`)
   console.log('Inside that directory, you can run several commands:\n')
 
   console.log(chalk.cyan(`  ${runScript} dev`))
@@ -185,7 +185,7 @@ module.exports = function(appPath, appName, originalDirectory, tmplType) {
   console.log(chalk.cyan(`  ${runScript} test`))
   console.log('    Starts the test runner.\n')
 
-  console.log('We suggest that you begin by typing:\n')
+  console.log('Get started with the following commands:\n')
 
   console.log(
     chalk.cyan('  cd'),

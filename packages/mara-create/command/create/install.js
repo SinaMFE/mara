@@ -1,12 +1,12 @@
 const chalk = require('chalk')
 const execa = require('execa')
 
-module.exports = function(root, useYarn, usePnp, dependencies, isOnline) {
+module.exports = function(root, useYarn, usePnp, devDependencies, isOnline) {
   let command, args
 
   if (useYarn) {
     command = 'yarnpkg'
-    args = ['add']
+    args = ['add', '-D']
 
     if (!isOnline) {
       args.push('--offline')
@@ -16,7 +16,7 @@ module.exports = function(root, useYarn, usePnp, dependencies, isOnline) {
       args.push('--enable-pnp')
     }
 
-    ;[].push.apply(args, dependencies)
+    ;[].push.apply(args, devDependencies)
 
     // Explicitly set cwd() to work around issues like
     // https://github.com/facebook/create-react-app/issues/3326.
@@ -33,10 +33,10 @@ module.exports = function(root, useYarn, usePnp, dependencies, isOnline) {
     }
   } else {
     command = 'npm'
-    args = ['install', '--save', '--loglevel', 'error'].concat(dependencies)
+    args = ['install', '-D', '--loglevel', 'error'].concat(devDependencies)
 
     if (usePnp) {
-      console.log(chalk.yellow(`NPM doesn't support PnP.`))
+      console.log(chalk.yellow(`Npm doesn't support PnP.`))
       console.log(chalk.yellow('Falling back to the regular installs.'))
       console.log()
     }

@@ -2,13 +2,7 @@ const chalk = require('chalk')
 const fs = require('fs-extra')
 const path = require('path')
 const install = require('./install')
-const {
-  getPackageName,
-  checkNodeVersion,
-  setCaretRangeForRuntimeDeps,
-  checkIfOnline,
-  executeNodeScript
-} = require('../../lib/utils')
+const { checkIfOnline, executeNodeScript } = require('../../lib/utils')
 
 function cleanUp(root, appName) {
   // On 'exit' we will delete these files from target directory.
@@ -39,86 +33,82 @@ function cleanUp(root, appName) {
   }
 }
 
-module.exports = function(
+function checkInstallResult() {
+  const packagePath = path.join(process.cwd(), 'package.json')
+  const packageJson = require(packagePath)
+  const { dependencies, devDependencies } = packageJson
+
+  if (
+    typeof dependencies === 'undefined' &&
+    typeof devDependencies === 'undefined'
+  ) {
+    console.error(chalk.red('Missing dependencies in package.json'))
+    process.exit(1)
+  }
+
+  if (!devDependencies['@mara/x']) {
+    console.error(chalk.red(`Unable to find @mara/x in package.json`))
+    process.exit(1)
+  }
+}
+
+module.exports = async function({
   root,
   appName,
   useYarn,
   usePnp,
   useTypescript,
+  originalDirectory,
   template
-) {
-  const originalDirectory = process.cwd()
-  const allDependencies = ['vue', 'vue-template-compiler', '@mara/x']
+}) {
+  // const marax = '@mara/x'
+  const marax = 'file:/Users/fish/github_pro/marauder/packages/mara-x'
+  const devDependencies = ['vue-template-compiler', marax]
 
   if (useTypescript) {
     // TODO: get user's node version instead of installing latest
-    allDependencies.push('@types/node', '@types/jest', 'typescript')
+    devDependencies.push('@types/node', '@types/jest', 'typescript')
   }
 
-  console.log('Installing packages. This might take a couple of minutes.')
+  console.log('Installing packages. This might take a couple of minutes.\n')
 
-  getPackageName('@mara/x')
-    .then(packageName =>
-      checkIfOnline(useYarn).then(isOnline => ({
-        isOnline,
-        packageName
-      }))
-    )
-    .then(info => {
-      const { isOnline, packageName } = info
+  try {
+    const isOnline = await checkIfOnline(useYarn)
 
-      console.log(
-        `Installing ${chalk.cyan('vue')}, ${chalk.cyan(
-          'vue-template-compiler'
-        )}, and ${chalk.cyan(packageName)}...`
-      )
-      console.log()
+    await install(root, useYarn, usePnp, devDependencies, isOnline)
 
-      return install(root, useYarn, usePnp, allDependencies, isOnline).then(
-        () => packageName
-      )
-    })
-    .then(async packageName => {
-      const packageJsonPath = path.resolve(
-        process.cwd(),
-        'node_modules',
-        packageName,
-        'package.json'
-      )
+    checkInstallResult()
 
-      checkNodeVersion(packageJsonPath)
-      setCaretRangeForRuntimeDeps(packageName)
+    const pnpPath = path.resolve(process.cwd(), '.pnp.js')
+    const nodeArgs = fs.existsSync(pnpPath) ? ['--require', pnpPath] : []
 
-      const pnpPath = path.resolve(process.cwd(), '.pnp.js')
-      const nodeArgs = fs.existsSync(pnpPath) ? ['--require', pnpPath] : []
-
-      await executeNodeScript(
-        {
-          cwd: process.cwd(),
-          args: nodeArgs
-        },
-        [root, appName, originalDirectory, template],
-        `
-        var init = require('${packageName}/templates/init.js');
+    await executeNodeScript(
+      {
+        cwd: process.cwd(),
+        args: nodeArgs
+      },
+      [root, appName, originalDirectory, template],
+      `
+        var init = require('@mara/x/templates/init.js');
         init.apply(null, JSON.parse(process.argv[1]));
       `
-      )
-    })
-    .catch(reason => {
-      console.log()
-      console.log('Aborting installation.')
+    )
+  } catch (reason) {
+    console.log()
+    console.log('Aborting installation.')
 
-      if (reason.command) {
-        console.log(`  ${chalk.cyan(reason.command)} has failed.`)
-      } else {
-        console.log(chalk.red('Unexpected error. Please report it as a bug:'))
-        console.log(reason)
-      }
-      console.log()
+    if (reason.command) {
+      console.log(`  ${chalk.cyan(reason.command)} has failed.`)
+    } else {
+      console.log(chalk.red('Unexpected error. Please report it as a bug:'))
+      console.log(reason)
+    }
+    console.log()
 
-      cleanUp(root, appName)
+    // 回滚
+    cleanUp(root, appName)
 
-      console.log('Done.')
-      process.exit(1)
-    })
+    console.log('Done.')
+    process.exit(1)
+  }
 }
