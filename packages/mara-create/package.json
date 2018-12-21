@@ -2,12 +2,20 @@
   "name": "@mara/create",
   "version": "1.0.0",
   "description": "Create marauder app",
-  "keywords": ["marauder", "@mara/create"],
+  "keywords": [
+    "marauder",
+    "@mara/create"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "main": "index.js",
-  "files": ["README.md", "index.js", "command", "lib"],
+  "files": [
+    "README.md",
+    "index.js",
+    "command",
+    "lib"
+  ],
   "author": "Vincent Lee <vv314@foxmail.com>",
   "license": "MIT",
   "repository": {
@@ -16,6 +24,7 @@
   },
   "bugs": "https://github.com/SinaMFE/marauder/issues",
   "dependencies": {
+    "axios": "^0.18.0",
     "chalk": "^2.4.1",
     "execa": "^1.0.0",
     "fs-extra": "^7.0.1",

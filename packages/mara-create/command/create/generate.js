@@ -36,15 +36,7 @@ function cleanUp(root, appName) {
 function checkInstallResult() {
   const packagePath = path.join(process.cwd(), 'package.json')
   const packageJson = require(packagePath)
-  const { dependencies, devDependencies } = packageJson
-
-  if (
-    typeof dependencies === 'undefined' &&
-    typeof devDependencies === 'undefined'
-  ) {
-    console.error(chalk.red('Missing dependencies in package.json'))
-    process.exit(1)
-  }
+  const { devDependencies } = packageJson
 
   if (!devDependencies['@mara/x']) {
     console.error(chalk.red(`Unable to find @mara/x in package.json`))
@@ -57,17 +49,17 @@ module.exports = async function({
   appName,
   useYarn,
   usePnp,
-  useTypescript,
+  useTs,
   originalDirectory,
   template
 }) {
   // const marax = '@mara/x'
   const marax = 'file:/Users/fish/github_pro/marauder/packages/mara-x'
-  const devDependencies = ['vue-template-compiler', marax]
+  const dependencies = [marax]
 
-  if (useTypescript) {
-    // TODO: get user's node version instead of installing latest
-    devDependencies.push('@types/node', '@types/jest', 'typescript')
+  if (useTs) {
+    // TODO: @types/node get user's node version instead of installing latest
+    dependencies.push('@types/node', '@types/jest')
   }
 
   console.log('Installing packages. This might take a couple of minutes.\n')
@@ -75,7 +67,14 @@ module.exports = async function({
   try {
     const isOnline = await checkIfOnline(useYarn)
 
-    await install(root, useYarn, usePnp, devDependencies, isOnline)
+    await install({
+      targetDir: root,
+      useYarn,
+      usePnp,
+      saveDev: true,
+      dependencies,
+      isOnline
+    })
 
     checkInstallResult()
 
@@ -89,8 +88,8 @@ module.exports = async function({
       },
       [root, appName, originalDirectory, template],
       `
-        var init = require('@mara/x/templates/init.js');
-        init.apply(null, JSON.parse(process.argv[1]));
+        var generator = require('@mara/x/templates/generator.js');
+        generator.apply(null, JSON.parse(process.argv[1]));
       `
     )
   } catch (reason) {

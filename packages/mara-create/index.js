@@ -1,42 +1,12 @@
-const mri = require('mri')
 const chalk = require('chalk')
 const create = require('./command/create')
 const options = require('./command/options')
 const { checkNodeVersion } = require('./lib/utils')
+const parseArgv = require('./lib/parseArgv')
 
 checkNodeVersion('../package.json')
 
-const mriOpt = {
-  alias: [],
-  boolean: [],
-  string: [],
-  default: {}
-}
-
-for (let key in options) {
-  const oopt = options[key]
-
-  if (oopt['alias']) {
-    mriOpt.alias.push(key)
-  }
-
-  if (oopt['type'] == 'boolean') {
-    mriOpt.boolean.push(key)
-  } else if (oopt['type'] == 'string') {
-    mriOpt.string.push(key)
-  }
-
-  if (oopt['alias']) {
-    mriOpt.alias[key] = oopt['alias']
-  }
-
-  // default 可能为布尔值，因此使用属性存在判断
-  if ('default' in oopt) {
-    mriOpt.default[key] = oopt['default']
-  }
-}
-
-const argv = mri(process.argv.slice(2), mriOpt)
+const argv = parseArgv(options)
 const appName = argv._[0]
 
 if (typeof appName === 'undefined') {
@@ -59,6 +29,6 @@ if (typeof appName === 'undefined') {
 }
 
 // mock positional arguments
-argv.appName = argv['app-name'] = appName
+argv.appDirectory = argv['app-directory'] = appName
 
 create(argv)

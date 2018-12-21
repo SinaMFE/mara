@@ -7,6 +7,7 @@ const fs = require('fs-extra')
 const path = require('path')
 const inquirer = require('inquirer')
 const validateProjectName = require('validate-npm-package-name')
+const getNpmLatestVersion = require('../../lib/getNpmLatestVersion')
 const generate = require('./generate')
 const {
   execSync,
@@ -48,8 +49,35 @@ function couldUseYarn() {
   }
 }
 
+async function setFramework(framework, packageJson) {
+  if (framework === 'none') return
+
+  try {
+    // choose app framework
+    if (framework === 'vue') {
+      const ver = await getNpmLatestVersion('vue')
+
+      packageJson.dependencies['vue'] = `^${ver}`
+      packageJson.devDependencies['vue-template-compiler'] = `^${ver}`
+    } else if (framework === 'react') {
+      const ver = await getNpmLatestVersion('react')
+
+      packageJson.dependencies['react'] = `^${ver}`
+      packageJson.dependencies['react-dom'] = `^${ver}`
+    } else {
+      const ver = await getNpmLatestVersion(framework)
+
+      packageJson.dependencies[framework] = `^${ver}`
+    }
+  } catch (e) {
+    if (e.response && e.response.status == '404') {
+      console.log(`Not fond framework ${framework}\n`)
+    }
+  }
+}
+
 module.exports = async function(options) {
-  const { appDirectory, useNpm, ts: useTs, template } = options
+  const { appDirectory, useNpm, noTs, framework, template } = options
   let usePnp = options.usePnp
   const root = path.resolve(appDirectory)
   const inCurrent = appDirectory === '.'
@@ -92,8 +120,12 @@ module.exports = async function(options) {
     // 默认以文件夹名作为 name
     name: appName,
     version: '0.1.0',
-    private: true
+    private: true,
+    dependencies: {},
+    devDependencies: {}
   }
+
+  await setFramework(framework, packageJson)
 
   fs.writeFileSync(
     path.join(root, 'package.json'),
@@ -130,7 +162,7 @@ module.exports = async function(options) {
     appName,
     useYarn,
     usePnp,
-    useTs,
+    useTs: !noTs,
     originalDirectory,
     template
   })

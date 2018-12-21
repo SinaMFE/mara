@@ -1,12 +1,19 @@
 const chalk = require('chalk')
 const execa = require('execa')
 
-module.exports = function(root, useYarn, usePnp, devDependencies, isOnline) {
+module.exports = function({
+  targetDir,
+  useYarn,
+  usePnp,
+  dependencies,
+  saveDev,
+  isOnline
+}) {
   let command, args
 
   if (useYarn) {
     command = 'yarnpkg'
-    args = ['add', '-D']
+    args = ['add']
 
     if (!isOnline) {
       args.push('--offline')
@@ -16,7 +23,7 @@ module.exports = function(root, useYarn, usePnp, devDependencies, isOnline) {
       args.push('--enable-pnp')
     }
 
-    ;[].push.apply(args, devDependencies)
+    ;[].push.apply(args, dependencies)
 
     // Explicitly set cwd() to work around issues like
     // https://github.com/facebook/create-react-app/issues/3326.
@@ -24,7 +31,7 @@ module.exports = function(root, useYarn, usePnp, devDependencies, isOnline) {
     // equivalent --prefix flag doesn't help with this issue.
     // This is why for npm, we run checkThatNpmCanReadCwd() early instead.
     args.push('--cwd')
-    args.push(root)
+    args.push(targetDir)
 
     if (!isOnline) {
       console.log(chalk.yellow('You appear to be offline.'))
@@ -33,13 +40,17 @@ module.exports = function(root, useYarn, usePnp, devDependencies, isOnline) {
     }
   } else {
     command = 'npm'
-    args = ['install', '-D', '--loglevel', 'error'].concat(devDependencies)
+    args = ['install', '--loglevel', 'error'].concat(dependencies)
 
     if (usePnp) {
       console.log(chalk.yellow(`Npm doesn't support PnP.`))
       console.log(chalk.yellow('Falling back to the regular installs.'))
       console.log()
     }
+  }
+
+  if (saveDev) {
+    args.push(useYarn ? '--dev' : '--save-dev')
   }
 
   return new Promise((resolve, reject) => {

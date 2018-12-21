@@ -9,10 +9,15 @@ module.exports = {
     describe: 'use yarn pnp',
     type: 'boolean'
   },
-  ts: {
-    default: true,
-    describe: 'use typescript',
+  'no-ts': {
+    default: false,
+    describe: `don't use typescript`,
     type: 'boolean'
+  },
+  framework: {
+    default: 'vue',
+    describe: 'app framework',
+    type: 'string'
   },
   spkg: {
     default: false,
