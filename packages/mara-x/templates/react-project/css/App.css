@@ -1,0 +1,122 @@
+.App {
+  text-align: center;
+}
+
+.App-header {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes sina-ani1 {
+  0% {
+    fill: rgba(255, 0, 0, 0);
+    stroke-dasharray: 0, 988;
+  }
+  50% {
+    fill: rgba(255, 0, 0, 0);
+    stroke-dasharray: 988, 988;
+  }
+  80% {
+    fill: rgba(255, 0, 0, 1);
+    stroke-dasharray: 988, 988;
+  }
+}
+
+@keyframes sina-ani2 {
+  0% {
+    fill: rgba(219, 32, 26, 0);
+    stroke-dasharray: 0, 678;
+  }
+  50% {
+    fill: rgba(219, 32, 26, 0);
+    stroke-dasharray: 678, 678;
+  }
+  80% {
+    fill: rgba(219, 32, 26, 1);
+    stroke-dasharray: 678, 678;
+  }
+}
+
+@keyframes sina-ani3 {
+  0% {
+    fill: rgba(0, 0, 0, 0);
+    stroke-dasharray: 0, 988;
+  }
+  50% {
+    fill: rgba(0, 0, 0, 0);
+    stroke-dasharray: 988, 988;
+  }
+  80% {
+    fill: rgba(0, 0, 0, 1);
+    stroke-dasharray: 988, 988;
+  }
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo__sina {
+  height: 30vmin;
+  /*width: 240px;*/
+}
+
+.logo__hr {
+  margin: 0 30px;
+  height: 150px;
+  border: 0;
+}
+
+.logo__react {
+  animation: App-logo-spin infinite 20s linear;
+  height: 30vmin;
+}
+
+.logo__st0 {
+  fill: red;
+  animation: sina-ani1 2s linear both infinite alternate;
+  stroke: red;
+}
+
+.logo__st1 {
+  fill: rgba(219, 32, 26, 1);
+  stroke: red;
+  animation: sina-ani2 2s linear both infinite alternate;
+  fill-rule: evenodd;
+}
+
+.logo__st2 {
+  fill: black;
+  stroke: black;
+  animation: sina-ani3 2s linear both infinite alternate;
+  fill-rule: evenodd;
+}
+
+@media screen and (max-width: 500px) {
+  .logo {
+    flex-direction: column;
+  }
+
+  .logo__hr {
+    height: 30px;
+  }
+}

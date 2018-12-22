@@ -87,7 +87,7 @@ function setGitignore(appPath) {
 }
 
 function fillAppContentFiles(tmplType, ownPath, appPath) {
-  const templateName = tmplType === 'component' ? 'component' : 'project'
+  const templateName = tmplType === 'component' ? 'component' : 'vue-project'
 
   // Copy the files for the user
   const templatePath = path.join(ownPath, 'templates', templateName)
