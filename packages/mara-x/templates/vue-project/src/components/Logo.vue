@@ -144,8 +144,7 @@ export default class App extends Vue {}
 }
 
 .logo__sina {
-  height: 240px;
-  width: 240px;
+  width: 38vmin;
 }
 
 .logo__hr {
@@ -155,8 +154,7 @@ export default class App extends Vue {}
 }
 
 .logo__vue {
-  height: 190px;
-  width: 190px;
+  width: 28vmin;
 }
 
 .logo__st0 {
@@ -180,5 +178,15 @@ export default class App extends Vue {}
   animation: anim3 2s linear both infinite alternate;
   -webkit-animation: anim3 2s linear both infinite alternate;
   fill-rule: evenodd;
+}
+
+@media screen and (max-width: 500px) {
+  .logo {
+    flex-direction: column;
+  }
+
+  .logo__hr {
+    height: 30px;
+  }
 }
 </style>
