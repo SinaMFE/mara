@@ -1,6 +1,6 @@
 <template>
   <div class="logo">
-    <svg class="logo__sina" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 396 294">
+    <svg class="logo__sina" viewBox="0 0 396 294">
       <path class="logo__st0" d="M262.1,36.4c-0.1-2.5-2-4.6-6.8-4c-7.9,0.9-16.8,6.2-22.9,10.9c-5,3.8-8.9,6.5-12.9,4.9
       c-5.8-2.3,3.1-16.8,5.3-20.4c3.5-5.6,5.2-13.3-3.6-11.8c-8.5,1.5-15.7,8.7-23.6,16.6c-3.5,3.6-7.8,9.8-12.6,10.6
       c-10.1,1.7-4.8-12.1-2.8-17.5c3.1-8.3,4.7-14.9-0.1-15.7C171.1,8.4,161.2,21,154.9,30c-3.5,5.1-10.4,20-17.7,15.6
@@ -38,13 +38,16 @@
   </div>
 </template>
 
-<script>
-export default {}
+<script lang="ts">
+import { Component, Prop, Vue } from 'vue-property-decorator'
+
+@Component
+export default class App extends Vue {}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style >
-@keyframes sina-ani1 {
+@keyframes anim1 {
   0% {
     fill: rgba(255, 0, 0, 0);
     stroke-dasharray: 0, 988;
@@ -59,7 +62,7 @@ export default {}
   }
 }
 
-@keyframes sina-ani2 {
+@keyframes anim2 {
   0% {
     fill: rgba(219, 32, 26, 0);
     stroke-dasharray: 0, 678;
@@ -74,7 +77,52 @@ export default {}
   }
 }
 
-@keyframes sina-ani3 {
+@keyframes anim3 {
+  0% {
+    fill: rgba(0, 0, 0, 0);
+    stroke-dasharray: 0, 988;
+  }
+  50% {
+    fill: rgba(0, 0, 0, 0);
+    stroke-dasharray: 988, 988;
+  }
+  80% {
+    fill: rgba(0, 0, 0, 1);
+    stroke-dasharray: 988, 988;
+  }
+}
+
+@-webkit-keyframes anim1 {
+  0% {
+    fill: rgba(255, 0, 0, 0);
+    stroke-dasharray: 0, 988;
+  }
+  50% {
+    fill: rgba(255, 0, 0, 0);
+    stroke-dasharray: 988, 988;
+  }
+  80% {
+    fill: rgba(255, 0, 0, 1);
+    stroke-dasharray: 988, 988;
+  }
+}
+
+@-webkit-keyframes anim2 {
+  0% {
+    fill: rgba(219, 32, 26, 0);
+    stroke-dasharray: 0, 678;
+  }
+  50% {
+    fill: rgba(219, 32, 26, 0);
+    stroke-dasharray: 678, 678;
+  }
+  80% {
+    fill: rgba(219, 32, 26, 1);
+    stroke-dasharray: 678, 678;
+  }
+}
+
+@-webkit-keyframes anim3 {
   0% {
     fill: rgba(0, 0, 0, 0);
     stroke-dasharray: 0, 988;
@@ -113,21 +161,24 @@ export default {}
 
 .logo__st0 {
   fill: red;
-  animation: sina-ani1 2s linear both infinite alternate;
+  animation: anim1 2s linear both infinite alternate;
+  -webkit-animation: anim1 2s linear both infinite alternate;
   stroke: red;
 }
 
 .logo__st1 {
   fill: rgba(219, 32, 26, 1);
   stroke: red;
-  animation: sina-ani2 2s linear both infinite alternate;
+  animation: anim2 2s linear both infinite alternate;
+  -webkit-animation: anim2 2s linear both infinite alternate;
   fill-rule: evenodd;
 }
 
 .logo__st2 {
   fill: black;
   stroke: black;
-  animation: sina-ani3 2s linear both infinite alternate;
+  animation: anim3 2s linear both infinite alternate;
+  -webkit-animation: anim3 2s linear both infinite alternate;
   fill-rule: evenodd;
 }
 </style>
