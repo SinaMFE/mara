@@ -10,6 +10,7 @@
     "type": "git",
     "url": "git@github.com:SinaMFE/marauder.git"
   },
+  "types": "types/react-app.d.ts",
   "bugs": "https://github.com/SinaMFE/marauder/issues",
   "bin": {
     "marax": "./bin/marax.js"
