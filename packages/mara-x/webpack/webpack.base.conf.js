@@ -29,6 +29,7 @@ module.exports = function(entry) {
   const getCacheIdentifier = require('../libs/getCacheIdentifier')
   const {
     babelLoader,
+    babelForTs,
     babelExternalMoudles
   } = require('./loaders/babel-loader')
 
@@ -171,11 +172,13 @@ module.exports = function(entry) {
                 cacheIdentifier: getCacheIdentifier(['ts-loader', 'typescript'])
               }
             },
+            babelForTs(isProd),
             {
               loader: require.resolve('ts-loader'),
               options: {
                 appendTsSuffixTo: ['\\.vue$'],
                 // disable type checker
+                // 起到加速作用
                 transpileOnly: true,
                 getCustomTransformers: tsImportLibs.length
                   ? () => ({
@@ -245,6 +248,8 @@ module.exports = function(entry) {
             resolveJsonModule: true,
             isolatedModules: true,
             noEmit: true,
+            // https://www.tslang.cn/docs/handbook/jsx.html
+            // 保留 jsx 语法格式，交由 babel 做后续处理
             jsx: 'preserve'
           },
           reportFiles: [
