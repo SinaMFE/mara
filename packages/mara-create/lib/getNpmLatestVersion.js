@@ -1,8 +1,15 @@
 const axios = require('axios')
+const API = 'https://registry.npm.taobao.org/-/package'
 
-module.exports = async function getPackageVersion(name) {
-  const api = 'https://registry.npm.taobao.org/-/package'
-  const result = await axios.get(`${api}/${name}/dist-tags`)
+module.exports = async function getPackageVersion(pkgNames) {
+  const result = {}
+  pkgNames = [].concat(pkgNames)
 
-  return result.data.latest
+  for (let name of pkgNames) {
+    const info = await axios.get(`${API}/${name}/dist-tags`)
+
+    result[name] = info.data.latest
+  }
+
+  return result
 }

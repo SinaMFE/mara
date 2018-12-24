@@ -8,7 +8,7 @@ const resolveOwn = relativePath => path.resolve(__dirname, '..', relativePath)
 module.exports = {
   app: rootPath('.'),
   dotenv: rootPath('.env'),
-  entries: 'src/view/*/index.@(ts|js)',
+  entryGlob: 'src/view/*/index.@(ts|tsx|js|jsx)',
   libEntry: 'src/index.@(ts|js)',
   setupProxy: rootPath('src/setupProxy.js'),
   src: rootPath('src'),
@@ -29,5 +29,5 @@ module.exports = {
   // 脚手架自身相关路径
   marax: resolveOwn('.'),
   maraxNodeModules: resolveOwn('node_modules'),
-  maraxPackageJson: resolveOwn('package.json'),
+  maraxPackageJson: resolveOwn('package.json')
 }

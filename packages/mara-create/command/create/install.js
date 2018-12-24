@@ -1,11 +1,32 @@
 const chalk = require('chalk')
 const execa = require('execa')
+const readline = require('readline')
+
+function toStartOfLine(stream) {
+  if (!chalk.supportsColor) {
+    stream.write('\r')
+    return
+  }
+  readline.cursorTo(stream, 0)
+}
+
+function renderProgressBar(curr, total) {
+  const ratio = Math.min(Math.max(curr / total, 0), 1)
+  const bar = ` ${curr}/${total}`
+  const availableSpace = Math.max(0, process.stderr.columns - bar.length - 3)
+  const width = Math.min(total, availableSpace)
+  const completeLength = Math.round(width * ratio)
+  const complete = `#`.repeat(completeLength)
+  const incomplete = `-`.repeat(width - completeLength)
+  toStartOfLine(process.stderr)
+  process.stderr.write(`[${complete}${incomplete}]${bar}`)
+}
 
 module.exports = function({
   targetDir,
   useYarn,
   usePnp,
-  dependencies,
+  packages = [],
   saveDev,
   isOnline
 }) {
@@ -13,7 +34,7 @@ module.exports = function({
 
   if (useYarn) {
     command = 'yarnpkg'
-    args = ['add']
+    args = packages.length ? ['add', ...packages] : []
 
     if (!isOnline) {
       args.push('--offline')
@@ -22,8 +43,6 @@ module.exports = function({
     if (usePnp) {
       args.push('--enable-pnp')
     }
-
-    ;[].push.apply(args, dependencies)
 
     // Explicitly set cwd() to work around issues like
     // https://github.com/facebook/create-react-app/issues/3326.
@@ -40,7 +59,7 @@ module.exports = function({
     }
   } else {
     command = 'npm'
-    args = ['install', '--loglevel', 'error'].concat(dependencies)
+    args = ['install', '--loglevel', 'error'].concat(packages)
 
     if (usePnp) {
       console.log(chalk.yellow(`Npm doesn't support PnP.`))
@@ -50,11 +69,34 @@ module.exports = function({
   }
 
   if (saveDev) {
-    args.push(useYarn ? '--dev' : '--save-dev')
+    args.push('-D')
   }
 
   return new Promise((resolve, reject) => {
-    const child = execa(command, args, { stdio: 'inherit' })
+    const child = execa(command, args, {
+      stdio: ['inherit', 'inherit', command === 'yarn' ? 'pipe' : 'inherit']
+    })
+
+    // filter out unwanted yarn output
+    if (command === 'yarn') {
+      child.stderr.on('data', buf => {
+        const str = buf.toString()
+        if (/warning/.test(str)) {
+          return
+        }
+
+        // progress bar
+        const progressBarMatch = str.match(/\[.*\] (\d+)\/(\d+)/)
+        if (progressBarMatch) {
+          // since yarn is in a child process, it's unable to get the width of
+          // the terminal. reimplement the progress bar ourselves!
+          renderProgressBar(progressBarMatch[1], progressBarMatch[2])
+          return
+        }
+
+        process.stderr.write(buf)
+      })
+    }
 
     child.on('close', code => {
       if (code !== 0) {

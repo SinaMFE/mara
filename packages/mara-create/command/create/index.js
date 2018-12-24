@@ -49,30 +49,44 @@ function couldUseYarn() {
   }
 }
 
-async function setFramework(framework, packageJson) {
+async function setBaseDependencies(framework, packageJson, useTs) {
   if (framework === 'none') return
 
   try {
     // choose app framework
+    const mainDep = await getNpmLatestVersion(framework)
+
+    packageJson.dependencies[framework] = `^${mainDep[framework]}`
+
     if (framework === 'vue') {
-      const ver = await getNpmLatestVersion('vue')
+      // vue-template-compiler 与 vue 版本号同步
+      packageJson.devDependencies['vue-template-compiler'] = `^${mainDep.vue}`
 
-      packageJson.dependencies['vue'] = `^${ver}`
-      packageJson.devDependencies['vue-template-compiler'] = `^${ver}`
+      if (useTs) {
+        const tsDep = await getNpmLatestVersion([
+          'vue-class-component',
+          'vue-property-decorator'
+        ])
+
+        packageJson.dependencies['vue-class-component'] = `^${
+          tsDep['vue-class-component']
+        }`
+        packageJson.dependencies['vue-property-decorator'] = `^${
+          tsDep['vue-property-decorator']
+        }`
+      }
     } else if (framework === 'react') {
-      const ver = await getNpmLatestVersion('react')
-
-      packageJson.dependencies['react'] = `^${ver}`
-      packageJson.dependencies['react-dom'] = `^${ver}`
-    } else {
-      const ver = await getNpmLatestVersion(framework)
-
-      packageJson.dependencies[framework] = `^${ver}`
+      // react-dom 与 react 版本号同步
+      packageJson.dependencies['react-dom'] = `^${mainDep.react}`
     }
   } catch (e) {
     if (e.response && e.response.status == '404') {
       console.log(`Not fond framework ${framework}\n`)
+    } else {
+      console.log('网络异常')
     }
+
+    process.exit(1)
   }
 }
 
@@ -125,7 +139,7 @@ module.exports = async function(options) {
     devDependencies: {}
   }
 
-  await setFramework(framework, packageJson)
+  await setBaseDependencies(framework, packageJson, !noTs)
 
   fs.writeFileSync(
     path.join(root, 'package.json'),
@@ -161,6 +175,7 @@ module.exports = async function(options) {
     root,
     appName,
     useYarn,
+    framework,
     usePnp,
     useTs: !noTs,
     originalDirectory,

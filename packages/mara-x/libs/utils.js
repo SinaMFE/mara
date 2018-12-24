@@ -21,8 +21,8 @@ function rootPath(relativePath) {
  * 获取入口文件名列表
  * @return {Array} 入口名数组
  */
-function getPageList(entry) {
-  const entries = getEntries(`${process.cwd()}/${entry}`)
+function getPageList(entryGlob) {
+  const entries = getEntries(`${process.cwd()}/${entryGlob}`)
   return Object.keys(entries)
 }
 
@@ -107,7 +107,7 @@ function parseDate(target) {
     d: f(date.getDate()),
     h: f(date.getHours()),
     m: f(date.getMinutes()),
-    s: f(date.getSeconds()),
+    s: f(date.getSeconds())
   }
 }
 
@@ -172,6 +172,27 @@ function readJson(file) {
   return fs.readJsonSync(file, { throws: false })
 }
 
+function sortObject(obj, keyOrder, dontSortByUnicode) {
+  if (!obj) return
+  const res = {}
+
+  if (keyOrder) {
+    keyOrder.forEach(key => {
+      res[key] = obj[key]
+      delete obj[key]
+    })
+  }
+
+  const keys = Object.keys(obj)
+
+  !dontSortByUnicode && keys.sort()
+  keys.forEach(key => {
+    res[key] = obj[key]
+  })
+
+  return res
+}
+
 module.exports = {
   assetsPath,
   isObject,
@@ -186,7 +207,8 @@ module.exports = {
   banner,
   isNotEmptyArray,
   ensureSlash,
+  sortObject,
   camelName,
   buffer2String,
-  readJson,
+  readJson
 }

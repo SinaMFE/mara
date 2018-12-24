@@ -13,6 +13,7 @@ const chalk = require('chalk')
 const execSync = require('child_process').execSync
 const execa = require('execa')
 const os = require('os')
+const { sortObject } = require('../libs/utils')
 // const verifyTypeScriptSetup = require('./utils/verifyTypeScriptSetup')
 
 function isInGitRepository() {
@@ -65,7 +66,7 @@ function getCdPath(appName, appPath, originalDirectory) {
   return path.join(originalDirectory, appName) === appPath ? appName : appPath
 }
 
-function setGitignore(appPath) {
+function resetGitignore(appPath) {
   // Rename gitignore after the fact to prevent npm from renaming it to .npmignore
   // See: https://github.com/npm/npm/issues/1862
   try {
@@ -78,6 +79,7 @@ function setGitignore(appPath) {
     // Append if there's already a `.gitignore` file there
     if (err.code === 'EEXIST') {
       const data = fs.readFileSync(path.join(appPath, 'gitignore'))
+
       fs.appendFileSync(path.join(appPath, '.gitignore'), data)
       fs.unlinkSync(path.join(appPath, 'gitignore'))
     } else {
@@ -86,20 +88,71 @@ function setGitignore(appPath) {
   }
 }
 
-function fillAppContentFiles(tmplType, ownPath, appPath) {
-  const templateName = tmplType === 'component' ? 'component' : 'vue-project'
+function copyRootConfFiles(tmplPath, appPath) {
+  fs.copySync(tmplPath, appPath)
 
-  // Copy the files for the user
+  resetGitignore(appPath)
+}
+
+function sortPackageJsonField(pkg) {
+  // ensure package.json keys has readable order
+  pkg.dependencies = sortObject(pkg.dependencies)
+  pkg.devDependencies = sortObject(pkg.devDependencies)
+  pkg.scripts = sortObject(pkg.scripts, [
+    'serve',
+    'build',
+    'test',
+    'e2e',
+    'lint',
+    'deploy'
+  ])
+  pkg = sortObject(pkg, [
+    'name',
+    'version',
+    'private',
+    'description',
+    'author',
+    'scripts',
+    'dependencies',
+    'devDependencies',
+    'vue',
+    'babel',
+    'eslintConfig',
+    'prettier',
+    'postcss',
+    'browserslist',
+    'jest'
+  ])
+
+  return pkg
+}
+
+function fillProjectContent(tmplType, framework, ownPath, appPath) {
+  let templateName = 'vanilla-project'
+
+  if (tmplType == 'component') {
+    templateName = 'component'
+  } else if (framework == 'react') {
+    templateName = 'react-project'
+  } else if (framework == 'vue') {
+    templateName = 'vue-project'
+  }
+
   const templatePath = path.join(ownPath, 'templates', templateName)
+  const rootConfigPath = path.join(ownPath, 'templates/root-files')
   // @TODO project or component
 
   if (fs.existsSync(templatePath)) {
+    // 保持此顺序，优先复制公共配置文件
+    copyRootConfFiles(rootConfigPath, appPath)
+
+    // 项目模板可以覆盖同名配置文件
     fs.copySync(templatePath, appPath)
   } else {
     console.error(
       `Could not locate supplied template: ${chalk.green(templatePath)}`
     )
-    return
+    process.exit(1)
   }
 }
 
@@ -114,11 +167,17 @@ function getGitUserInfo() {
   }
 }
 
-module.exports = function(appPath, appName, originalDirectory, tmplType) {
+module.exports = function(
+  appPath,
+  appName,
+  framework,
+  originalDirectory,
+  tmplType
+) {
   const ownPath = path.dirname(
     require.resolve(path.join(__dirname, '..', 'package.json'))
   )
-  const appPackage = require(path.join(appPath, 'package.json'))
+  let appPackage = require(path.join(appPath, 'package.json'))
   const useYarn = fs.existsSync(path.join(appPath, 'yarn.lock'))
 
   // Copy over some of the devDependencies
@@ -138,8 +197,9 @@ module.exports = function(appPath, appName, originalDirectory, tmplType) {
     extends: 'eslint-config-sinamfe'
   }
 
-  // @TODO author name email
   appPackage.author = getGitUserInfo()
+
+  appPackage = sortPackageJsonField(appPackage)
 
   // 补充 package.json 杂项
   fs.writeFileSync(
@@ -156,9 +216,7 @@ module.exports = function(appPath, appName, originalDirectory, tmplType) {
     )
   }
 
-  fillAppContentFiles('project', ownPath, appPath)
-
-  setGitignore(appPath)
+  fillProjectContent('project', framework, ownPath, appPath)
 
   // if (useTypeScript) {
   //   verifyTypeScriptSetup()

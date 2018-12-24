@@ -28,21 +28,21 @@ const Stopwatch = require('../libs/Stopwatch')
 
 const spinner = ora('Biuld library (commonjs + umd)...')
 
-const pages = getPageList(config.paths.entries)
+const pages = getPageList(config.paths.entryGlob)
 const libs = [
   {
     format: 'commonjs2',
-    filename: 'index.cjs.js',
+    filename: 'index.cjs.js'
   },
   {
     format: 'umd',
     filename: 'index.min.js',
-    minify: true,
+    minify: true
   },
   {
     format: 'umd',
-    filename: 'index.js',
-  },
+    filename: 'index.js'
+  }
 ]
 
 const webpackConfs = libs.concat(pages).map(target => {
@@ -69,7 +69,7 @@ function build(dists) {
 
         messages = formatWebpackMessages({
           errors: [err.message],
-          warnings: [],
+          warnings: []
         })
       } else {
         messages = formatWebpackMessages(
@@ -89,7 +89,7 @@ function build(dists) {
         stats,
         dists,
         time,
-        warnings: messages.warnings,
+        warnings: messages.warnings
       })
     })
   })
@@ -109,11 +109,11 @@ function success(output) {
     hash: false,
     chunks: false,
     modules: false,
-    chunkModules: false,
+    chunkModules: false
   })
   const compAssets = {
     lib: children.slice(0, libs.length),
-    demo: children.slice(libs.length),
+    demo: children.slice(libs.length)
   }
 
   compAssets.lib = compAssets.lib.map((stats, i) => {
@@ -179,7 +179,7 @@ function setup(distDir, libDir) {
 
   return clean({
     distDir,
-    libDir,
+    libDir
   })
 }
 

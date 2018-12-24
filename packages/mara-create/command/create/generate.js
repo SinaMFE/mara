@@ -48,6 +48,7 @@ module.exports = async function({
   root,
   appName,
   useYarn,
+  framework,
   usePnp,
   useTs,
   originalDirectory,
@@ -55,11 +56,15 @@ module.exports = async function({
 }) {
   // const marax = '@mara/x'
   const marax = 'file:/Users/fish/github_pro/marauder/packages/mara-x'
-  const dependencies = [marax]
+  const packages = [marax]
 
   if (useTs) {
     // TODO: @types/node get user's node version instead of installing latest
-    dependencies.push('@types/node', '@types/jest')
+    packages.push('@types/node', '@types/jest')
+
+    if (framework == 'react') {
+      packages.push('@types/react', '@types/react-dom')
+    }
   }
 
   console.log('Installing packages. This might take a couple of minutes.\n')
@@ -72,7 +77,7 @@ module.exports = async function({
       useYarn,
       usePnp,
       saveDev: true,
-      dependencies,
+      packages,
       isOnline
     })
 
@@ -86,7 +91,7 @@ module.exports = async function({
         cwd: process.cwd(),
         args: nodeArgs
       },
-      [root, appName, originalDirectory, template],
+      [root, appName, framework, originalDirectory, template],
       `
         var generator = require('@mara/x/templates/generator.js');
         generator.apply(null, JSON.parse(process.argv[1]));

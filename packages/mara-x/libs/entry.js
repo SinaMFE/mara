@@ -4,7 +4,7 @@ const chalk = require('chalk')
 const { prompt, Separator } = require('inquirer')
 const config = require('../config')
 const { getPageList } = require('./utils')
-const pages = getPageList(config.paths.entries)
+const pages = getPageList(config.paths.entryGlob)
 
 // TL
 // 识别 entry, branch
@@ -124,7 +124,7 @@ async function chooseEntry(msg, args) {
     choices: list,
     default: list.indexOf('index'),
     // message 不可为空串
-    message: msg || '请选择目标页面:',
+    message: msg || '请选择目标页面:'
   }
   const { entry } = await prompt(question)
 
