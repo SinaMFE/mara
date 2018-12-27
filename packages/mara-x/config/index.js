@@ -24,22 +24,19 @@ module.exports = {
   hash: {
     main: true,
     chunk: true,
-    assets: true,
+    assets: true
   },
   version: maraxVer,
   debug: maraConf.debug,
   library: {
     root: 'MyLibrary',
     amd: pkgName,
-    commonjs: pkgName,
+    commonjs: pkgName
   },
   parallel: false,
   assetsDir: 'static',
-  // 压缩配置
-  compress: {
-    // 移除 console
-    drop_console: false,
-  },
+  // 编译配置
+  compiler: Object.assign({}, defConf.compiler, maraConf.compiler),
   entry: defConf.esm.entry,
   // 通知 babel 编译 node_module 里额外的模块
   esm: defConf.esm,
@@ -58,7 +55,7 @@ module.exports = {
     // `npm run build <page> --ftp [namespace]`
     // Set to `true` or `false` to always turn it on or off
     uploadFtp: process.env.npm_config_ftp,
-    testDeploy: process.env.npm_config_test,
+    testDeploy: process.env.npm_config_test
   },
   dev: {
     env: getEnv(publicDevPath.slice(0, -1)),
@@ -70,12 +67,12 @@ module.exports = {
     // (https://github.com/webpack/css-loader#sourcemaps)
     // In our experience, they generally work as expected,
     // just be aware of this issue when enabling this option.
-    cssSourceMap: false,
+    cssSourceMap: false
   },
   useTypeScript,
   ftp: Object.assign({}, defConf.ftp, maraConf.ftp),
   ciConfig: Object.assign({}, defConf.ciConfig, maraConf.ciConfig),
   // hybrid 项目配置，存在此属性时，将会生成 zip 包
   hybrid: defConf.hybrid,
-  postcss: defConf.postcss,
+  postcss: defConf.postcss
 }

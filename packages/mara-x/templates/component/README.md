@@ -113,10 +113,12 @@ src
   vendor: [],
   // 生成 js 与 css source map
   sourceMap: false,
-  // build 压缩选项
-  compress: {
-    // 去除 console, 默认 false
-    drop_console: false
+  // 编译配置
+  compiler: {
+    // 引用 vue runtime，仅允许 vue 文件内的模板，默认启用
+    vueRuntimeOnly: true,
+    // 移除 console
+    dropConsole: false
   },
 
   // hybrid 上线配置

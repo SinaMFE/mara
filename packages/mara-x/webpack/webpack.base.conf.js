@@ -37,6 +37,7 @@ module.exports = function(entry) {
   const ASSETS = isLib ? '' : config.assetsDir
   const entryGlob = `src/view/${entry}/index.@(ts|tsx|js|jsx)`
   const useTypeScript = config.useTypeScript
+  const { vueRuntimeOnly } = config.compiler
 
   const extensions = ['.mjs', '.js', '.ts', '.tsx', '.jsx', '.vue', '.json']
 
@@ -76,7 +77,7 @@ module.exports = function(entry) {
         // 使用特殊符号防止与 npm 包冲突
         // import '~/css/style.css'
         '~': paths.src,
-        vue$: 'vue/dist/vue.esm.js'
+        vue$: `vue/dist/vue${vueRuntimeOnly ? '.runtime' : ''}.esm.js`
       },
       plugins: [
         // Adds support for installing with Plug'n'Play, leading to faster installs and adding

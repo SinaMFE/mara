@@ -18,25 +18,23 @@ const vendor = isObject(maraConf.vendor)
   : maraConf.vendor
 // 为多页面准备，生成 xxx_vender 文件夹
 const namespace = maraConf.vendor.name ? `${maraConf.vendor.name}_` : ''
-// 压缩配置
-const compress = Object.assign(config.compress, maraConf.compress)
 
 module.exports = function() {
   return {
     entry: {
-      vendor,
+      vendor
     },
 
     output: {
       filename: '[name].dll.js',
       path: `${config.paths.dist}/${namespace}vendor`,
-      library,
+      library
     },
 
     resolve: webpackBaseConf.resolve,
 
     module: {
-      rules: [babelLoader(isProd)],
+      rules: [babelLoader(isProd)]
     },
 
     plugins: [
@@ -44,7 +42,7 @@ module.exports = function() {
       new webpack.DllPlugin({
         path: `${config.paths.dll}/${namespace}manifest.json`,
         // This must match the output.library option above
-        name: library,
+        name: library
       }),
       new UglifyJsPlugin({
         uglifyOptions: {
@@ -55,31 +53,30 @@ module.exports = function() {
             // https://github.com/facebook/create-react-app/issues/2376
             // Pending further investigation:
             // https://github.com/mishoo/UglifyJS2/issues/2011
-            comparisons: false,
-            drop_console: compress.drop_console,
+            comparisons: false
           },
           mangle: {
-            safari10: true,
+            safari10: true
           },
           output: {
             comments: false,
             // Turned on because emoji and regex is not minified properly using default
             // https://github.com/facebook/create-react-app/issues/2488
-            ascii_only: true,
-          },
+            ascii_only: true
+          }
         },
         // Use multi-process parallel running to improve the build speed
         // Default number of concurrent runs: os.cpus().length - 1
         parallel: true,
         // Enable file caching
         cache: true,
-        sourceMap: false,
+        sourceMap: false
       }),
       // 确保在 UglifyJsPlugin 后引入
       new webpack.BannerPlugin({
         banner: banner(), // 其值为字符串，将作为注释存在
-        entryOnly: true, // 如果值为 true，将只在入口 chunks 文件中添加
-      }),
-    ],
+        entryOnly: true // 如果值为 true，将只在入口 chunks 文件中添加
+      })
+    ]
   }
 }

@@ -3,19 +3,21 @@
 module.exports = {
   hash: {
     main: true,
-    chunk: true,
+    chunk: true
   },
   // 用于生成未压缩文件
   debug: false,
   library: {
     root: 'MyLibrary',
     amd: '',
-    commonjs: '',
+    commonjs: ''
   },
-  // 压缩配置
-  compress: {
-    // 移除 console
-    drop_console: false,
+  // 编译配置
+  compiler: {
+    // 默认启用 runtime，仅允许 vue 文件内的模板
+    vueRuntimeOnly: true,
+    // @TODO 移除 console
+    dropConsole: false
   },
   ciConfig: {},
   entry: 'src/view/*/index.js',
@@ -31,7 +33,7 @@ module.exports = {
     // (https://github.com/webpack/css-loader#sourcemaps)
     // In our experience, they generally work as expected,
     // just be aware of this issue when enabling this option.
-    cssSourceMap: false,
+    cssSourceMap: false
   },
   ftp: {
     host: '', // 主机
@@ -41,8 +43,8 @@ module.exports = {
     reload: true, // 刷新缓存
     openBrowser: true, // 上传完毕后自动打开浏览器
     remotePath: {
-      version: true, // 添加 version 路径
-    },
+      version: true // 添加 version 路径
+    }
   },
   // hybrid 项目配置，存在此属性时，将会生成 zip 包
   hybrid: {},
@@ -51,7 +53,7 @@ module.exports = {
     'last 4 versions',
     'ios >= 8',
     'android >= 4.1',
-    'not ie < 9',
+    'not ie < 9'
   ],
   postcss: {
     stage: 3,
@@ -59,7 +61,7 @@ module.exports = {
     // https://github.com/jonathantneal/postcss-preset-env/blob/master/lib/plugins-by-specification-id.js
     features: {
       // image-set polyfill 与雪碧图使用时存在 bug，在此禁用
-      'css-images-image-set-notation': false,
-    },
-  },
+      'css-images-image-set-notation': false
+    }
+  }
 }
