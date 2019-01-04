@@ -224,12 +224,15 @@ module.exports = function(entry) {
       // You can remove this if you don't use Moment.js:
       new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
       new VueLoaderPlugin(),
+      // @FIXME
+      // 等待 moduleDependency webpack4 适配就绪后
+      // 仅在 dev 模式启用此插件
       new DuplicatePackageCheckerPlugin({
         // show details
         verbose: true,
         showHelp: false,
         // show warning
-        emitError: isProd,
+        emitError: isProd && config.compiler.checkDuplicatePackage,
         // check major version
         strict: true
       }),

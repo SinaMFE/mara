@@ -50,7 +50,7 @@ function build({ entryInput, dist }) {
 
         messages = formatWebpackMessages({
           errors: [err.message],
-          warnings: [],
+          warnings: []
         })
       } else {
         messages = formatWebpackMessages(
@@ -87,7 +87,7 @@ function build({ entryInput, dist }) {
         stats,
         publicPath: webpackConfig.output.publicPath,
         outputPath: webpackConfig.output.path,
-        warnings: messages.warnings,
+        warnings: messages.warnings
       })
     })
   })
@@ -98,17 +98,22 @@ function clean(entryInput) {
 
   return fs.emptyDir(dist).then(() => ({
     entryInput,
-    dist,
+    dist
   }))
 }
 
-function success({ entryInput, stats, publicPath, outputPath }) {
+function success({ entryInput, stats, publicPath, outputPath, warnings }) {
   const result = stats.toJson({
     hash: false,
     chunks: false,
     modules: false,
-    chunkModules: false,
+    chunkModules: false
   })
+
+  if (warnings.length) {
+    console.log(chalk.yellow('Compiled with warnings:\n'))
+    console.log(warnings.join('\n\n'))
+  }
 
   console.log(chalk.green(`Build complete in ${result.time}ms\n`))
   console.log('File sizes after gzip:\n')
@@ -167,12 +172,12 @@ function genBuildJson(compilation) {
   const source = JSON.stringify({
     debug: maraConf.debug || process.env.MARA_compileModel == 'dev',
     // 指定缺省场景(undefined)为 web
-    target: process.env.jsbridgeBuildType === 'app' ? 'app' : 'web',
+    target: process.env.jsbridgeBuildType === 'app' ? 'app' : 'web'
   })
 
   compilation.assets['build.json'] = {
     source: () => source,
-    size: () => source.length,
+    size: () => source.length
   }
 }
 
@@ -181,14 +186,14 @@ function ftp({ entry, entryArgs, ftpBranch }) {
     return {
       entry,
       entryArgs,
-      ftpBranch,
+      ftpBranch
     }
 
   return uploadDir(entry, ftpBranch).then(remotePath => ({
     entry,
     ftpBranch,
     entryArgs,
-    remotePath,
+    remotePath
   }))
 }
 

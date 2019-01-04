@@ -102,6 +102,11 @@ function clean(dists) {
 }
 
 function success(output) {
+  if (output.warnings.length) {
+    console.log(chalk.yellow('Compiled with warnings:\n'))
+    console.log(output.warnings.join('\n\n'))
+  }
+
   console.log(chalk.green(`Build complete in ${output.time}ms\n`))
   console.log('File sizes after gzip:\n')
 

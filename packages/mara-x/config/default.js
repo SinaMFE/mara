@@ -14,6 +14,8 @@ module.exports = {
   },
   // 编译配置
   compiler: {
+    // 多版本依赖检测
+    checkDuplicatePackage: true,
     // 默认启用 runtime，仅允许 vue 文件内的模板
     vueRuntimeOnly: true,
     // @TODO 移除 console

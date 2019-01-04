@@ -56,7 +56,7 @@ module.exports = function({ entry, cmd }) {
       devtoolModuleFilenameTemplate: info =>
         path
           .relative(config.paths.src, info.absoluteResourcePath)
-          .replace(/\\/g, '/'),
+          .replace(/\\/g, '/')
     },
     optimization: {
       minimize: config.debug !== true,
@@ -69,7 +69,7 @@ module.exports = function({ entry, cmd }) {
               // into invalid ecma 5 code. This is why the 'compress' and 'output'
               // sections only apply transformations that are ecma 5 safe
               // https://github.com/facebook/create-react-app/pull/4234
-              ecma: 8,
+              ecma: 8
             },
             compress: {
               ecma: 5,
@@ -83,25 +83,25 @@ module.exports = function({ entry, cmd }) {
               // https://github.com/facebook/create-react-app/issues/5250
               // Pending futher investigation:
               // https://github.com/terser-js/terser/issues/120
-              inline: 2,
+              inline: 2
             },
             mangle: {
-              safari10: true,
+              safari10: true
             },
             output: {
               ecma: 5,
               comments: false,
               // Turned on because emoji and regex is not minified properly using default
               // https://github.com/facebook/create-react-app/issues/2488
-              ascii_only: true,
-            },
+              ascii_only: true
+            }
           },
           // Use multi-process parallel running to improve the build speed
           // Default number of concurrent runs: os.cpus().length - 1
           parallel: true,
           // Enable file caching
           cache: true,
-          sourceMap: shouldUseSourceMap,
+          sourceMap: shouldUseSourceMap
         }),
         new OptimizeCSSAssetsPlugin({
           cssProcessorOptions: {
@@ -113,24 +113,24 @@ module.exports = function({ entry, cmd }) {
                   inline: false,
                   // `annotation: true` appends the sourceMappingURL to the end of
                   // the css file, helping the browser find the sourcemap
-                  annotation: true,
+                  annotation: true
                 }
-              : false,
+              : false
           },
-          canPrint: false, // 不显示通知
-        }),
+          canPrint: false // 不显示通知
+        })
       ],
       // Automatically split vendor and commons
       // https://twitter.com/wSokra/status/969633336732905474
       // https://medium.com/webpack/webpack-4-code-splitting-chunk-graph-and-the-splitchunks-optimization-be739a861366
       splitChunks: {
         chunks: 'all',
-        name: false,
+        name: false
       },
       // Keep the runtime chunk seperated to enable long term caching
       // https://twitter.com/wSokra/status/969679223278505985
       // set false until https://github.com/webpack/webpack/issues/6598 be resolved
-      runtimeChunk: false,
+      runtimeChunk: false
     },
     plugins: [
       hasHtml &&
@@ -156,8 +156,8 @@ module.exports = function({ entry, cmd }) {
             keepClosingSlash: true,
             minifyJS: true,
             minifyCSS: true,
-            minifyURLs: true,
-          },
+            minifyURLs: true
+          }
         }),
       hasHtml && new InlineUmdHtmlPlugin(HtmlWebpackPlugin),
       hasHtml &&
@@ -169,7 +169,7 @@ module.exports = function({ entry, cmd }) {
         filename: maraConf.hash
           ? `static/css/[name].[contenthash:8]${debugLabel}.css`
           : `static/css/[name]${debugLabel || '.min'}.css`,
-        chunkFilename: `static/css/[name].[contenthash:8].chunk${debugLabel}.css`,
+        chunkFilename: `static/css/[name].[contenthash:8].chunk${debugLabel}.css`
       }),
       // hybrid 共享包
       // 创建 maraContext
@@ -178,13 +178,16 @@ module.exports = function({ entry, cmd }) {
       // 【争议】：lib 模式禁用依赖分析?
       // 确保在 copy Files 之前
       maraConf.hybrid && new SinaHybridPlugin({ entry }),
-      // new moduleDependency(),
+      // webpack4 适配后启用
+      // new moduleDependency({
+      //   emitError: config.compiler.checkDuplicatePackage
+      // }),
       new webpack.BannerPlugin({
         banner: banner(), // 其值为字符串，将作为注释存在
-        entryOnly: false, // 如果值为 true，将只在入口 chunks 文件中添加
+        entryOnly: false // 如果值为 true，将只在入口 chunks 文件中添加
       }),
-      ...copyPublicFiles(entry, distPageDir),
-    ].filter(Boolean),
+      ...copyPublicFiles(entry, distPageDir)
+    ].filter(Boolean)
   })
 
   // 预加载
@@ -207,12 +210,12 @@ module.exports = function({ entry, cmd }) {
       // 这个很重要，如果没有配置这段，也不会进行预编译
       renderer: new Renderer({
         inject: {
-          foo: 'bar',
+          foo: 'bar'
         },
         headless: false,
         // 在 main.js 中 document.dispatchEvent(new Event('render-event'))，两者的事件名称要对应上。
-        renderAfterDocumentEvent: 'render-event',
-      }),
+        renderAfterDocumentEvent: 'render-event'
+      })
     })
   }
 
@@ -244,7 +247,7 @@ module.exports = function({ entry, cmd }) {
 
     webpackConfig.plugins.push(
       new webpack.DllReferencePlugin({
-        manifest: manifest,
+        manifest: manifest
       })
     )
   }
@@ -290,7 +293,7 @@ module.exports = function({ entry, cmd }) {
               /debug.css$/,
               /build.json$/,
               /js.map$/,
-              /css.map$/,
+              /css.map$/
             ]
           : [
               /__MACOSX$/,
@@ -300,7 +303,7 @@ module.exports = function({ entry, cmd }) {
               /debug.css$/,
               /build.json$/,
               /js.map$/,
-              /css.map$/,
+              /css.map$/
             ],
 
         // yazl Options
@@ -309,12 +312,12 @@ module.exports = function({ entry, cmd }) {
           mtime: new Date(),
           mode: 0o100664,
           compress: true,
-          forceZip64Format: false,
+          forceZip64Format: false
         },
         // OPTIONAL: see https://github.com/thejoshwolfe/yazl#endoptions-finalsizecallback
         zipOptions: {
-          forceZip64Format: false,
-        },
+          forceZip64Format: false
+        }
       })
     )
   }
@@ -331,7 +334,7 @@ function copyPublicFiles(entry, distPageDir) {
       from: src,
       // 放置于根路径
       to: distPageDir,
-      ignore: ['.*'],
+      ignore: ['.*']
     }
   }
 
