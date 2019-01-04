@@ -21,6 +21,7 @@ module.exports = function(entry) {
   const tsFormatter = require('react-dev-utils/typescriptFormatter')
   const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin')
   const resolve = require('resolve')
+  const getCSSModuleLocalIdent = require('react-dev-utils/getCSSModuleLocalIdent')
   const VueLoaderPlugin = require('vue-loader/lib/plugin')
   const tsImportPluginFactory = require('ts-import-plugin')
   const DuplicatePackageCheckerPlugin = require('duplicate-package-checker-webpack-plugin')
@@ -107,8 +108,17 @@ module.exports = function(entry) {
         // { parser: { requireEnsure: false } },
         {
           test: /\.css$/,
+          exclude: /\.module\.css$/,
           oneOf: getStyleLoaders({
             importLoaders: 1
+          })
+        },
+        {
+          test: /\.module\.css$/,
+          oneOf: getStyleLoaders({
+            importLoaders: 1,
+            modules: true,
+            getLocalIdent: getCSSModuleLocalIdent
           })
         },
         {
