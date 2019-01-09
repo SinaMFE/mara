@@ -32,13 +32,13 @@ if (!Object.keys(vendorConf).length) {
 }
 
 const fs = require('fs-extra')
-const input = require('yargs').argv._
 const ora = require('ora')
 const webpack = require('webpack')
 const { uploadDir } = require('../libs/ftp')
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages')
 const printBuildError = require('../libs/printBuildError')
 const prehandleConfig = require('../libs/prehandleConfig')
+const input = config.argv._
 let webpackDllConfig = require('../webpack/webpack.dll.conf')()
 
 const spinner = ora('Building dll...')

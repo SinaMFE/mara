@@ -1,7 +1,7 @@
 'use strict'
 
 const path = require('path')
-const merge = require('deepmerge')
+const merge = require('webpack-merge')
 const config = require('../../config')
 const paths = config.paths
 const maraConf = require(paths.marauder)
