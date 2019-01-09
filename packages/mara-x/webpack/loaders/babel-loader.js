@@ -1,6 +1,7 @@
 'use strict'
 
 const path = require('path')
+const merge = require('deepmerge')
 const config = require('../../config')
 const paths = config.paths
 const maraConf = require(paths.marauder)
@@ -42,7 +43,7 @@ function babelExternalMoudles(esm) {
 // }
 // 读取marauder.config.js中的babelPlugins
 const plugins = []
-maraConf.babelPlugins && plugins.join(maraConf.babelPlugins)
+maraConf.babelPlugins && plugins.concat(maraConf.babelPlugins)
 
 plugins.push([
   require.resolve('@babel/plugin-proposal-decorators'),
@@ -74,11 +75,12 @@ const baseLoader = isProd => ({
 })
 
 module.exports.babelLoader = isProd => [
-  Object.assign(baseLoader(isProd), {
+  merge(baseLoader(isProd), {
     test: /\.(js|mjs|jsx)$/,
     include: [paths.src, ...nodeModulesRegExp(config.esm)],
     options: {
-      plugins
+      // @FIXME merge plugins
+      // plugins
     }
   }),
   // 对 node_modules 中的 js 资源附加处理

@@ -170,9 +170,8 @@ function error(err) {
 
 function genBuildJson(compilation) {
   const source = JSON.stringify({
-    debug: maraConf.debug || process.env.MARA_compileModel == 'dev',
-    // 指定缺省场景(undefined)为 web
-    target: process.env.jsbridgeBuildType === 'app' ? 'app' : 'web'
+    debug: config.debug,
+    target: config.target
   })
 
   compilation.assets['build.json'] = {
@@ -211,8 +210,8 @@ function done() {
   hour > 21 && console.log(chalk.magenta('🚜  marauder loves you'))
 }
 
-module.exports = args => {
-  return getEntry(args)
+module.exports = argv => {
+  return getEntry(argv)
     .then(setup)
     .then(clean)
     .then(build)

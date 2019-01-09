@@ -35,7 +35,7 @@ function build() {
 
     compilation.assets[VERSION] = {
       source: () => hyVersionFile,
-      size: () => hyVersionFile.length,
+      size: () => hyVersionFile.length
     }
   })
 
@@ -57,7 +57,7 @@ function build() {
 
       return resolve({
         stats,
-        warnings: messages.warnings,
+        warnings: messages.warnings
       })
     })
   })
@@ -74,7 +74,7 @@ build()
         modules: false,
         children: false,
         chunks: false,
-        chunkModules: false,
+        chunkModules: false
       }) + '\n\n'
     )
 

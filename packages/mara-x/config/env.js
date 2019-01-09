@@ -33,7 +33,7 @@ const dotenvFiles = [
   // since normally you expect tests to produce the same
   // results for everyone
   NODE_ENV !== 'test' && `${paths.dotenv}.local`,
-  paths.dotenv,
+  paths.dotenv
 ].filter(Boolean)
 
 // merge .env* 文件中的环境变量
@@ -46,7 +46,7 @@ dotenvFiles.forEach(dotenvFile => {
     require('dotenv-expand')(
       require('dotenv').config({
         // 使用自定义路径
-        path: dotenvFile,
+        path: dotenvFile
       })
     )
   }
@@ -56,7 +56,7 @@ dotenvFiles.forEach(dotenvFile => {
 function loadHybridEnv() {
   const envField = 'jsbridgeBuildType'
 
-  // 确保通过命令参数 --app 或 --wap 设置的 env 优先级最高
+  // 短路操作，确保通过命令参数 --target 设置的 env 优先级最高
   if (process.env[envField] || !maraConf.globalEnv) return
 
   if (envField in maraConf.globalEnv) {
@@ -77,7 +77,7 @@ function getEnv(publicUrl) {
     // 在 js 内，以 process.env.PUBLIC_URL 变量存在
     // html 中可使用 %PUBLIC_URL% 占位符
     // 例：<img src="%PUBLIC_URL%/img/logo.png">
-    PUBLIC_URL: publicUrl,
+    PUBLIC_URL: publicUrl
   })
   const raw = Object.keys(process.env)
     // 收集当前环境中的自定义环境变量
@@ -93,7 +93,7 @@ function getEnv(publicUrl) {
     'process.env': Object.keys(raw).reduce((env, key) => {
       env[key] = JSON.stringify(raw[key])
       return env
-    }, {}),
+    }, {})
   }
 
   loadHybridEnv()

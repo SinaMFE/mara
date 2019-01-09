@@ -37,7 +37,7 @@ module.exports = function({ entry }) {
       publicPath: config.dev.assetsPublicPath,
       // Point sourcemap entries to original disk location (format as URL on Windows)
       devtoolModuleFilenameTemplate: info =>
-        path.resolve(info.absoluteResourcePath).replace(/\\/g, '/'),
+        path.resolve(info.absoluteResourcePath).replace(/\\/g, '/')
     },
     optimization: {
       // Automatically split vendor and commons
@@ -45,11 +45,11 @@ module.exports = function({ entry }) {
       // https://medium.com/webpack/webpack-4-code-splitting-chunk-graph-and-the-splitchunks-optimization-be739a861366
       splitChunks: {
         chunks: 'all',
-        name: false,
+        name: false
       },
       // Keep the runtime chunk seperated to enable long term caching
       // https://twitter.com/wSokra/status/969679223278505985
-      runtimeChunk: false,
+      runtimeChunk: false
     },
     plugins: [
       hasHtml &&
@@ -60,7 +60,7 @@ module.exports = function({ entry }) {
           template: `${config.paths.page}/${entry}/index.html`,
           inject: true,
           // 每个html引用的js模块，也可以在这里加上vendor等公用模块
-          chunks: [entry],
+          chunks: [entry]
         }),
       // 替换 html 内的环境变量
       // %PUBLIC% 转换为具体路径
@@ -77,16 +77,16 @@ module.exports = function({ entry }) {
       // fails to resolve a loader, so we provide custom handlers to improve it
       new FriendlyErrorsPlugin({
         additionalTransformers: [transformer],
-        additionalFormatters: [formatter],
+        additionalFormatters: [formatter]
       }),
-      new CaseSensitivePathsPlugin(),
-    ],
+      new CaseSensitivePathsPlugin()
+    ].filter(Boolean),
     // Turn off performance hints during development because we don't do any
     // splitting or minification in interest of speed. These warnings become
     // cumbersome.
     performance: {
-      hints: false,
-    },
+      hints: false
+    }
   })
 
   return webpackConfig

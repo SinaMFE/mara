@@ -1,7 +1,7 @@
 'use strict'
 
 const chalk = require('chalk')
-const { prompt, Separator } = require('inquirer')
+const { prompt } = require('inquirer')
 const config = require('../config')
 const { getPageList } = require('./utils')
 const pages = getPageList(config.paths.entryGlob)
@@ -36,86 +36,76 @@ function empty() {
   process.exit(1)
 }
 
-async function getEntry(args) {
-  if (!pages.length) {
-    empty()
-  } else if (pages.length === 1) {
-    return chooseOne(args)
-  } else {
-    return chooseMany(args)
-  }
-}
-
-function getEntryArgs(args, field) {
+function getEntryArgs(argv, optField) {
   let val = null
 
-  config.build[`arg_${field}`] = process.env[`npm_config_${field}`]
+  config.build[`arg_${optField}`] = process.env[`npm_config_${optField}`]
 
   // npx marax build --ftp
   // yarn run build --ftp
-  if (args[field]) {
-    val = args[field] === true ? '' : args[field]
-    config.build[`arg_${field}`] = true
-  } else if (config.build[`arg_${field}`]) {
+  if (argv[optField]) {
+    val = argv[optField] === true ? '' : argv[optField]
+    config.build[`arg_${optField}`] = true
+  } else if (config.build[`arg_${optField}`]) {
     // 兼容 npm run build --ftp xxx
     // 默认的 config.build.uploadFtp 为 process.env.npm_config_ftp
     // 当无分支名时，返回 ''
-    val = args._[2] || ''
+    val = argv._[2] || ''
   }
 
-  return { [field]: val }
+  return { [optField]: val }
 }
 
-function result(entry = '', args) {
+function result(entry = '', argv) {
   // 未启用 ftp 上传时，返回 null
   let ftpBranch = null
   let entryArgs = {}
 
   // npx marax build --ftp
   // yarn run build --ftp
-  if (args.ftp) {
-    ftpBranch = args.ftp === true ? '' : args.ftp
+  if (argv.ftp) {
+    ftpBranch = argv.ftp === true ? '' : argv.ftp
     config.build.uploadFtp = true
   } else if (config.build.uploadFtp) {
     // 兼容 npm run build --ftp xxx
     // 默认的 config.build.uploadFtp 为 process.env.npm_config_ftp
     // 当无分支名时，返回 ''
-    ftpBranch = args._[2] || ''
+    ftpBranch = argv._[2] || ''
   }
 
   entryArgs = Object.assign(
     {},
-    getEntryArgs(args, 'ftp'),
-    getEntryArgs(args, 'test')
+    getEntryArgs(argv, 'ftp'),
+    getEntryArgs(argv, 'test')
   )
 
-  return Promise.resolve({ entry, ftpBranch, entryArgs })
+  return Promise.resolve({ entry, ftpBranch, entryArgs, argv })
 }
 
-function chooseOne(args) {
-  const entry = args._[1]
+function chooseOne(argv) {
+  const entry = argv._[1]
 
   if (entry && !validEntry(entry)) {
-    return chooseEntry('您输入的页面有误, 请选择:', args)
+    return chooseEntry('您输入的页面有误, 请选择:', argv)
   } else {
     // 无输入时返回默认页
-    return result(pages[0], args)
+    return result(pages[0], argv)
   }
 }
 
-function chooseMany(args) {
-  const entry = args._[1]
+function chooseMany(argv) {
+  const entry = argv._[1]
 
-  if (validEntry(entry)) return result(entry, args)
+  if (validEntry(entry)) return result(entry, argv)
 
-  return chooseEntry(entry && '您输入的页面有误, 请选择:', args)
+  return chooseEntry(entry && '您输入的页面有误, 请选择:', argv)
 }
 
 function validEntry(entry) {
   return pages.includes(entry)
 }
 
-async function chooseEntry(msg, args) {
+async function chooseEntry(msg, argv) {
   const list = [...pages]
   // const list = [...pages, new Separator(), { name: 'exit', value: '' }]
   const question = {
@@ -131,7 +121,15 @@ async function chooseEntry(msg, args) {
   if (!entry) process.exit(0)
   console.log()
 
-  return result(entry, args)
+  return result(entry, argv)
 }
 
-module.exports = getEntry
+module.exports = async function getEntry(argv) {
+  if (!pages.length) {
+    empty()
+  } else if (pages.length === 1) {
+    return chooseOne(argv)
+  } else {
+    return chooseMany(argv)
+  }
+}

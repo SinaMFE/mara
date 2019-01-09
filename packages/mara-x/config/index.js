@@ -3,15 +3,40 @@
 const fs = require('fs')
 const paths = require('./paths')
 const getEnv = require('./env')
+const argv = require('./argv')
 const { ensureSlash } = require('../libs/utils')
 const defConf = require('./default')
 const maraConf = require(paths.marauder)
 const pkgName = require(paths.packageJson).name
 const maraxVer = require(paths.maraxPackageJson).version
 
+function getBuildTarget() {
+  switch (argv.target) {
+    case 'web':
+    case 'wap':
+      process.env.jsbridgeBuildType = 'web'
+      return 'web'
+    case 'mf':
+      return 'sub-mod'
+    case 'lib':
+      return 'library'
+    case 'app':
+      process.env.jsbridgeBuildType = 'app'
+      return 'app'
+    default:
+      return process.env.jsbridgeBuildType || 'web'
+  }
+}
+
 function getServedPath(publicUrl) {
   // 强制以 / 结尾，为了兼容 publicPath: '.'
   return publicUrl ? ensureSlash(publicUrl, true) : '/'
+}
+
+function getCLIBooleanOptions(field) {
+  const val = argv[field] || process.env[`npm_config_${field}`]
+
+  return !!val
 }
 
 const publicPath = getServedPath(maraConf.publicPath)
@@ -19,6 +44,7 @@ const publicDevPath = getServedPath(maraConf.publicDevPath)
 const useTypeScript = fs.existsSync(paths.tsConfig)
 
 module.exports = {
+  argv: argv,
   // 为了防止不同文件夹下的同名资源文件冲突
   // 资源文件不提供 hash 修改权限
   hash: {
@@ -26,8 +52,9 @@ module.exports = {
     chunk: true,
     assets: true
   },
+  target: getBuildTarget(),
   version: maraxVer,
-  debug: maraConf.debug,
+  debug: getCLIBooleanOptions('debug') || !!maraConf.debug,
   library: {
     root: 'MyLibrary',
     amd: pkgName,

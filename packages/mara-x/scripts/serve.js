@@ -68,7 +68,7 @@ function addHotDevClient(entry) {
   // client 在业务模块之前引入，以捕获初始化错误
   ;[].unshift.apply(entry, [
     // 使用 CRA 提供的 client，展示更友好的错误信息
-    require.resolve('react-dev-utils/webpackHotDevClient'),
+    require.resolve('react-dev-utils/webpackHotDevClient')
     // 以下为官方 dev server client
     // require.resolve('webpack-dev-server/client') + '?/',
     // require.resolve('webpack/hot/dev-server')
@@ -105,7 +105,7 @@ async function server(entryInput) {
   const port = await getFreePort(DEFAULT_PORT)
   const devServer = await createDevServer(webpackConf, {
     entry: entryInput.entry,
-    port,
+    port
   })
   // Ctrl + C 触发
   ;['SIGINT', 'SIGTERM'].forEach(sig => {
@@ -121,6 +121,6 @@ async function server(entryInput) {
   })
 }
 
-module.exports = args => {
-  return getEntry(args).then(server)
+module.exports = argv => {
+  return getEntry(argv).then(server)
 }

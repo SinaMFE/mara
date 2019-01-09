@@ -66,7 +66,7 @@ function build() {
 
       return resolve({
         stats,
-        warnings: messages.warnings,
+        warnings: messages.warnings
       })
     })
   })
@@ -103,7 +103,7 @@ export default function() {
           modules: false,
           children: false,
           chunks: false,
-          chunkModules: false,
+          chunkModules: false
         }) + '\n\n'
       )
 

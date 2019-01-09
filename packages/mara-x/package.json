@@ -66,6 +66,7 @@
     "marauder-umd-loader": "^0.0.5",
     "md5": "^2.2.1",
     "mini-css-extract-plugin": "^0.4.4",
+    "mri": "^1.1.4",
     "object-assign": "^4.1.1",
     "optimize-css-assets-webpack-plugin": "^5.0.1",
     "ora": "^1.4.0",
