@@ -11,10 +11,6 @@ module.exports = options => {
   for (let key in options) {
     const oopt = options[key]
 
-    if (oopt['alias']) {
-      mriOpt.alias.push(key)
-    }
-
     if (oopt['type'] === 'boolean') {
       mriOpt.boolean.push(key)
     } else if (oopt['type'] === 'string') {
