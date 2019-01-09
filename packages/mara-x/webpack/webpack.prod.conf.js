@@ -11,6 +11,7 @@ const InlineChunkHtmlPlugin = require('react-dev-utils/InlineChunkHtmlPlugin')
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const InlineUmdHtmlPlugin = require('../libs/InlineUmdHtmlPlugin')
+const BuildJsonPlugin = require('../libs/BuildJsonPlugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const safePostCssParser = require('postcss-safe-parser')
 const moduleDependency = require('sinamfe-webpack-module_dependency')
@@ -185,6 +186,12 @@ module.exports = function({ entry, cmd }) {
       new webpack.BannerPlugin({
         banner: banner(), // 其值为字符串，将作为注释存在
         entryOnly: false // 如果值为 true，将只在入口 chunks 文件中添加
+      }),
+      new BuildJsonPlugin({
+        debug: config.debug,
+        target: config.target,
+        version: require(config.paths.packageJson).version,
+        marax: require(config.paths.maraxPackageJson).version
       }),
       ...copyPublicFiles(entry, distPageDir)
     ].filter(Boolean)
