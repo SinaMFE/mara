@@ -47,7 +47,7 @@ maraConf.babelPlugins && plugins.concat(maraConf.babelPlugins)
 
 plugins.push([
   require.resolve('@babel/plugin-proposal-decorators'),
-  { decoratorsBeforeExport: true }
+  { legacy: true }
 ])
 // 加入了 inline-json，用于去除编译时的引入json（非全量引入）。
 // plugins.push(['inline-json', { matchPattern: '.' }])
@@ -79,8 +79,7 @@ module.exports.babelLoader = isProd => [
     test: /\.(js|mjs|jsx)$/,
     include: [paths.src, ...nodeModulesRegExp(config.esm)],
     options: {
-      // @FIXME merge plugins
-      // plugins
+      plugins
     }
   }),
   // 对 node_modules 中的 js 资源附加处理
