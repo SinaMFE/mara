@@ -20,7 +20,13 @@ const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const { SinaHybridPlugin } = require('../libs/hybrid')
 
 const config = require('../config')
-const { banner, rootPath, getEntryPoints, isObject } = require('../libs/utils')
+const {
+  banner,
+  rootPath,
+  getEntryPoints,
+  isObject,
+  localIp
+} = require('../libs/utils')
 
 const maraConf = require(config.paths.marauder)
 const shouldUseSourceMap = !!maraConf.sourceMap
@@ -267,9 +273,14 @@ module.exports = function({ entry, cmd }) {
 
   // bundle 大小分析
   if (config.build.bundleAnalyzerReport) {
-    const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
-      .BundleAnalyzerPlugin
-    webpackConfig.plugins.push(new BundleAnalyzerPlugin())
+    const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
+
+    webpackConfig.plugins.push(
+      new BundleAnalyzerPlugin({
+        analyzerHost: localIp(),
+        defaultSizes: 'gzip'
+      })
+    )
   }
 
   // @TODO publish npm module
