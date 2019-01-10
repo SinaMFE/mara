@@ -36,10 +36,6 @@ function build({ entryInput, dist }) {
   webpackConfig = prehandleConfig('build', webpackConfig)
   const compiler = webpack(webpackConfig)
 
-  compiler.hooks.compilation.tap('genBuildJson', compilation => {
-    genBuildJson(compilation)
-  })
-
   return new Promise((resolve, reject) => {
     compiler.run((err, stats) => {
       let messages
@@ -166,18 +162,6 @@ function error(err) {
   console.log(chalk.red('\n🕳   Failed to compile.\n'))
   printBuildError(err)
   process.exit(1)
-}
-
-function genBuildJson(compilation) {
-  const source = JSON.stringify({
-    debug: config.debug,
-    target: config.target
-  })
-
-  compilation.assets['build.json'] = {
-    source: () => source,
-    size: () => source.length
-  }
 }
 
 function ftp({ entry, entryArgs, ftpBranch }) {
