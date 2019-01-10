@@ -49,10 +49,13 @@ module.exports = function({ entry, cmd }) {
     output: {
       path: distPageDir,
       publicPath: config.build.assetsPublicPath,
-      filename: maraConf.hash
+      // 保持传统，非 debug 的 main js 添加 min 后缀
+      filename: config.hash.main
         ? `static/js/[name].[chunkhash:8]${debugLabel}.js`
         : `static/js/[name]${debugLabel || '.min'}.js`,
-      chunkFilename: `static/js/[name].[chunkhash:8].chunk${debugLabel}.js`,
+      chunkFilename: config.hash.chunk
+        ? `static/js/[name].[chunkhash:8].chunk${debugLabel}.js`
+        : `static/js/[name].chunk${debugLabel}.js`,
       // Point sourcemap entres to original disk location (format as URL on Windows)
       devtoolModuleFilenameTemplate: info =>
         path
@@ -167,10 +170,13 @@ module.exports = function({ entry, cmd }) {
         new InterpolateHtmlPlugin(HtmlWebpackPlugin, config.build.env.raw),
       new webpack.DefinePlugin(config.build.env.stringified),
       new MiniCssExtractPlugin({
-        filename: maraConf.hash
+        // 保持传统，非 debug 的 main css 添加 min 后缀
+        filename: config.hash.main
           ? `static/css/[name].[contenthash:8]${debugLabel}.css`
           : `static/css/[name]${debugLabel || '.min'}.css`,
-        chunkFilename: `static/css/[name].[contenthash:8].chunk${debugLabel}.css`
+        chunkFilename: config.hash.chunk
+          ? `static/css/[name].[contenthash:8].chunk${debugLabel}.css`
+          : `static/css/[name].chunk${debugLabel}.css`
       }),
       // hybrid 共享包
       // 创建 maraContext

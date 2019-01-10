@@ -4,7 +4,7 @@ const fs = require('fs')
 const paths = require('./paths')
 const getEnv = require('./env')
 const argv = require('./argv')
-const { ensureSlash } = require('../libs/utils')
+const { ensureSlash, isObject } = require('../libs/utils')
 const defConf = require('./default')
 const maraConf = require(paths.marauder)
 const pkgName = require(paths.packageJson).name
@@ -39,6 +39,20 @@ function getCLIBooleanOptions(field) {
   return !!val
 }
 
+function getHashConf() {
+  const { hash } = maraConf
+  let { main, chunk } = defConf.hash
+
+  if (typeof hash === 'boolean') {
+    main = chunk = hash
+  } else if (isObject(hash)) {
+    main = hash.main === undefined ? main : hash.main
+    chunk = hash.chunk === undefined ? chunk : hash.chunk
+  }
+
+  return { main, chunk }
+}
+
 const publicPath = getServedPath(maraConf.publicPath)
 const publicDevPath = getServedPath(maraConf.publicDevPath)
 const useTypeScript = fs.existsSync(paths.tsConfig)
@@ -47,11 +61,7 @@ module.exports = {
   argv: argv,
   // 为了防止不同文件夹下的同名资源文件冲突
   // 资源文件不提供 hash 修改权限
-  hash: {
-    main: true,
-    chunk: true,
-    assets: true
-  },
+  hash: getHashConf(),
   target: getBuildTarget(),
   version: maraxVer,
   debug: getCLIBooleanOptions('debug') || !!maraConf.debug,
