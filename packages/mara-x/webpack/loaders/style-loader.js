@@ -1,10 +1,9 @@
 'use strict'
 
-const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const config = require('../../config')
 const isProd = process.env.NODE_ENV === 'production'
-const shouldUseRelativeAssetPaths = config.publicPath === './'
+const shouldUseRelativeAssetPaths = config.assetsPublicPath === './'
 const shouldExtract = isProd && config.compiler.cssExtract !== false
 const shouldUseSourceMap = isProd && config.build.sourceMap
 
@@ -61,11 +60,8 @@ function createCSSRule(cssOptions = {}, preProcessor) {
 }
 
 function getStyleLoaders(cssOptions = {}, preProcessor) {
-  // @TODO 处理 lib
   const needInlineMinification = isProd && !shouldExtract
-  const assets = cssOptions.library ? '' : `${config.assetsDir}/css`
-  // 统一使用 POSIX 风格拼接路径，方便基于 / 做逻辑判断
-  const cssFilename = path.posix.join(assets, '[name].min.css')
+  const cssPublicPath = cssOptions.library ? './' : '../../'
   const loaders = [
     shouldExtract
       ? {
@@ -73,7 +69,7 @@ function getStyleLoaders(cssOptions = {}, preProcessor) {
           options: Object.assign(
             {},
             shouldUseRelativeAssetPaths
-              ? { publicPath: Array(cssFilename.split('/').length).join('../') }
+              ? { publicPath: cssPublicPath }
               : undefined
           )
         }

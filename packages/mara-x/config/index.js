@@ -81,7 +81,6 @@ const maraContext = {
   parallel: false,
   globalEnv: maraConf.globalEnv,
   tsImportLibs: maraConf.tsImportLibs,
-  assetsDir: 'static',
   webpackPluginsHandler: maraConf.webpackPluginsHandler,
   // 编译配置
   compiler: maraConf.compiler,

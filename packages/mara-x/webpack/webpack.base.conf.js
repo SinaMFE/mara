@@ -1,6 +1,5 @@
 'use strict'
 
-const path = require('path')
 const webpack = require('webpack')
 // PnpWebpackPlugin 即插即用，要使用 require.resolve 解析 loader 路径
 const PnpWebpackPlugin = require('pnp-webpack-plugin')
@@ -33,7 +32,7 @@ const isProd = process.env.NODE_ENV === 'production'
 
 module.exports = function(entry) {
   const isLib = entry === '__LIB__'
-  const ASSETS = isLib ? '' : config.assetsDir
+  const assetsDir = isLib ? '' : 'static/'
   const entryGlob = `src/view/${entry}/index.@(ts|tsx|js|jsx)`
   const useTypeScript = config.useTypeScript
   const { vueRuntimeOnly } = config.compiler
@@ -54,11 +53,8 @@ module.exports = function(entry) {
     entry: getEntries(entryGlob, require.resolve('./polyfills')),
     output: {
       path: paths.dist,
-      // 统一使用 POSIX 风格拼接路径
-      // webpack 将会处理平台差异
-      // 如果使用 path.join 在 Windows 上会出现路径异常
-      filename: path.posix.join(ASSETS, 'js/[name].js'),
-      chunkFilename: path.posix.join(ASSETS, 'js/[name].chunk.js')
+      filename: 'static/js/[name].js',
+      chunkFilename: 'static/js/[name].chunk.js'
     },
     resolve: {
       // disable symlinks
@@ -141,8 +137,8 @@ module.exports = function(entry) {
           test: /\.(bmp|png|jpe?g|gif|svg)(\?.*)?$/,
           loader: require.resolve('url-loader'),
           options: {
-            limit: 10000,
-            name: path.posix.join(ASSETS, 'img/[name].[hash:8].[ext]')
+            limit: 1024 * 4,
+            name: `${assetsDir}img/[name].[hash:8].[ext]`
           }
         },
         {
@@ -207,7 +203,7 @@ module.exports = function(entry) {
           test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
           loader: require.resolve('file-loader'),
           options: {
-            name: path.posix.join(ASSETS, 'fonts/[name].[hash:8].[ext]')
+            name: `${assetsDir}fonts/[name].[hash:8].[ext]`
           }
         },
         {
