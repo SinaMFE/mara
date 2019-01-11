@@ -28,8 +28,7 @@ const {
   localIp
 } = require('../libs/utils')
 
-const maraConf = require(config.paths.marauder)
-const shouldUseSourceMap = !!maraConf.sourceMap
+const shouldUseSourceMap = !!config.build.sourceMap
 
 /**
  * 生成生产配置
@@ -54,7 +53,7 @@ module.exports = function({ entry, cmd }) {
     entry: entryPoints,
     output: {
       path: distPageDir,
-      publicPath: config.build.assetsPublicPath,
+      publicPath: config.assetsPublicPath,
       // 保持传统，非 debug 的 main js 添加 min 后缀
       filename: config.hash.main
         ? `static/js/[name].[chunkhash:8]${debugLabel}.js`
@@ -172,9 +171,7 @@ module.exports = function({ entry, cmd }) {
       hasHtml && new InlineUmdHtmlPlugin(HtmlWebpackPlugin),
       hasHtml &&
         new InlineChunkHtmlPlugin(HtmlWebpackPlugin, [/runtime~.+[.]js/]),
-      hasHtml &&
-        new InterpolateHtmlPlugin(HtmlWebpackPlugin, config.build.env.raw),
-      new webpack.DefinePlugin(config.build.env.stringified),
+      hasHtml && new InterpolateHtmlPlugin(HtmlWebpackPlugin, config.env.raw),
       new MiniCssExtractPlugin({
         // 保持传统，非 debug 的 main css 添加 min 后缀
         filename: config.hash.main
@@ -190,7 +187,7 @@ module.exports = function({ entry, cmd }) {
 
       // 【争议】：lib 模式禁用依赖分析?
       // 确保在 copy Files 之前
-      maraConf.hybrid && new SinaHybridPlugin({ entry }),
+      config.hybrid && new SinaHybridPlugin({ entry }),
       // webpack4 适配后启用
       // new moduleDependency({
       //   emitError: config.compiler.checkDuplicatePackage
@@ -210,7 +207,7 @@ module.exports = function({ entry, cmd }) {
   })
 
   // 预加载
-  if (maraConf.prerender) {
+  if (config.prerender) {
     const PrerenderSPAPlugin = require('prerender-html-plugin')
     const Renderer = PrerenderSPAPlugin.PuppeteerRenderer
 
@@ -238,7 +235,7 @@ module.exports = function({ entry, cmd }) {
     })
   }
 
-  const vendorConf = maraConf.vendor || []
+  const vendorConf = config.vendor || []
   if (Object.keys(vendorConf).length) {
     if (isObject(vendorConf) && !vendorConf.libs) {
       console.log(
@@ -251,7 +248,7 @@ module.exports = function({ entry, cmd }) {
 
     let manifest = ''
     // 为多页面准备，生成 xxx_vender 文件夹
-    const namespace = maraConf.vendor.name ? `${maraConf.vendor.name}_` : ''
+    const namespace = config.vendor.name ? `${config.vendor.name}_` : ''
 
     try {
       manifest = require(`${config.paths.dll}/${namespace}manifest.json`)
@@ -285,24 +282,22 @@ module.exports = function({ entry, cmd }) {
 
   // @TODO publish npm module
   // 生成serviceworker
-  // if (maraConf.sw) {
+  // if (config.sw) {
   //   const webpackWS = require('@mfelibs/webpack-create-serviceworker')
-  //   const swConfig = maraConf.sw_config || {}
+  //   const swConfig = config.sw_config || {}
   //   webpackConfig.plugins.push(new webpackWS(swConfig))
   // }
 
+  const hybridMod = config.hybrid || config.target === 'app'
   // 重要：确保 zip plugin 在插件列表末尾
-  if (maraConf.zip === true || maraConf.hybrid) {
+  if (hybridMod) {
     const ZipPlugin = require('zip-webpack-plugin')
     webpackConfig.plugins.push(
       new ZipPlugin({
         // OPTIONAL: defaults to the Webpack output filename (above) or,
         // if not present, the basename of the path
         filename: entry,
-        // OPTIONAL: defaults to 'zip'
-        // the file extension to use instead of 'zip'
-        // 对 hybrid 项目使用 php 后缀，防止 CDN 劫持(?)
-        extension: maraConf.hybrid ? 'php' : 'zip',
+        extension: 'php',
         // OPTIONAL: defaults to including everything
         // can be a string, a RegExp, or an array of strings and RegExps
         //   include: [/\.js$/],

@@ -5,15 +5,25 @@ module.exports = {
     main: true,
     chunk: true
   },
+  globalEnv: {},
   // 用于生成未压缩文件
   debug: false,
+  // 预渲染页面，直出首屏模板，依赖 Puppeteer
+  prerender: false,
+  // 相对路径更加常用
+  publicPath: './',
+  publicDevPath: '/',
+  sourceMap: false,
   library: {
     root: 'MyLibrary',
     amd: '',
     commonjs: ''
   },
+  tsImportLibs: [],
   // 编译配置
   compiler: {
+    // 提取 css 到额外的文件
+    cssExtract: true,
     // 多版本依赖检测
     checkDuplicatePackage: true,
     // 默认启用 runtime，仅允许 vue 文件内的模板
@@ -21,21 +31,19 @@ module.exports = {
     // @TODO 移除 console
     dropConsole: false
   },
+  webpackPluginsHandler: (command, webpackConf) => webpackConf,
+  proxyTable: {},
+  babelPlugins: [],
   ciConfig: {},
-  entry: 'src/view/*/index.js',
   // 通知 babel 编译 node_module 里额外的模块
   esm: ['@mfelibs'],
   // 打包 dll
   vendor: [],
-  build: {},
-  dev: {
+  devServer: {
+    open: true,
     port: 3022,
-    // CSS Sourcemaps off by default because relative paths are "buggy"
-    // with this option, according to the CSS-Loader README
-    // (https://github.com/webpack/css-loader#sourcemaps)
-    // In our experience, they generally work as expected,
-    // just be aware of this issue when enabling this option.
-    cssSourceMap: false
+    https: false,
+    proxy: {}
   },
   ftp: {
     host: '', // 主机
@@ -45,25 +53,9 @@ module.exports = {
     reload: true, // 刷新缓存
     openBrowser: true, // 上传完毕后自动打开浏览器
     remotePath: {
-      version: true // 添加 version 路径
+      version: false // 添加 version 路径
     }
   },
   // hybrid 项目配置，存在此属性时，将会生成 zip 包
-  hybrid: {},
-  browserslist: [
-    '> 1%',
-    'last 4 versions',
-    'ios >= 8',
-    'android >= 4.1',
-    'not ie < 9'
-  ],
-  postcss: {
-    stage: 3,
-    // 允许 flexbox 2009 以支持多行超出省略
-    // https://github.com/jonathantneal/postcss-preset-env/blob/master/lib/plugins-by-specification-id.js
-    features: {
-      // image-set polyfill 与雪碧图使用时存在 bug，在此禁用
-      'css-images-image-set-notation': false
-    }
-  }
+  hybrid: {}
 }

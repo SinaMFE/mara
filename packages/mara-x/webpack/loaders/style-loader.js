@@ -3,16 +3,15 @@
 const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const config = require('../../config')
-const maraConf = require(config.paths.marauder)
 const isProd = process.env.NODE_ENV === 'production'
-const shouldUseRelativeAssetPaths = maraConf.publicPath === './'
-const shouldExtract = isProd && maraConf.extract !== false
-const shouldUseSourceMap = isProd && !!maraConf.sourceMap
+const shouldUseRelativeAssetPaths = config.publicPath === './'
+const shouldExtract = isProd && config.compiler.cssExtract !== false
+const shouldUseSourceMap = isProd && config.build.sourceMap
 
 function getPostCSSPlugins(useSourceMap, needInlineMinification, preProcessor) {
   const basic = [
     require('postcss-flexbugs-fixes'),
-    require('postcss-preset-env')(config.postcss),
+    require('postcss-preset-env')(config.postcss)
   ]
   const advanced = [
     // 提供代码段引入，为了保证引入的代码段能够享受后续的配置
@@ -20,7 +19,7 @@ function getPostCSSPlugins(useSourceMap, needInlineMinification, preProcessor) {
     // https://github.com/postcss/postcss-import
     require('postcss-import')(),
     // 辅助 postcss-import 插件， 解决嵌套层级的图片资源路径问题
-    require('postcss-url')(),
+    require('postcss-url')()
   ]
 
   const plugins = preProcessor ? basic : basic.concat(advanced)
@@ -29,9 +28,9 @@ function getPostCSSPlugins(useSourceMap, needInlineMinification, preProcessor) {
       'default',
       {
         mergeLonghand: false,
-        cssDeclarationSorter: false,
-      },
-    ],
+        cssDeclarationSorter: false
+      }
+    ]
   }
 
   if (useSourceMap) {
@@ -52,12 +51,12 @@ function createCSSRule(cssOptions = {}, preProcessor) {
       // containing package claims to have no side effects.
       // Remove this when webpack adds a warning or an error for this.
       // See https://github.com/webpack/webpack/issues/6571
-      sideEffects: isProd,
+      sideEffects: isProd
     },
     {
       loader: getStyleLoaders(cssOptions, preProcessor),
-      sideEffects: isProd,
-    },
+      sideEffects: isProd
+    }
   ]
 }
 
@@ -66,9 +65,7 @@ function getStyleLoaders(cssOptions = {}, preProcessor) {
   const needInlineMinification = isProd && !shouldExtract
   const assets = cssOptions.library ? '' : `${config.assetsDir}/css`
   // 统一使用 POSIX 风格拼接路径，方便基于 / 做逻辑判断
-  const cssFilename = maraConf.hash
-    ? path.posix.join(assets, '[name].[contenthash:8].css')
-    : path.posix.join(assets, '[name].min.css')
+  const cssFilename = path.posix.join(assets, '[name].min.css')
   const loaders = [
     shouldExtract
       ? {
@@ -78,25 +75,25 @@ function getStyleLoaders(cssOptions = {}, preProcessor) {
             shouldUseRelativeAssetPaths
               ? { publicPath: Array(cssFilename.split('/').length).join('../') }
               : undefined
-          ),
+          )
         }
       : {
           loader: require.resolve('vue-style-loader'),
           options: Object.assign(
             {
-              sourceMap: shouldUseSourceMap,
+              sourceMap: shouldUseSourceMap
             },
             cssOptions
-          ),
+          )
         },
     {
       loader: require.resolve('css-loader'),
       options: Object.assign(
         {
-          sourceMap: shouldUseSourceMap,
+          sourceMap: shouldUseSourceMap
         },
         cssOptions
-      ),
+      )
     },
     {
       // Options for PostCSS as we reference these options twice
@@ -112,9 +109,9 @@ function getStyleLoaders(cssOptions = {}, preProcessor) {
           needInlineMinification,
           preProcessor
         ),
-        sourceMap: shouldUseSourceMap,
-      },
-    },
+        sourceMap: shouldUseSourceMap
+      }
+    }
   ]
 
   if (preProcessor) {
@@ -122,10 +119,10 @@ function getStyleLoaders(cssOptions = {}, preProcessor) {
       loader: preProcessor,
       options: Object.assign(
         {
-          sourceMap: shouldUseSourceMap,
+          sourceMap: shouldUseSourceMap
         },
         cssOptions
-      ),
+      )
     })
   }
 

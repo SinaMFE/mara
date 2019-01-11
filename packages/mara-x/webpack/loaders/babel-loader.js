@@ -4,7 +4,6 @@ const path = require('path')
 const merge = require('webpack-merge')
 const config = require('../../config')
 const paths = config.paths
-const maraConf = require(paths.marauder)
 const getCacheIdentifier = require('../../libs/getCacheIdentifier')
 const inlineJson = require.resolve('../../libs/babelInlineJson')
 
@@ -43,8 +42,8 @@ function babelExternalMoudles(esm) {
 // }
 // 读取marauder.config.js中的babelPlugins
 const plugins = []
-maraConf.babelPlugins && plugins.concat(maraConf.babelPlugins)
 
+config.babelPlugins && plugins.concat(config.babelPlugins)
 plugins.push([
   require.resolve('@babel/plugin-proposal-decorators'),
   { legacy: true }

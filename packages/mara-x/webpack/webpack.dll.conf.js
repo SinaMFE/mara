@@ -5,7 +5,6 @@ const config = require('../config')
 const { banner, isObject } = require('../libs/utils')
 const webpackBaseConf = require('./webpack.base.conf')()
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
-const maraConf = require(config.paths.marauder)
 const { babelLoader } = require('./loaders/babel-loader')
 const isProd = process.env.NODE_ENV === 'production'
 const library = '[name]_lib'
@@ -13,11 +12,9 @@ const library = '[name]_lib'
 // 支持两种格式配置
 // 数组 vendor: ['react', 'react-dom']
 // 对象 vendor: {libs: ['react', 'react-dom']}
-const vendor = isObject(maraConf.vendor)
-  ? maraConf.vendor.libs
-  : maraConf.vendor
+const vendor = isObject(config.vendor) ? config.vendor.libs : config.vendor
 // 为多页面准备，生成 xxx_vender 文件夹
-const namespace = maraConf.vendor.name ? `${maraConf.vendor.name}_` : ''
+const namespace = config.vendor.name ? `${config.vendor.name}_` : ''
 
 module.exports = function() {
   return {
@@ -38,7 +35,7 @@ module.exports = function() {
     },
 
     plugins: [
-      new webpack.DefinePlugin(config.build.env.stringified),
+      new webpack.DefinePlugin(config.env.stringified),
       new webpack.DllPlugin({
         path: `${config.paths.dll}/${namespace}manifest.json`,
         // This must match the output.library option above

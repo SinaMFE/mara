@@ -6,22 +6,32 @@ const getEnv = require('./env')
 const argv = require('./argv')
 const { ensureSlash, isObject } = require('../libs/utils')
 const defConf = require('./default')
-const maraConf = require(paths.marauder)
 const pkgName = require(paths.packageJson).name
 const maraxVer = require(paths.maraxPackageJson).version
+const merge = require('webpack-merge')
+const isProd = process.env.NODE_ENV === 'production'
+let maraConf = defConf
+
+if (fs.existsSync(paths.marauder)) {
+  const userConf = require(paths.marauder)
+
+  maraConf = merge({}, defConf, userConf)
+}
+
+// @TODO
+// target 和 jsbridgeBuildType 混合
+// cli target 最优先
 
 function getBuildTarget() {
   switch (argv.target) {
     case 'web':
     case 'wap':
-      process.env.jsbridgeBuildType = 'web'
       return 'web'
     case 'mf':
-      return 'sub-mod'
+      return 'submod'
     case 'lib':
       return 'library'
     case 'app':
-      process.env.jsbridgeBuildType = 'app'
       return 'app'
     default:
       return process.env.jsbridgeBuildType || 'web'
@@ -33,14 +43,13 @@ function getServedPath(publicUrl) {
   return publicUrl ? ensureSlash(publicUrl, true) : '/'
 }
 
-function getCLIBooleanOptions(field) {
+function getCLIBooleanOptions(field, defVal = false) {
   const val = argv[field] || process.env[`npm_config_${field}`]
 
-  return !!val
+  return !!(typeof val === 'undefined' ? defVal : val)
 }
 
-function getHashConf() {
-  const { hash } = maraConf
+function getHashConf(hash) {
   let { main, chunk } = defConf.hash
 
   if (typeof hash === 'boolean') {
@@ -53,63 +62,62 @@ function getHashConf() {
   return { main, chunk }
 }
 
-const publicPath = getServedPath(maraConf.publicPath)
-const publicDevPath = getServedPath(maraConf.publicDevPath)
+const publicPath = isProd ? maraConf.publicPath : maraConf.publicDevPath
 const useTypeScript = fs.existsSync(paths.tsConfig)
 
-module.exports = {
+const maraContext = {
   argv: argv,
   // 为了防止不同文件夹下的同名资源文件冲突
   // 资源文件不提供 hash 修改权限
-  hash: getHashConf(),
+  hash: getHashConf(maraConf.hash),
   target: getBuildTarget(),
   version: maraxVer,
-  debug: getCLIBooleanOptions('debug') || !!maraConf.debug,
+  debug: getCLIBooleanOptions('debug', maraConf.debug),
   library: {
     root: 'MyLibrary',
     amd: pkgName,
     commonjs: pkgName
   },
   parallel: false,
+  globalEnv: maraConf.globalEnv,
+  tsImportLibs: maraConf.tsImportLibs,
   assetsDir: 'static',
+  webpackPluginsHandler: maraConf.webpackPluginsHandler,
   // 编译配置
-  compiler: Object.assign({}, defConf.compiler, maraConf.compiler),
-  entry: defConf.esm.entry,
+  compiler: maraConf.compiler,
   // 通知 babel 编译 node_module 里额外的模块
-  esm: defConf.esm,
+  esm: maraConf.esm,
   // 打包 dll
-  vendor: [],
+  vendor: maraConf.vendor,
   paths: paths,
+  assetsPublicPath: getServedPath(publicPath),
+  prerender: maraConf.prerender,
+  env: getEnv(publicPath.slice(0, -1), maraConf.globalEnv),
   build: {
-    env: getEnv(publicPath.slice(0, -1)),
-    assetsPublicPath: publicPath,
-    // Run the build command with an extra argument to
-    // View the bundle analyzer report after build finishes:
-    // `npm run build --report`
-    // Set to `true` or `false` to always turn it on or off
-    bundleAnalyzerReport: process.env.npm_config_report,
+    sourceMap: maraConf.sourceMap,
+    bundleAnalyzerReport: getCLIBooleanOptions('report'),
     // upload bundle use ftp
     // `npm run build <page> --ftp [namespace]`
     // Set to `true` or `false` to always turn it on or off
     uploadFtp: process.env.npm_config_ftp,
     testDeploy: process.env.npm_config_test
   },
-  dev: {
-    env: getEnv(publicDevPath.slice(0, -1)),
-    port: defConf.dev.port,
-    assetsPublicPath: publicDevPath,
-    proxyTable: {},
-    // CSS Sourcemaps off by default because relative paths are "buggy"
-    // with this option, according to the CSS-Loader README
-    // (https://github.com/webpack/css-loader#sourcemaps)
-    // In our experience, they generally work as expected,
-    // just be aware of this issue when enabling this option.
-    cssSourceMap: false
-  },
+  devServer: maraConf.devServer,
   useTypeScript,
-  ftp: Object.assign({}, defConf.ftp, maraConf.ftp),
-  ciConfig: Object.assign({}, defConf.ciConfig, maraConf.ciConfig),
+  ftp: maraConf.ftp,
+  ciConfig: maraConf.ciConfig,
   // hybrid 项目配置，存在此属性时，将会生成 zip 包
-  hybrid: defConf.hybrid,
-  postcss: defConf.postcss
+  hybrid: maraConf.hybrid,
+  babelPlugins: maraConf.babelPlugins,
+  postcss: {
+    stage: 3,
+    // 允许 flexbox 2009 以支持多行超出省略
+    // https://github.com/jonathantneal/postcss-preset-env/blob/master/lib/plugins-by-specification-id.js
+    features: {
+      // image-set polyfill 与雪碧图使用时存在 bug，在此禁用
+      'css-images-image-set-notation': false
+    }
+  }
 }
+
+module.exports = maraContext

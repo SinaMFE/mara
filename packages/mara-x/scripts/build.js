@@ -18,7 +18,6 @@ const { uploadDir } = require('../libs/ftp')
 const config = require('../config')
 const paths = config.paths
 const getWebpackConfig = require('../webpack/webpack.prod.conf')
-const maraConf = require(paths.marauder)
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages')
 const { hybridDevPublish, hybridTestPublish } = require('../libs/hybrid')
 const printBuildError = require('../libs/printBuildError')
@@ -151,7 +150,7 @@ function success({ entryInput, stats, publicPath, outputPath, warnings }) {
 }
 
 async function deploy({ entry, ftpBranch, entryArgs, remotePath }) {
-  if (maraConf.hybrid && remotePath) {
+  if (config.hybrid && remotePath) {
     await hybridDevPublish(entry, remotePath)
   } else if (entryArgs.test !== null) {
     await hybridTestPublish(entry, entryArgs.test)
@@ -172,7 +171,7 @@ function ftp({ entry, entryArgs, ftpBranch }) {
       ftpBranch
     }
 
-  return uploadDir(entry, ftpBranch).then(remotePath => ({
+  return uploadDir(entry, ftpBranch, config.target).then(remotePath => ({
     entry,
     ftpBranch,
     entryArgs,

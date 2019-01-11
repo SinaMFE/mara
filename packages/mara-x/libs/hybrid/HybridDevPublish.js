@@ -10,9 +10,8 @@ const execa = require('execa')
 const config = require('../../config')
 const { uploadVinylFile } = require('../ftp')
 const { rootPath } = require('../utils')
-const maraConf = require(config.paths.marauder)
 const CONF_DIR = '/wap_front/hybrid/config/'
-const CONF_NAME = getHbConfName(maraConf)
+const CONF_NAME = getHbConfName(config.ciConfig)
 const CONF_URL = `http://wap_front.dev.sina.cn/hybrid/config/${CONF_NAME}`
 
 const publishStep = [
@@ -20,13 +19,12 @@ const publishStep = [
   // ✏️ 后面需要多补充一个空格
   `${chalk.blue('✏️   [2/4]')} Updating config...`,
   `${chalk.blue('🚀  [3/4]')} Pushing config...`,
-  `${chalk.blue('🎉  [4/4]')} ${chalk.green('Success')}\n`,
+  `${chalk.blue('🎉  [4/4]')} ${chalk.green('Success')}\n`
 ]
 
-function getHbConfName(config) {
-  const confName =
-    (config && config.ciConfig && config.ciConfig.zip_config_name) ||
-    'sina_news'
+function getHbConfName(ciConfig) {
+  const confName = ciConfig.zip_config_name || 'sina_news'
+
   return `${confName}.json`
 }
 
@@ -34,7 +32,7 @@ async function updateRemoteHbConf(hbConf) {
   // 创建虚拟文件
   const confFile = new Vinyl({
     path: rootPath(CONF_NAME),
-    contents: Buffer.from(JSON.stringify(hbConf)),
+    contents: Buffer.from(JSON.stringify(hbConf))
   })
 
   try {
@@ -50,7 +48,7 @@ async function getGitRepoName() {
     const { stdout: remoteUrl } = await execa('git', [
       'config',
       '--get',
-      'remote.origin.url',
+      'remote.origin.url'
     ])
 
     return path.basename(remoteUrl, '.git')
@@ -71,8 +69,8 @@ async function getHbConf(confPath) {
       status: 0,
       reqTime: Date.now(),
       data: {
-        modules: [],
-      },
+        modules: []
+      }
     }
 
     return hbConf.data || initConf
@@ -103,7 +101,7 @@ module.exports = async function(entry, remotePath) {
     version: process.env.npm_package_version,
     pkg_url: `${remotePath + entry}.php`,
     hybrid: true,
-    md5: md5(fs.readFileSync(localPkgPath)),
+    md5: md5(fs.readFileSync(localPkgPath))
   }
 
   console.log(publishStep[1])

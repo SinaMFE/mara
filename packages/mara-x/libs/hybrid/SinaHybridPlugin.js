@@ -13,10 +13,12 @@ const { rootPath } = require('../../libs/utils')
 class SinaHybridPlugin {
   constructor(options) {
     this.options = options
+    // @FIXME
+    // use semver check
     this.version = process.env.npm_package_version
     this.rewriteField = genRewriteFn([
       rootPath('public/manifest.json'),
-      rootPath(`src/view/${this.options.entry}/public/manifest.json`),
+      rootPath(`src/view/${this.options.entry}/public/manifest.json`)
     ])
     const pkgVersion = require(rootPath('package.json')).version
 
@@ -45,7 +47,7 @@ class SinaHybridPlugin {
     compilation.assets[this.version] = {
       // both method
       source: () => '',
-      size: () => 0,
+      size: () => 0
     }
   }
 

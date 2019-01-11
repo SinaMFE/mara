@@ -10,8 +10,7 @@ const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const config = require('../config')
 const { banner, getEntries } = require('../libs/utils')
 
-const maraConf = require(config.paths.marauder)
-const shouldUseSourceMap = !!maraConf.sourceMap
+const shouldUseSourceMap = config.build.sourceMap
 
 function getLibraryConf() {
   const pkgName = require(config.paths.packageJson).name
@@ -33,7 +32,7 @@ module.exports = function(options) {
       filename: options.filename,
       library: getLibraryConf(),
       // https://doc.webpack-china.org/configuration/output/#output-librarytarget
-      libraryTarget: options.format,
+      libraryTarget: options.format
     },
     optimization: {
       minimizer: [
@@ -46,7 +45,7 @@ module.exports = function(options) {
                 // into invalid ecma 5 code. This is why the 'compress' and 'output'
                 // sections only apply transformations that are ecma 5 safe
                 // https://github.com/facebook/create-react-app/pull/4234
-                ecma: 8,
+                ecma: 8
               },
               compress: {
                 ecma: 5,
@@ -60,25 +59,25 @@ module.exports = function(options) {
                 // https://github.com/facebook/create-react-app/issues/5250
                 // Pending futher investigation:
                 // https://github.com/terser-js/terser/issues/120
-                inline: 2,
+                inline: 2
               },
               mangle: {
-                safari10: true,
+                safari10: true
               },
               output: {
                 ecma: 5,
                 comments: false,
                 // Turned on because emoji and regex is not minified properly using default
                 // https://github.com/facebook/create-react-app/issues/2488
-                ascii_only: true,
-              },
+                ascii_only: true
+              }
             },
             // Use multi-process parallel running to improve the build speed
             // Default number of concurrent runs: os.cpus().length - 1
             parallel: true,
             // Enable file caching
             cache: true,
-            sourceMap: shouldUseSourceMap,
+            sourceMap: shouldUseSourceMap
           }),
         new OptimizeCSSAssetsPlugin({
           cssProcessorOptions: {
@@ -90,24 +89,23 @@ module.exports = function(options) {
                   inline: false,
                   // `annotation: true` appends the sourceMappingURL to the end of
                   // the css file, helping the browser find the sourcemap
-                  annotation: true,
+                  annotation: true
                 }
-              : false,
+              : false
           },
-          canPrint: false, // 不显示通知
-        }),
-      ].filter(Boolean),
+          canPrint: false // 不显示通知
+        })
+      ].filter(Boolean)
     },
     plugins: [
-      new webpack.DefinePlugin(config.build.env.stringified),
       new webpack.BannerPlugin({
         banner: banner(), // 其值为字符串，将作为注释存在
-        entryOnly: true, // 如果值为 true，将只在入口 chunks 文件中添加
+        entryOnly: true // 如果值为 true，将只在入口 chunks 文件中添加
       }),
       new MiniCssExtractPlugin({
-        filename: options.minify ? 'style.min.css' : 'style.css',
-      }),
-    ].filter(Boolean),
+        filename: options.minify ? 'style.min.css' : 'style.css'
+      })
+    ].filter(Boolean)
   })
 
   return webpackConfig

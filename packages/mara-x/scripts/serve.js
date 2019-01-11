@@ -10,7 +10,6 @@ process.on('unhandledRejection', err => {
 const config = require('../config')
 const { getFreePort } = require('../libs/utils')
 const getEntry = require('../libs/entry')
-const maraConf = require(config.paths.marauder)
 const clearConsole = require('react-dev-utils/clearConsole')
 
 // 是否为交互模式
@@ -18,11 +17,11 @@ const isInteractive = process.stdout.isTTY
 
 const webpack = require('webpack')
 const getWebpackConfig = require('../webpack/webpack.dev.conf')
-const createDevServerConfig = require('../webpack/webpackDevServer.conf')
+const createDevServerConfig = require('../webpack/webpack.devServer.conf')
 const prehandleConfig = require('../libs/prehandleConfig')
 const progressHandler = require('../libs/buildProgress')
-const DEFAULT_PORT = parseInt(process.env.PORT, 10) || config.dev.port
-const PROTOCOL = maraConf.https === true ? 'https' : 'http'
+const DEFAULT_PORT = parseInt(process.env.PORT, 10) || config.devServer.port
+const PROTOCOL = config.devServer.https === true ? 'https' : 'http'
 
 async function getCompiler(webpackConf, devServerConf, { entry, port } = {}) {
   const openBrowser = require('react-dev-utils/openBrowser')
@@ -53,7 +52,7 @@ async function getCompiler(webpackConf, devServerConf, { entry, port } = {}) {
 
     if (isFirstCompile) {
       console.log(`> Listening at ${hostUri}/\n`)
-      openBrowser(getServerURL(hostUri, entry))
+      config.devServer.open && openBrowser(getServerURL(hostUri, entry))
       isFirstCompile = false
     }
   })
@@ -77,7 +76,7 @@ function addHotDevClient(entry) {
 
 async function createDevServer(webpackConf, opts) {
   const DevServer = require('webpack-dev-server')
-  const proxyConfig = maraConf.proxy
+  const proxyConfig = config.devServer.proxy
   const serverConf = createDevServerConfig(opts.entry, proxyConfig, PROTOCOL)
   const compiler = await getCompiler(webpackConf, serverConf, opts)
 
@@ -89,7 +88,7 @@ function getServerHostUri(host, port) {
 }
 
 function getServerURL(hostUri, entry) {
-  let publicDevPath = config.dev.assetsPublicPath
+  let publicDevPath = config.assetsPublicPath
 
   // 以绝对路径 / 开头时，加入 url 中在浏览器打开
   // 以非 / 开头时，回退为 /，避免浏览器路径错乱

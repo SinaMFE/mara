@@ -1,7 +1,27 @@
 'use strict'
 
 const path = require('path')
+const webpack = require('webpack')
+// PnpWebpackPlugin 即插即用，要使用 require.resolve 解析 loader 路径
+const PnpWebpackPlugin = require('pnp-webpack-plugin')
+const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin')
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
+const tsFormatter = require('react-dev-utils/typescriptFormatter')
+const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin')
+const resolve = require('resolve')
+const getCSSModuleLocalIdent = require('react-dev-utils/getCSSModuleLocalIdent')
+const VueLoaderPlugin = require('vue-loader/lib/plugin')
+const tsImportPluginFactory = require('ts-import-plugin')
+const DuplicatePackageCheckerPlugin = require('duplicate-package-checker-webpack-plugin')
+
+const getStyleLoaders = require('./loaders/style-loader')
+const getCacheIdentifier = require('../libs/getCacheIdentifier')
 const config = require('../config')
+const {
+  babelLoader,
+  babelForTs,
+  babelExternalMoudles
+} = require('./loaders/babel-loader')
 const {
   vueLoaderOptions,
   vueLoaderCacheConfig
@@ -10,30 +30,8 @@ const { getEntries, rootPath } = require('../libs/utils')
 const paths = config.paths
 
 const isProd = process.env.NODE_ENV === 'production'
-const maraConf = require(paths.marauder)
 
 module.exports = function(entry) {
-  const webpack = require('webpack')
-  // PnpWebpackPlugin 即插即用，要使用 require.resolve 解析 loader 路径
-  const PnpWebpackPlugin = require('pnp-webpack-plugin')
-  const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin')
-  const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
-  const tsFormatter = require('react-dev-utils/typescriptFormatter')
-  const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin')
-  const resolve = require('resolve')
-  const getCSSModuleLocalIdent = require('react-dev-utils/getCSSModuleLocalIdent')
-  const VueLoaderPlugin = require('vue-loader/lib/plugin')
-  const tsImportPluginFactory = require('ts-import-plugin')
-  const DuplicatePackageCheckerPlugin = require('duplicate-package-checker-webpack-plugin')
-
-  const getStyleLoaders = require('./loaders/style-loader')
-  const getCacheIdentifier = require('../libs/getCacheIdentifier')
-  const {
-    babelLoader,
-    babelForTs,
-    babelExternalMoudles
-  } = require('./loaders/babel-loader')
-
   const isLib = entry === '__LIB__'
   const ASSETS = isLib ? '' : config.assetsDir
   const entryGlob = `src/view/${entry}/index.@(ts|tsx|js|jsx)`
@@ -43,9 +41,9 @@ module.exports = function(entry) {
   const extensions = ['.mjs', '.js', '.ts', '.tsx', '.jsx', '.vue', '.json']
 
   let tsImportLibs = []
-  if (maraConf.tsImportLibs) {
-    if (Array.isArray(maraConf.tsImportLibs)) {
-      tsImportLibs = maraConf.tsImportLibs
+  if (config.tsImportLibs) {
+    if (Array.isArray(config.tsImportLibs)) {
+      tsImportLibs = config.tsImportLibs
     } else {
       throw Error('marauder.config.js 中的 tsImportLibs 必须是 Array 类型！')
     }
@@ -233,6 +231,7 @@ module.exports = function(entry) {
       // https://github.com/jmblog/how-to-optimize-momentjs-with-webpack
       // You can remove this if you don't use Moment.js:
       new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+      new webpack.DefinePlugin(config.env.stringified),
       new VueLoaderPlugin(),
       // @FIXME
       // 等待 moduleDependency webpack4 适配就绪后

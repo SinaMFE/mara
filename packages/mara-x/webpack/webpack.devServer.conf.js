@@ -5,11 +5,12 @@ const errorOverlayMiddleware = require('react-dev-utils/errorOverlayMiddleware')
 const evalSourceMapMiddleware = require('react-dev-utils/evalSourceMapMiddleware')
 const noopServiceWorkerMiddleware = require('react-dev-utils/noopServiceWorkerMiddleware')
 const ignoredFiles = require('react-dev-utils/ignoredFiles')
-const config = require('../config')
 const { localIp, rootPath } = require('../libs/utils')
+const config = require('../config')
+const paths = config.paths
 
 module.exports = function(entry, proxy, protocol) {
-  const pagePublicDir = rootPath(`${config.paths.page}/${entry}/public`)
+  const pagePublicDir = rootPath(`${paths.page}/${entry}/public`)
 
   return {
     // WebpackDevServer 2.4.3 introduced a security fix that prevents remote
@@ -40,8 +41,8 @@ module.exports = function(entry, proxy, protocol) {
     // <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
     // 在 js 内，可使用 process.env.PUBLIC 获取路径
     contentBase: [
-      config.paths.public,
-      pagePublicDir,
+      paths.public,
+      pagePublicDir
       // @FIXME 监听 html 文件变化，临时措施
       // `${config.paths.page}/${entry}/*.html`
     ],
@@ -55,7 +56,7 @@ module.exports = function(entry, proxy, protocol) {
     hot: true,
     // It is important to tell WebpackDevServer to use the same "root" path
     // as we specified in the config. In development, we always serve from /.
-    publicPath: config.dev.assetsPublicPath,
+    publicPath: config.assetsPublicPath,
     // WebpackDevServer is noisy by default so we emit custom message instead
     // by listening to the compiler events with `compiler.hooks[...].tap` calls above.
     quiet: true,
@@ -64,7 +65,7 @@ module.exports = function(entry, proxy, protocol) {
     // src/node_modules is not ignored to support absolute imports
     // https://github.com/facebook/create-react-app/issues/1065
     watchOptions: {
-      ignored: ignoredFiles(config.paths.src),
+      ignored: ignoredFiles(paths.src)
     },
     // Enable HTTPS if the HTTPS environment variable is set to 'true'
     https: protocol === 'https',
@@ -73,13 +74,13 @@ module.exports = function(entry, proxy, protocol) {
     historyApiFallback: {
       // Paths with dots should still use the history fallback.
       // See https://github.com/facebook/create-react-app/issues/387.
-      disableDotRule: true,
+      disableDotRule: true
     },
     // proxy,
     before(app, server) {
-      if (fs.existsSync(config.paths.proxySetup)) {
+      if (fs.existsSync(paths.proxySetup)) {
         // This registers user provided middleware for proxy reasons
-        require(config.paths.proxySetup)(app)
+        require(paths.proxySetup)(app)
       }
 
       // This lets us fetch source contents from webpack for the error overlay
@@ -93,6 +94,6 @@ module.exports = function(entry, proxy, protocol) {
       // it used the same host and port.
       // https://github.com/facebook/create-react-app/issues/2272#issuecomment-302832432
       app.use(noopServiceWorkerMiddleware())
-    },
+    }
   }
 }

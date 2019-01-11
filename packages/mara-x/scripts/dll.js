@@ -12,7 +12,7 @@ const chalk = require('chalk')
 const config = require('../config')
 const { isObject, isNotEmptyArray } = require('../libs/utils')
 const paths = config.paths
-const vendorConf = require(paths.marauder).vendor || []
+const vendorConf = config.vendor || []
 
 // 在 webpack.dll.conf 引入之前优先执行异常检查
 if (!Object.keys(vendorConf).length) {

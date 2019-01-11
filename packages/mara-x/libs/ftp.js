@@ -13,7 +13,7 @@ const ftpConf = config.ftp
 const uploadStep = [
   `${chalk.blue('🌝  [1/3]')} Connecting ${chalk.yellow(config.ftp.host)}...`,
   `${chalk.blue('🚀  [2/3]')} Uploading package...`,
-  `${chalk.blue('🎉  [3/3]')} ${chalk.green('Done')}\n`,
+  `${chalk.blue('🎉  [3/3]')} ${chalk.green('Done')}\n`
 ]
 
 async function upload(filePath, remotePath) {
@@ -33,7 +33,7 @@ async function upload(filePath, remotePath) {
   })
 }
 
-function getRemotePath(page, namespace) {
+function getRemotePath(page, namespace, target) {
   const projName = process.env.npm_package_name
   const projVer = process.env.npm_package_version
 
@@ -45,8 +45,7 @@ function getRemotePath(page, namespace) {
     ftpConf.remotePath.version ? projVer : '',
     namespace,
     // 添加构建类型标识，隔离环境
-    // jsbridgeBuildType: web | app | undefined
-    process.env.jsbridgeBuildType || '',
+    target || '',
     page
   )
 }
@@ -69,13 +68,20 @@ module.exports.uploadVinylFile = async function(vinylFile, remoteFolder) {
   })
 }
 
-module.exports.uploadDir = async function(page, namespace) {
+/**
+ * 文件夹上传
+ * @param  {string} page        页面名
+ * @param  {string} namespace   命名空间
+ * @param  {string} [target]    页面类型
+ * @return {Promise}
+ */
+module.exports.uploadDir = async function(page, namespace, target) {
   const HOST = 'http://wap_front.dev.sina.cn'
 
   page = `${page}/` || ''
 
   // /wap_front/marauder/hdphoto/1.1.0/wensen/index
-  const remotePath = getRemotePath(page, namespace)
+  const remotePath = getRemotePath(page, namespace, target)
   const localPath = rootPath(`dist/${page}`) + '/**'
 
   try {

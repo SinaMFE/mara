@@ -9,6 +9,8 @@ const WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeM
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin')
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin')
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
+
+const { transformer, formatter } = require('../libs/resolveLoaderError')
 const { getEntryPoints } = require('../libs/utils')
 const config = require('../config')
 
@@ -22,7 +24,6 @@ function parseEntryPoint(page) {
 module.exports = function({ entry }) {
   const baseWebpackConfig = require('./webpack.base.conf')(entry)
   const entryPoint = parseEntryPoint(entry)
-  const { transformer, formatter } = require('../libs/resolveLoaderError')
   const hasHtml = fs.existsSync(`${config.paths.page}/${entry}/index.html`)
 
   // https://github.com/survivejs/webpack-merge
@@ -34,7 +35,7 @@ module.exports = function({ entry }) {
     output: {
       // Add /* filename */ comments to generated require()s in the output.
       pathinfo: true,
-      publicPath: config.dev.assetsPublicPath,
+      publicPath: config.assetsPublicPath,
       // Point sourcemap entries to original disk location (format as URL on Windows)
       devtoolModuleFilenameTemplate: info =>
         path.resolve(info.absoluteResourcePath).replace(/\\/g, '/')
@@ -65,8 +66,7 @@ module.exports = function({ entry }) {
       // 替换 html 内的环境变量
       // %PUBLIC% 转换为具体路径
       // 在 dev 环境下为空字符串
-      new InterpolateHtmlPlugin(HtmlWebpackPlugin, config.dev.env.raw),
-      new webpack.DefinePlugin(config.dev.env.stringified),
+      hasHtml && new InterpolateHtmlPlugin(HtmlWebpackPlugin, config.env.raw),
       // https://github.com/glenjamin/webpack-hot-middleware#installation--usage
       new webpack.HotModuleReplacementPlugin(),
       // 出错时只打印错误，但不重新加载页面

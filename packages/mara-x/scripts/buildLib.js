@@ -17,7 +17,6 @@ const webpack = require('webpack')
 const { getPageList } = require('../libs/utils')
 const config = require('../config')
 const paths = config.paths
-const maraConf = require(paths.marauder)
 const getWebpackProdConf = require('../webpack/webpack.prod.conf')
 const getWebpackLibConf = require('../webpack/webpack.lib.conf')
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages')
