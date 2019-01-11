@@ -43,6 +43,7 @@ module.exports = function({ entry, cmd }) {
   const entryPoints = getEntryPoints(`src/view/${entry}/index.*.js`)
   const debugLabel = config.debug ? '.debug' : ''
   const useTypeScript = fs.existsSync(config.paths.tsConfig)
+  const isHybridMode = config.target === 'app'
 
   // https://github.com/survivejs/webpack-merge
   const webpackConfig = merge(baseWebpackConfig, {
@@ -185,10 +186,10 @@ module.exports = function({ entry, cmd }) {
       // 创建 maraContext
       // new HybridCommonPlugin(),
 
-      // 【争议】：lib 模式禁用依赖分析?
       // 确保在 copy Files 之前
-      config.hybrid && new SinaHybridPlugin({ entry }),
-      // webpack4 适配后启用
+      isHybridMode && new SinaHybridPlugin({ entry }),
+      // 【争议】：lib 模式禁用依赖分析?
+      // moduleDependency 适配 webpack4 后启用
       // new moduleDependency({
       //   emitError: config.compiler.checkDuplicatePackage
       // }),
@@ -288,9 +289,8 @@ module.exports = function({ entry, cmd }) {
   //   webpackConfig.plugins.push(new webpackWS(swConfig))
   // }
 
-  const hybridMod = config.hybrid || config.target === 'app'
   // 重要：确保 zip plugin 在插件列表末尾
-  if (hybridMod) {
+  if (isHybridMode) {
     const ZipPlugin = require('zip-webpack-plugin')
     webpackConfig.plugins.push(
       new ZipPlugin({
