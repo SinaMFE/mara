@@ -110,7 +110,7 @@ function success({ entryInput, stats, publicPath, outputPath, warnings }) {
     console.log(warnings.join('\n\n'))
   }
 
-  console.log(chalk.green(`Build complete in ${result.time}ms\n`))
+  console.log(chalk.green(`Compiled successfully in ${result.time}ms\n`))
   console.log('File sizes after gzip:\n')
 
   result.assets['__dist'] = outputPath

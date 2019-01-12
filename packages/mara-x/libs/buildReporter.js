@@ -28,24 +28,30 @@ function reporter(assetsData, maxBundleGzipSize, maxChunkGzipSize) {
       suggestBundleSplitting = true
     }
 
-    assetInfo(info, isLarge)
+    printAssetPath(info, isLarge)
   }
 
-  function assetInfo(info, isLarge = false) {
+  function printAssetPath(info, isLarge = false) {
     let sizeLabel = info.sizeLabel
     const sizeLength = stripAnsi(sizeLabel).length
     const longestSizeLabelLength = Math.max.apply(null, labelLengthArr)
-    // path.normalize 跨平台格式化路径
-    let assetPath =
-      chalk.dim(info.folder + path.sep) + chalk.cyan(path.normalize(info.name))
+    let assetPath = chalk.dim(info.folder + path.sep)
 
+    // path.normalize 跨平台格式化路径
     if (isJS(info.name)) {
-      // 脚本文件添加模块格式标识
-      assetPath += info.format ? chalk.cyan(` (${info.format})`) : ''
+      // lib 脚本文件添加模块格式标识
+      const formatLabel = info.format ? ` (${info.format})` : ''
+
+      assetPath += chalk.yellowBright(info.name + formatLabel)
+    } else if (isCSS(info.name)) {
+      assetPath += chalk.blueBright(info.name)
+    } else {
+      assetPath += chalk.cyan(info.name)
     }
 
     if (sizeLength < longestSizeLabelLength) {
       const rightPadding = ' '.repeat(longestSizeLabelLength - sizeLength)
+
       sizeLabel += rightPadding
     }
 
@@ -70,11 +76,14 @@ function reporter(assetsData, maxBundleGzipSize, maxChunkGzipSize) {
           labelLengthArr.push(stripAnsi(sizeLabel).length)
 
           return {
-            folder: path.basename(buildDir),
-            name: asset.name,
+            folder: path.join(
+              path.basename(buildDir),
+              path.dirname(asset.name)
+            ),
+            name: path.basename(asset.name),
             format: asset['__format'],
             size: size,
-            sizeLabel,
+            sizeLabel
           }
         }),
       asset => (/\.(js|css)$/.test(asset.name) ? 'main' : 'other')
@@ -97,10 +106,7 @@ function reporter(assetsData, maxBundleGzipSize, maxChunkGzipSize) {
       output = assets.map(a => parseAssets(a))
     }
 
-    return {
-      type,
-      output,
-    }
+    return { type, output }
   })
 
   assetList.forEach(item => {
@@ -115,13 +121,14 @@ function reporter(assetsData, maxBundleGzipSize, maxChunkGzipSize) {
           if (isCSS(a.name) && isJS(b.name)) return 1
           if (isMinJS(a.name) && !isMinJS(b.name)) return -1
           if (!isMinJS(a.name) && isMinJS(b.name)) return 1
+
           return b.size - a.size
         })
         .forEach(info => mainAssetInfo(info, item.type))
 
       assetsInfo.other
         .sort((a, b) => b.size - a.size)
-        .forEach(info => assetInfo(info))
+        .forEach(info => printAssetPath(info))
     })
   })
 
