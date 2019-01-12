@@ -134,14 +134,6 @@ module.exports = function(entry) {
           )
         },
         {
-          test: /\.(bmp|png|jpe?g|gif|svg)(\?.*)?$/,
-          loader: require.resolve('url-loader'),
-          options: {
-            limit: 1024 * 4,
-            name: `${assetsDir}img/[name].[hash:8].[ext]`
-          }
-        },
-        {
           test: /\.ejs$/,
           loader: require.resolve('marauder-ejs-loader')
         },
@@ -200,6 +192,23 @@ module.exports = function(entry) {
           ]
         },
         {
+          test: /\.(bmp|png|jpe?g|gif|webp)(\?.*)?$/,
+          loader: require.resolve('url-loader'),
+          options: {
+            limit: 1024 * 4,
+            name: `${assetsDir}img/[name].[hash:8].[ext]`
+          }
+        },
+        // don't base64-inline SVGs.
+        // https://github.com/facebookincubator/create-react-app/pull/1180
+        {
+          test: /\.(svg)(\?.*)?$/,
+          loader: require.resolve('file-loader'),
+          options: {
+            name: `${assetsDir}img/[name].[hash:8].[ext]`
+          }
+        },
+        {
           test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
           loader: require.resolve('file-loader'),
           options: {
@@ -207,12 +216,10 @@ module.exports = function(entry) {
           }
         },
         {
-          test: /\.(html)$/,
-          use: {
-            loader: require.resolve('html-loader'),
-            options: {
-              attrs: [':src', ':data-src']
-            }
+          test: /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/,
+          loader: require.resolve('file-loader'),
+          options: {
+            name: `${assetsDir}media/[name].[hash:8].[ext]`
           }
         }
       ]
