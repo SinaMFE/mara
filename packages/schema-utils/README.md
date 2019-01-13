@@ -1,6 +1,7 @@
 # Schema Utils
 
 JSON Schema Validator. Extracted from [webpack](https://github.com/webpack/webpack).
+
 Feature: Customize error messages with the `description` properties.
 
 ## Install
@@ -13,7 +14,7 @@ yarn add @mara/schema-utils
 
 schema.json
 
-```json
+```javascript
 {
   "type": "object",
   "properties": {
