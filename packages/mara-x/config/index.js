@@ -1,26 +1,26 @@
 'use strict'
 
 const fs = require('fs')
+const merge = require('webpack-merge')
+const validateOptions = require('@mara/schema-utils')
+const maraxOptionsSchema = require('./maraxOptions')
 const paths = require('./paths')
 const getEnv = require('./env')
 const argv = require('./argv')
 const { ensureSlash, isObject } = require('../libs/utils')
-const defConf = require('./default')
+const defConf = require('./defaultOptions')
 const pkgName = require(paths.packageJson).name
 const maraxVer = require(paths.maraxPackageJson).version
-const merge = require('webpack-merge')
 const isProd = process.env.NODE_ENV === 'production'
 let maraConf = defConf
 
 if (fs.existsSync(paths.marauder)) {
-  const userConf = require(paths.marauder)
+  const userOptions = require(paths.marauder)
 
-  maraConf = merge({}, defConf, userConf)
+  if (validateOptions(maraxOptionsSchema, userOptions, 'mararc', 'Marax')) {
+    maraConf = merge({}, defConf, userOptions)
+  }
 }
-
-// @TODO
-// target 和 jsbridgeBuildType 混合
-// cli target 最优先
 
 function getBuildTarget() {
   switch (argv.target) {

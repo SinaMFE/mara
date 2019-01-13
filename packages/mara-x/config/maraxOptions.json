@@ -1,0 +1,156 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "hash": {
+      "description": "Whether filename will contain hash part.",
+      "oneOf": [
+        {
+          "description": "Add a hash part to all filenames.",
+          "type": "boolean"
+        },
+        {
+          "additionalProperties": false,
+          "type": "object",
+          "properties": {
+            "main": {
+              "description": "Add a hash part to the main filename.",
+              "type": "boolean"
+            },
+            "chunk": {
+              "description": "Add a hash part to the chunk filename.",
+              "type": "boolean"
+            }
+          }
+        }
+      ]
+    },
+    "debug": {
+      "description": "Set debug mode to output uncompressed assets.",
+      "type": "boolean"
+    },
+    "sourceMap": {
+      "description": "Generate sourceMap for production build.",
+      "type": "boolean"
+    },
+    "prerender": {
+      "type": "boolean"
+    },
+    "publicPath": {
+      "description": "Project deployment base path.",
+      "type": "string"
+    },
+    "publicDevPath": {
+      "description": "Project development base path.",
+      "type": "string"
+    },
+    "library": {
+      "type": "object"
+    },
+    "tsImportLibs": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "vendor": {
+      "type": "object"
+    },
+    "compiler": {
+      "type": "object",
+      "properties": {
+        "cssExtract": {
+          "description": "Extract style to an extra css file.",
+          "type": "boolean"
+        },
+        "checkDuplicatePackage": {
+          "description": "Check if duplicate dependencies are included.",
+          "type": "boolean"
+        },
+        "vueRuntimeOnly": {
+          "description": "Compile with vue runtime.",
+          "type": "boolean"
+        },
+        "dropConsole": {
+          "description": "Drop console.log.",
+          "type": "boolean"
+        }
+      }
+    },
+    "ciConfig": {
+      "description": "Options for the GitLab CI runner.",
+      "type": "object",
+      "properties": {
+        "zip_config_name": {
+          "type": "string"
+        }
+      }
+    },
+    "devServer": {
+      "additionalProperties": false,
+      "description": "Options for the marax-dev-server.",
+      "type": "object",
+      "properties": {
+        "open": {
+          "description": "Open the browser automatically after the service starts.",
+          "type": "boolean"
+        },
+        "https": {
+          "description": "Enable https protocol.",
+          "type": "boolean"
+        },
+        "port": {
+          "description": "Specify the port number.",
+          "type": "integer"
+        },
+        "proxy": {
+          "description": "Proxy table.",
+          "type": "object"
+        }
+      }
+    },
+    "hybrid": {
+      "description": "Options for the hybrid deployment.",
+      "type": "object"
+    },
+    "ftp": {
+      "description": "Options for the ftp server.",
+      "additionalProperties": false,
+      "type": "object",
+      "required": ["host", "port", "user", "password"],
+      "properties": {
+        "host": {
+          "description": "Ftp server host name.",
+          "type": "string"
+        },
+        "user": {
+          "description": "Ftp server username.",
+          "type": "string"
+        },
+        "password": {
+          "description": "Ftp server user password.",
+          "type": "string"
+        },
+        "port": {
+          "description": "Ftp server port number.",
+          "type": "integer"
+        },
+        "reload": {
+          "description": "Refresh resource cache.",
+          "type": "boolean"
+        },
+        "openBrowser": {
+          "description": "Open the browser automatically after uploading.",
+          "type": "boolean"
+        },
+        "remotePath": {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "version": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    }
+  },
+  "type": "object"
+}

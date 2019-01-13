@@ -34,7 +34,11 @@ module.exports = {
   webpackPluginsHandler: (command, webpackConf) => webpackConf,
   proxyTable: {},
   babelPlugins: [],
-  ciConfig: {},
+  ciConfig: {
+    privateToken: '',
+    // hb config name
+    zip_config_name: 'sina_news'
+  },
   // 通知 babel 编译 node_module 里额外的模块
   esm: ['@mfelibs'],
   // 打包 dll

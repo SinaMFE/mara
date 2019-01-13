@@ -22,6 +22,7 @@
     "@babel/core": "^7.2.2",
     "@babel/plugin-proposal-decorators": "^7.2.3",
     "@babel/types": "^7.2.2",
+    "@mara/schema-utils": "file:/Users/fish/github_pro/marauder/packages/schema-utils",
     "acorn": "^6.0.5",
     "art-template": "^4.13.2",
     "art-template-loader": "^1.4.3",
@@ -103,6 +104,5 @@
     "webpack-merge": "^4.2.1",
     "zip-webpack-plugin": "^3.0.0"
   },
-  "devDependencies": {},
   "license": "MIT"
 }
