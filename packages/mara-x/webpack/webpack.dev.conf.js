@@ -11,6 +11,7 @@ const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin')
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
 
 const { transformer, formatter } = require('../libs/resolveLoaderError')
+const BuildProgressPlugin = require('../libs/BuildProgressPlugin')
 const { getEntryPoints } = require('../libs/utils')
 const config = require('../config')
 
@@ -21,7 +22,7 @@ function parseEntryPoint(page) {
   return { [page]: files }
 }
 
-module.exports = function({ entry }) {
+module.exports = function({ entry, spinner }) {
   const baseWebpackConfig = require('./webpack.base.conf')(entry)
   const entryPoint = parseEntryPoint(entry)
   const hasHtml = fs.existsSync(`${config.paths.page}/${entry}/index.html`)
@@ -53,6 +54,7 @@ module.exports = function({ entry }) {
       runtimeChunk: false
     },
     plugins: [
+      new BuildProgressPlugin({ spinner }),
       hasHtml &&
         new HtmlWebpackPlugin({
           // 以页面文件夹名作为模板名称

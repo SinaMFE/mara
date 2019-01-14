@@ -31,7 +31,7 @@ const WARN_AFTER_CHUNK_GZIP_SIZE = 1024 * 1024
 const spinner = ora('Building for production...')
 
 function build({ entryInput, dist }) {
-  let webpackConfig = getWebpackConfig(entryInput)
+  let webpackConfig = getWebpackConfig({ spinner, ...entryInput })
   webpackConfig = prehandleConfig('build', webpackConfig)
   const compiler = webpack(webpackConfig)
 

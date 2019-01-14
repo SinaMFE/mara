@@ -7,21 +7,20 @@ process.on('unhandledRejection', err => {
   throw err
 })
 
-const config = require('../config')
-const { getFreePort } = require('../libs/utils')
-const getEntry = require('../libs/entry')
-const clearConsole = require('react-dev-utils/clearConsole')
-
-// 是否为交互模式
-const isInteractive = process.stdout.isTTY
-
+const ora = require('ora')
 const webpack = require('webpack')
+const clearConsole = require('react-dev-utils/clearConsole')
+const config = require('../config')
+const getEntry = require('../libs/entry')
+const { getFreePort } = require('../libs/utils')
 const getWebpackConfig = require('../webpack/webpack.dev.conf')
 const createDevServerConfig = require('../webpack/webpack.devServer.conf')
 const prehandleConfig = require('../libs/prehandleConfig')
-const progressHandler = require('../libs/buildProgress')
 const DEFAULT_PORT = parseInt(process.env.PORT, 10) || config.devServer.port
 const PROTOCOL = config.devServer.https === true ? 'https' : 'http'
+const spinner = ora('Starting development server...')
+// 是否为交互模式
+const isInteractive = process.stdout.isTTY
 
 async function getCompiler(webpackConf, devServerConf, { entry, port } = {}) {
   const openBrowser = require('react-dev-utils/openBrowser')
@@ -29,14 +28,11 @@ async function getCompiler(webpackConf, devServerConf, { entry, port } = {}) {
   const compiler = webpack(webpackConf)
   let isFirstCompile = true
 
-  new webpack.ProgressPlugin((...args) => {
-    if (isFirstCompile) progressHandler.apply(null, args)
-  }).apply(compiler)
-
   compiler.hooks.afterEmit.tapAsync(
     'maraDevServer',
     (compilation, callback) => {
       if (isFirstCompile) {
+        spinner.stop()
         // 交互模式下清除 console
         isInteractive && clearConsole()
       }
@@ -98,9 +94,12 @@ function getServerURL(hostUri, entry) {
 }
 
 async function server(entryInput) {
-  console.log('> Starting development server...')
+  spinner.start()
 
-  const webpackConf = prehandleConfig('dev', getWebpackConfig(entryInput))
+  const webpackConf = prehandleConfig(
+    'dev',
+    getWebpackConfig({ spinner, ...entryInput })
+  )
   const port = await getFreePort(DEFAULT_PORT)
   const devServer = await createDevServer(webpackConf, {
     entry: entryInput.entry,

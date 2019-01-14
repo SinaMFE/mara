@@ -12,6 +12,7 @@ const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const InlineUmdHtmlPlugin = require('../libs/InlineUmdHtmlPlugin')
 const BuildJsonPlugin = require('../libs/BuildJsonPlugin')
+const BuildProgressPlugin = require('../libs/BuildProgressPlugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const safePostCssParser = require('postcss-safe-parser')
 const moduleDependency = require('sinamfe-webpack-module_dependency')
@@ -36,7 +37,7 @@ const shouldUseSourceMap = !!config.build.sourceMap
  * @param  {String} options.cmd   当前命令
  * @return {Object}               webpack 配置对象
  */
-module.exports = function({ entry, cmd }) {
+module.exports = function({ entry, cmd, spinner }) {
   const distPageDir = `${config.paths.dist}/${entry}`
   const baseWebpackConfig = require('./webpack.base.conf')(entry)
   const hasHtml = fs.existsSync(`${config.paths.page}/${entry}/index.html`)
@@ -143,6 +144,7 @@ module.exports = function({ entry, cmd }) {
       runtimeChunk: false
     },
     plugins: [
+      new BuildProgressPlugin({ spinner }),
       hasHtml &&
         new HtmlWebpackPlugin({
           // 生成出来的html文件名
