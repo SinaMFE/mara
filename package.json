@@ -7,6 +7,8 @@
     "changelog": "lerna-changelog"
   },
   "devDependencies": {
+    "@commitlint/cli": "^7.3.1",
+    "@commitlint/config-conventional": "^7.3.1",
     "eslint": "^5.10.0",
     "execa": "^1.0.0",
     "globby": "^8.0.1",
@@ -19,7 +21,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   },
   "lint-staged": {

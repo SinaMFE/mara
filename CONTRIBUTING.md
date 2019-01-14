@@ -2,12 +2,14 @@
 
 ## commit 风格指南
 
-commit 信息需遵循以下风格约定：
+commit 信息遵循以下[风格约定](https://www.conventionalcommits.org/zh/v1.0.0-beta.2/)：
 
 ```
-Tag(scope): Short description
+<type>[optional scope]: <description>
 
-Longer description here if necessary
+[optional body]
+
+[optional footer]
 ```
 
 commit 信息需要指定 **tag** 描述，可选值为：
