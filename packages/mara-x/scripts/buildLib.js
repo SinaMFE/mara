@@ -106,7 +106,15 @@ function success(output) {
     console.log(output.warnings.join('\n\n'))
   }
 
-  console.log(chalk.green(`Build complete in ${output.time}ms\n`))
+  let buildTime = output.time
+
+  if (buildTime < 1000) {
+    buildTime += 'ms'
+  } else {
+    buildTime = buildTime / 1000 + 's'
+  }
+
+  console.log(chalk.green(`Compiled successfully in ${buildTime}\n`))
   console.log('File sizes after gzip:\n')
 
   const { children } = output.stats.toJson({

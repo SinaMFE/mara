@@ -2,12 +2,20 @@
   "name": "@mara/create",
   "version": "1.0.0",
   "description": "Create marauder app",
-  "keywords": ["marauder", "@mara/create"],
+  "keywords": [
+    "marauder",
+    "@mara/create"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "main": "index.js",
-  "files": ["README.md", "index.js", "command", "lib"],
+  "files": [
+    "README.md",
+    "index.js",
+    "command",
+    "lib"
+  ],
   "author": "Vincent Lee <vv314@foxmail.com>",
   "license": "MIT",
   "repository": {
@@ -24,7 +32,6 @@
     "inquirer": "^4.0.1",
     "mri": "^1.1.1",
     "ora": "^1.3.0",
-    "readline": "^1.3.0",
     "semver": "^5.4.1",
     "tar-pack": "^3.4.1",
     "tmp": "^0.0.33",

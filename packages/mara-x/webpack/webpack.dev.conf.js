@@ -54,7 +54,7 @@ module.exports = function({ entry, spinner }) {
       runtimeChunk: false
     },
     plugins: [
-      new BuildProgressPlugin({ spinner }),
+      new BuildProgressPlugin({ spinner, name: 'Starting' }),
       hasHtml &&
         new HtmlWebpackPlugin({
           // 以页面文件夹名作为模板名称

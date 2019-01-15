@@ -144,7 +144,7 @@ module.exports = function({ entry, cmd, spinner }) {
       runtimeChunk: false
     },
     plugins: [
-      new BuildProgressPlugin({ spinner }),
+      new BuildProgressPlugin({ spinner, name: 'Building' }),
       hasHtml &&
         new HtmlWebpackPlugin({
           // 生成出来的html文件名

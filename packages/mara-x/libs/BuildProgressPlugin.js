@@ -1,35 +1,57 @@
 'use strict'
 
 const WebpackProgressPlugin = require('webpack/lib/ProgressPlugin')
+const ProgressBar = require('./ProgressBar')
 
 module.exports = class BuildProgressPlugin {
   constructor(options) {
     const defOpt = {
-      spinner: null
+      name: '',
+      spinner: null,
+      stdout: process.stderr
     }
 
     this.options = Object.assign(defOpt, options)
-    this.spinner = this.options.spinner
-    this.lineCaretPosition = 0
-    this.isInteractive = process.stdout.isTTY
-    this.progress = new WebpackProgressPlugin(this.buildProgress.bind(this))
+
+    const stdout = this.options.stdout
+    const spinner = this.options.spinner
+    // const spinner = null
+
+    if (!stdout.isTTY) return () => {}
+
+    this.progressPlugin = new WebpackProgressPlugin(
+      this.buildProgress.bind(this)
+    )
+    this.progressBar = new ProgressBar({
+      spinner,
+      stdout,
+      name: this.options.name
+    })
   }
 
   apply(compiler) {
-    this.progress.apply(compiler)
+    this.progressPlugin.apply(compiler)
   }
 
-  buildProgress(percentage, msg, ...args) {
+  buildProgress(percent, msg, ...args) {
     const details = args
 
-    if (percentage < 1) {
-      percentage = Math.floor(percentage * 100)
-      msg = `${percentage}% ${msg}`
+    if (percent === 1) {
+      return this.progressBar.stop()
+    }
 
-      if (percentage < 100) {
+    this.progressBar.update(percent)
+  }
+
+  progressDetails(percent, msg) {
+    if (percent < 1) {
+      percent = Math.floor(percent * 100)
+      msg = `${percent}% ${msg}`
+
+      if (percent < 100) {
         msg = ` ${msg}`
       }
-      if (percentage < 10) {
+      if (percent < 10) {
         msg = ` ${msg}`
       }
 
@@ -42,29 +64,5 @@ module.exports = class BuildProgressPlugin {
         msg += ` ${detail}`
       }
     }
-
-    if (this.spinner) {
-      this.spinner.text = msg
-    } else {
-      this.goToLineStart(msg)
-      process.stderr.write(msg)
-    }
-  }
-
-  goToLineStart(nextMessage) {
-    let str = ''
-
-    for (
-      ;
-      this.lineCaretPosition > nextMessage.length;
-      this.lineCaretPosition--
-    ) {
-      str += '\b \b'
-    }
-    for (var i = 0; i < this.lineCaretPosition; i++) {
-      str += '\b'
-    }
-    this.lineCaretPosition = nextMessage.length
-    if (str) process.stderr.write(str)
   }
 }
