@@ -24,6 +24,9 @@
   "devDependencies": {
     "jest": "^23.6.0"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "author": "Vincent Lee <vv314@foxmail.com>",
   "bugs": "https://github.com/SinaMFE/marauder/issues",
   "repository": {
