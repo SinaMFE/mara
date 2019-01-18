@@ -1,4 +1,4 @@
-# webpack-marauder
+# marax
 
 [![npm](https://img.shields.io/npm/v/webpack-marauder.svg)](https://www.npmjs.com/package/webpack-marauder)
 
@@ -8,31 +8,23 @@
 
 ## 安装
 
-> 注意：本项目使用了 async/await 特性依赖 Node.js 8.0 以上
+> 依赖 Node.js 8.0 以上
 
-为了保证多人开发时依赖安装的一致性，推荐使用 [yarn](https://yarnpkg.com/zh-Hans/) 作为包管理工具。
+推荐使用本工具配套的脚手架 `@mara/cli` 生成项目
 
-推荐使用本工具配套的脚手架生成项目，`webpack-marauder` 及相关配置已包含在项目模板中。
-
-- [组件脚手架 - spkg](https://github.com/SinaMFE/generator-spkg)
-- [项目脚手架 - mcli](https://github.com/SinaMFE/generator-mcli)
-
-### 生成项目结构
-
-@TODO
-
-### 安装依赖
+### 手动安装
 
 ```bash
-yarn add webpack-marauder -D
+yarn add @mara/x -D
 ```
 
-### 添加命令
+### 配置 npm script
 
 `package.json` 中配置 npm-script
 
 ```bash
 "scripts": {
+   "test": "marax test",
    "dev": "marax dev",
    "build": "marax build"
  },
@@ -132,26 +124,6 @@ npm run build
 ```
 
 打包后文件将在 `lib` 目录中输出
-
-### 启动微信小程序 mpvue 开发环境
-
-`webpack-marauder` 除了可以做普通 web 开发，也支持小程序 mpvue 的开发环境，详情 mpvue 的使用方法见：`http://mpvue.com/`
-
-```json
-"wx-dev": "marax wx-dev"
-```
-
-```
-npm run wx-dev
-```
-
-在项目 `src` 中会创建 wx 目录装载基本的 mpvue 的初始脚本，然后会在根目录生成`wx-dist`目录，使用微信开发者工具直接调试此目录即可。
-
-### 微信小程序 mpvue 打包
-
-`json "wx-build": "marax wx-build"`
-
-功能同`wx-dev`，会一次性在`wx-dist`下打包好 mpvue 构建的小程序代码。
 
 ## 教程
 

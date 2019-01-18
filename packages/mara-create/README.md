@@ -1,6 +1,16 @@
 # @mara/create
 
-用于生成项目
+用于生成项目模板
+
+## 命令
+
+```bash
+npx @mara my-app
+```
+
+```bash
+npm init @mara my-app
+```
 
 ## 流程
 
