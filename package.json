@@ -4,6 +4,7 @@
   "scripts": {
     "test": "",
     "build": "",
+    "publish": "lerna publish --npm-client=npm",
     "changelog": "lerna-changelog"
   },
   "devDependencies": {

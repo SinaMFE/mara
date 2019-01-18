@@ -1,5 +1,11 @@
 {
   "npmClient": "yarn",
   "useWorkspaces": true,
-  "version": "independent"
+  "version": "independent",
+  "command": {
+    "publish": {
+      "ignoreChanges": ["**/__fixtures__/**", "**/__tests__/**", "**/*.md"],
+      "message": "chore(release): publish"
+    }
+  }
 }
