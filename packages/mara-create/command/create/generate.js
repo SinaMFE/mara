@@ -54,8 +54,7 @@ module.exports = async function({
   originalDirectory,
   template
 }) {
-  // const marax = '@mara/x'
-  const marax = 'file:/Users/fish/github_pro/marauder/packages/mara-x'
+  const marax = '@mara/x'
   const packages = [marax]
 
   if (useTs) {

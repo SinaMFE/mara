@@ -22,7 +22,7 @@
     "@babel/core": "^7.2.2",
     "@babel/plugin-proposal-decorators": "^7.2.3",
     "@babel/types": "^7.2.2",
-    "@mara/schema-utils": "file:/Users/fish/github_pro/marauder/packages/schema-utils",
+    "@mara/schema-utils": "^1.0.0",
     "acorn": "^6.0.5",
     "art-template": "^4.13.2",
     "art-template-loader": "^1.4.3",
