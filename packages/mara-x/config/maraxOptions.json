@@ -1,5 +1,5 @@
 {
-  "additionalProperties": false,
+  "additionalProperties": true,
   "properties": {
     "hash": {
       "description": "Whether filename will contain hash part.",
