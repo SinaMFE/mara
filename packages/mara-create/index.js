@@ -1,3 +1,7 @@
+#!/usr/bin/env node
+
+'use strict'
+
 const chalk = require('chalk')
 const create = require('./command/create')
 const options = require('./command/options')

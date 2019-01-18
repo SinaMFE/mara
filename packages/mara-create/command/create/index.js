@@ -50,7 +50,7 @@ function couldUseYarn() {
 }
 
 async function setBaseDependencies(framework, packageJson, useTs) {
-  if (framework === 'none') return
+  if (framework === 'none') return ''
 
   try {
     // choose app framework
@@ -75,9 +75,13 @@ async function setBaseDependencies(framework, packageJson, useTs) {
           tsDep['vue-property-decorator']
         }`
       }
+
+      return 'Vue'
     } else if (framework === 'react') {
       // react-dom 与 react 版本号同步
       packageJson.dependencies['react-dom'] = `^${mainDep.react}`
+
+      return 'React'
     }
   } catch (e) {
     if (e.response && e.response.status == '404') {
@@ -126,9 +130,6 @@ module.exports = async function(options) {
   // 创建项目目录
   fs.ensureDirSync(appDirectory)
 
-  console.log(`Creating project in ${chalk.green(root)}.`)
-  console.log()
-
   // @TODO 处理组件 package.json
   const packageJson = {
     // 默认以文件夹名作为 name
@@ -139,7 +140,14 @@ module.exports = async function(options) {
     devDependencies: {}
   }
 
-  await setBaseDependencies(framework, packageJson, !noTs)
+  const projectType = await setBaseDependencies(framework, packageJson, !noTs)
+
+  console.log(
+    `Creating ${projectType ? `${projectType} ` : ''}project in ${chalk.green(
+      root
+    )}.`
+  )
+  console.log()
 
   fs.writeFileSync(
     path.join(root, 'package.json'),
