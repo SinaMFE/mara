@@ -2,14 +2,24 @@
   "name": "@mara/cli",
   "version": "1.0.0",
   "description": "CLI tool for Marauder",
-  "keywords": ["marauder", "marauder-cli", "@mara/cli"],
+  "keywords": [
+    "marauder",
+    "marauder-cli",
+    "@mara/cli"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
     "mara": "./bin/mara.js"
   },
-  "files": ["README.md", "bin", "commands", "config", "lib"],
+  "files": [
+    "README.md",
+    "bin",
+    "commands",
+    "config",
+    "lib"
+  ],
   "author": "Vincent Lee <vv314@foxmail.com>",
   "license": "MIT",
   "repository": {

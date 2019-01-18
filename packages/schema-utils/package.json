@@ -13,7 +13,9 @@
   "scripts": {
     "test": "jest --env node --verbose --coverage"
   },
-  "files": ["src"],
+  "files": [
+    "src"
+  ],
   "engines": {
     "node": ">= 6"
   },
