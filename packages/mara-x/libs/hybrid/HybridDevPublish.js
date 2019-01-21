@@ -96,14 +96,16 @@ module.exports = async function(entry, remotePath) {
   const moduleIdx = hbConf.data.modules.findIndex(
     item => item.name === moduleName
   )
-  let gkList = []
-  let qeList = []
+  let gkTestIds = []
+  let qeTestIds = []
+  let downloadRank = 5
 
   try {
     const manifest = require(rootPath(`src/view/${entry}/public/manifest.json`))
 
-    gkList = manifest.display.gkTestIds || []
-    qeList = manifest.display.qeTestIds || []
+    gkTestIds = manifest.display.gkTestIds || []
+    qeTestIds = manifest.display.qeTestIds || []
+    downloadRank = manifest.rank || 5
   } catch (e) {}
 
   const hbMod = {
@@ -112,8 +114,9 @@ module.exports = async function(entry, remotePath) {
     pkg_url: `${remotePath + entry}.php`,
     hybrid: true,
     md5: md5(fs.readFileSync(localPkgPath)),
-    gkList,
-    qeList
+    gkList: gkTestIds,
+    qeList: qeTestIds,
+    rank: downloadRank
   }
 
   console.log(publishStep[1])
