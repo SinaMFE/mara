@@ -1,6 +1,6 @@
 {
   "name": "@mara/cli",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "CLI tool for Marauder",
   "keywords": [
     "marauder",
@@ -28,7 +28,7 @@
   },
   "bugs": "https://github.com/SinaMFE/marauder/issues",
   "dependencies": {
-    "@mara/create": "^1.0.1",
+    "@mara/create": "^1.0.2",
     "chalk": "^2.4.1",
     "cliui": "^4.0.0",
     "cross-spawn": "^5.1.0",
