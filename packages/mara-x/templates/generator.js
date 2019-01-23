@@ -16,6 +16,13 @@ const os = require('os')
 const { sortObject } = require('../libs/utils')
 // const verifyTypeScriptSetup = require('./utils/verifyTypeScriptSetup')
 
+const TMPL_VUE = 'project-vue'
+const TMPL_REACT = 'project-react'
+const TMPL_GENERAL = 'project-general'
+const BASE_DIR = 'base'
+const JS_DIR = 'js'
+const TS_DIR = 'ts'
+
 function isInGitRepository() {
   try {
     execSync('git rev-parse --is-inside-work-tree', { stdio: 'ignore' })
@@ -88,9 +95,8 @@ function resetGitignore(appPath) {
   }
 }
 
-function copyRootConfFiles(tmplPath, appPath) {
-  fs.copySync(tmplPath, appPath)
-
+function copyRootFiles(tmplPath, appPath, filterFn = () => true) {
+  fs.copySync(tmplPath, appPath, { filter: filterFn })
   resetGitignore(appPath)
 }
 
@@ -127,33 +133,48 @@ function sortPackageJsonField(pkg) {
   return pkg
 }
 
-function fillProjectContent(tmplType, framework, ownPath, appPath) {
-  let templateName = 'vanilla-project'
+function getTmplName(type, depName) {
+  const isComp = type === 'component'
 
-  if (tmplType == 'component') {
-    templateName = 'component'
-  } else if (framework == 'react') {
-    templateName = 'react-project'
-  } else if (framework == 'vue') {
-    templateName = 'vue-project'
+  switch (depName) {
+    case 'react':
+      return TMPL_REACT
+    case 'vue':
+      return TMPL_VUE
+    default:
+      return isComp ? 'component' : TMPL_GENERAL
   }
+}
 
+function copyFiles(src, dest, pathname = '') {
+  fs.copySync(path.join(src, pathname), dest)
+}
+
+// merge root-files <- project-<dep>/base <- project-<dep>/<js|ts>
+function fillProjectContent({ tmplType, preset, useTs, ownPath, appPath }) {
+  const templateName = getTmplName(tmplType, preset)
   const templatePath = path.join(ownPath, 'templates', templateName)
   const rootConfigPath = path.join(ownPath, 'templates/root-files')
+  const copyProjectFiles = copyFiles.bind(null, templatePath, appPath)
+
   // @TODO project or component
 
-  if (fs.existsSync(templatePath)) {
-    // 保持此顺序，优先复制公共配置文件
-    copyRootConfFiles(rootConfigPath, appPath)
-
-    // 项目模板可以覆盖同名配置文件
-    fs.copySync(templatePath, appPath)
-  } else {
-    console.error(
+  if (!fs.existsSync(templatePath)) {
+    throw new Error(
       `Could not locate supplied template: ${chalk.green(templatePath)}`
     )
-    process.exit(1)
   }
+
+  // 通用共享资源
+  copyRootFiles(rootConfigPath, appPath, src =>
+    useTs ? true : !src.includes('tsconfig.json')
+  )
+
+  // 项目共享资源
+  copyProjectFiles(BASE_DIR)
+
+  // 项目特定资源
+  copyProjectFiles(useTs ? TS_DIR : JS_DIR)
 }
 
 function getGitUserInfo() {
@@ -167,13 +188,14 @@ function getGitUserInfo() {
   }
 }
 
-module.exports = function(
+module.exports = function({
   appPath,
   appName,
-  framework,
+  preset,
+  useTs,
   originalDirectory,
   tmplType
-) {
+}) {
   const ownPath = path.dirname(
     require.resolve(path.join(__dirname, '..', 'package.json'))
   )
@@ -182,8 +204,6 @@ module.exports = function(
 
   // Copy over some of the devDependencies
   appPackage.dependencies = appPackage.dependencies || {}
-
-  const useTypeScript = appPackage.dependencies['typescript'] != null
 
   // Setup the script rules
   appPackage.scripts = {
@@ -216,9 +236,15 @@ module.exports = function(
     )
   }
 
-  fillProjectContent('project', framework, ownPath, appPath)
+  fillProjectContent({
+    tmplType: 'project',
+    useTs,
+    preset,
+    ownPath,
+    appPath
+  })
 
-  // if (useTypeScript) {
+  // if (useTs) {
   //   verifyTypeScriptSetup()
   // }
 

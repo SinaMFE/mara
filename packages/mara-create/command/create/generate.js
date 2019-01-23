@@ -48,12 +48,14 @@ module.exports = async function({
   root,
   appName,
   useYarn,
-  framework,
+  preset,
   usePnp,
   useTs,
   originalDirectory,
   template
 }) {
+  // just for dev
+  // const marax = 'file:/Users/fish/github_pro/marauder/packages/mara-x'
   const marax = '@mara/x'
   const packages = [marax]
 
@@ -61,7 +63,7 @@ module.exports = async function({
     // TODO: @types/node get user's node version instead of installing latest
     packages.push('@types/node', '@types/jest')
 
-    if (framework == 'react') {
+    if (preset == 'react') {
       packages.push('@types/react', '@types/react-dom')
     }
   }
@@ -84,13 +86,21 @@ module.exports = async function({
 
     const pnpPath = path.resolve(process.cwd(), '.pnp.js')
     const nodeArgs = fs.existsSync(pnpPath) ? ['--require', pnpPath] : []
+    const data = {
+      appPath: root,
+      appName,
+      preset,
+      useTs,
+      originalDirectory,
+      template
+    }
 
     await executeNodeScript(
       {
         cwd: process.cwd(),
         args: nodeArgs
       },
-      [root, appName, framework, originalDirectory, template],
+      [data],
       `
         var generator = require('@mara/x/templates/generator.js');
         generator.apply(null, JSON.parse(process.argv[1]));
@@ -101,7 +111,7 @@ module.exports = async function({
     console.log('Aborting installation.')
 
     if (reason.command) {
-      console.log(`  ${chalk.cyan(reason.command)} has failed.`)
+      console.log(`  ${chalk.cyan(reason.command)} generator.js has failed.`)
     } else {
       console.log(chalk.red('Unexpected error. Please report it as a bug:'))
       console.log(reason)

@@ -1,6 +1,5 @@
 'use strict'
 
-const ora = require('ora')
 const os = require('os')
 const chalk = require('chalk')
 const fs = require('fs-extra')
@@ -49,16 +48,19 @@ function couldUseYarn() {
   }
 }
 
-async function setBaseDependencies(framework, packageJson, useTs) {
-  if (framework === 'none') return ''
+function upperCaseFirstLetter(str) {
+  const toUpperCase = s => s.toUpperCase()
+  return str.replace(/^[a-z]/, toUpperCase)
+}
+
+async function setBaseDependencies(preset, packageJson, useTs) {
+  if (!preset) return ''
 
   try {
-    // choose app framework
-    const mainDep = await getNpmLatestVersion(framework)
+    // choose app preset
+    const mainDep = await getNpmLatestVersion(preset)
 
-    packageJson.dependencies[framework] = `^${mainDep[framework]}`
-
-    if (framework === 'vue') {
+    if (preset === 'vue') {
       // vue-template-compiler 与 vue 版本号同步
       packageJson.devDependencies['vue-template-compiler'] = `^${mainDep.vue}`
 
@@ -75,17 +77,17 @@ async function setBaseDependencies(framework, packageJson, useTs) {
           tsDep['vue-property-decorator']
         }`
       }
-
-      return 'Vue'
-    } else if (framework === 'react') {
+    } else if (preset === 'react') {
       // react-dom 与 react 版本号同步
       packageJson.dependencies['react-dom'] = `^${mainDep.react}`
-
-      return 'React'
     }
+
+    packageJson.dependencies[preset] = `^${mainDep[preset]}`
+
+    return upperCaseFirstLetter(preset)
   } catch (e) {
     if (e.response && e.response.status == '404') {
-      console.log(`Not fond framework ${framework}\n`)
+      console.log(`Not fond ${preset}\n`)
     } else {
       console.log('网络异常')
     }
@@ -95,7 +97,7 @@ async function setBaseDependencies(framework, packageJson, useTs) {
 }
 
 module.exports = async function(options) {
-  const { appDirectory, useNpm, noTs, framework, template } = options
+  const { appDirectory, useNpm, ts = true, preset, template } = options
   let usePnp = options.usePnp
   const root = path.resolve(appDirectory)
   const inCurrent = appDirectory === '.'
@@ -117,7 +119,7 @@ module.exports = async function(options) {
       {
         name: 'yes',
         type: 'confirm',
-        message: `Do you want to overwrite them?`
+        message: chalk.red('Do you want to overwrite them?')
       }
     ])
 
@@ -140,10 +142,12 @@ module.exports = async function(options) {
     devDependencies: {}
   }
 
-  const projectType = await setBaseDependencies(framework, packageJson, !noTs)
+  const depBadge = await setBaseDependencies(preset, packageJson, ts)
+  const tsBadge = ts ? 'Typescript' : ''
+  const badge = [depBadge, tsBadge].filter(Boolean).join(' + ')
 
   console.log(
-    `Creating ${projectType ? `${projectType} ` : ''}project in ${chalk.green(
+    `Creating ${badge ? `${chalk.green(badge)} ` : ''}project in ${chalk.cyan(
       root
     )}.`
   )
@@ -183,9 +187,9 @@ module.exports = async function(options) {
     root,
     appName,
     useYarn,
-    framework,
+    preset,
     usePnp,
-    useTs: !noTs,
+    useTs: ts,
     originalDirectory,
     template
   })

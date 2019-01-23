@@ -1,3 +1,9 @@
-# @mara/create
+# @mara/mcli
 
-提供全局命令用于生成项目模板
+marauder 命令行工具
+
+## 安装
+
+```
+npm i @mara/cli -g
+```

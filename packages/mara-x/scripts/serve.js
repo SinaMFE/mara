@@ -32,7 +32,7 @@ async function getCompiler(webpackConf, devServerConf, { entry, port } = {}) {
     'maraDevServer',
     (compilation, callback) => {
       if (isFirstCompile) {
-        spinner.stop()
+        // spinner.stop()
         // 交互模式下清除 console
         isInteractive && clearConsole()
       }
@@ -44,9 +44,13 @@ async function getCompiler(webpackConf, devServerConf, { entry, port } = {}) {
     const messages = stats.toJson({}, true)
 
     // If errors exist, only show errors.
-    if (messages.errors.length) return
+    if (messages.errors.length) {
+      return isFirstCompile && spinner.stop()
+    }
 
     if (isFirstCompile) {
+      spinner.stop()
+
       console.log(`> Listening at ${hostUri}/\n`)
       config.devServer.open && openBrowser(getServerURL(hostUri, entry))
       isFirstCompile = false

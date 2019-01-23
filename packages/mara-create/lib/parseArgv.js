@@ -1,4 +1,18 @@
 const mri = require('mri')
+const { camelCase } = require('./utils')
+const camelCaseByHyphen = camelCase.bind(null, '-')
+
+function addCamelCaseField(argv) {
+  const hyphenField = str => str.includes('-')
+  const hyphen2camel = (obj, field) => {
+    obj[camelCaseByHyphen(field)] = obj[field]
+    return obj
+  }
+
+  return Object.keys(argv)
+    .filter(hyphenField)
+    .reduce(hyphen2camel, { ...argv })
+}
 
 module.exports = options => {
   const mriOpt = {
@@ -27,5 +41,7 @@ module.exports = options => {
     }
   }
 
-  return mri(process.argv.slice(2), mriOpt)
+  const argv = mri(process.argv.slice(2), mriOpt)
+
+  return addCamelCaseField(argv)
 }

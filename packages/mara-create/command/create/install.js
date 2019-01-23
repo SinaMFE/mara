@@ -22,7 +22,7 @@ function renderProgressBar(curr, total) {
   process.stderr.write(`[${complete}${incomplete}]${bar}`)
 }
 
-module.exports = function({
+module.exports = async function({
   targetDir,
   useYarn,
   usePnp,

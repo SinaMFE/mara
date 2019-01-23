@@ -398,7 +398,7 @@ function isSafeToCreateProjectIn(root, name) {
     )
     console.log()
     for (const file of conflicts) {
-      console.log(chalk.red(`  ${file}`))
+      console.log(chalk.yellow(`  ${file}`))
     }
     console.log()
 
@@ -420,7 +420,15 @@ function isSafeToCreateProjectIn(root, name) {
   return true
 }
 
+function camelCase(split, name) {
+  const toUpperCase = str => str.toUpperCase()
+  const upperFirstChar = str => str.replace(/^[a-z]{1}/, toUpperCase)
+
+  return name.split(split).reduce((res, cur) => res + upperFirstChar(cur))
+}
+
 module.exports = {
+  camelCase,
   execSync,
   getProxy,
   getPackageName,
