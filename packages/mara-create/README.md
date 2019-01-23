@@ -12,6 +12,14 @@ npx @mara my-app
 npm init @mara my-app
 ```
 
+### 参数
+
+- `--use-npm` 使用 `npm` 安装依赖，默认 `yarn`
+- `--use-pnp` 使用 yarn pnp 模式
+- `--no-ts` 不使用 typescript
+- `--preset | -p` 指定预设模板，vue | react | other lib
+- `--force | -f` 强制在指定目录生成项目
+
 ## 流程
 
 - 创建或检查应用目录
