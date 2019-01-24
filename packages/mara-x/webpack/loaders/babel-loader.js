@@ -40,14 +40,13 @@ function babelExternalMoudles(esm) {
 //   // 仅编译 @mfelibs 下及 maraConf.esm 指定模块
 //   return nodeModulesRegExp([config.esm, esm])
 // }
-// 读取marauder.config.js中的babelPlugins
-const plugins = []
 
-config.babelPlugins && plugins.concat(config.babelPlugins)
-plugins.push([
-  require.resolve('@babel/plugin-proposal-decorators'),
-  { legacy: true }
-])
+const plugins = [
+  [
+    require.resolve('@babel/plugin-proposal-decorators'),
+    { decoratorsBeforeExport: true }
+  ]
+].concat(config.babelPlugins)
 // 加入了 inline-json，用于去除编译时的引入json（非全量引入）。
 // plugins.push(['inline-json', { matchPattern: '.' }])
 
