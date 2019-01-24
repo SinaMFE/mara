@@ -238,16 +238,19 @@ module.exports = function(entry) {
       new VueLoaderPlugin(),
       // @FIXME
       // 等待 moduleDependency webpack4 适配就绪后
-      // 仅在 dev 模式启用此插件
-      new DuplicatePackageCheckerPlugin({
-        // show details
-        verbose: true,
-        showHelp: false,
-        // show warning
-        emitError: isProd && config.compiler.checkDuplicatePackage,
-        // check major version
-        strict: true
-      }),
+      // 设置 checkDuplicatePackage: false 禁用
+      config.compiler.checkDuplicatePackage &&
+        new DuplicatePackageCheckerPlugin({
+          showHelp: false,
+          // show warning
+          // dev 模式使用 warning
+          emitError:
+            isProd &&
+            (config.compiler.checkDuplicatePackage === true ||
+              config.compiler.checkDuplicatePackage === 'error'),
+          // check major version
+          strict: true
+        }),
       // TypeScript type checking
       useTypeScript &&
         new ForkTsCheckerWebpackPlugin({

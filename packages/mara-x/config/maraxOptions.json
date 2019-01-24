@@ -62,7 +62,17 @@
         },
         "checkDuplicatePackage": {
           "description": "Check if duplicate dependencies are included.",
-          "type": "boolean"
+          "oneOf": [
+            {
+              "description": "Set false to disable checking.",
+              "type": "boolean"
+            },
+            {
+              "description": "Set warning level. => <warning | error>",
+              "type": "string",
+              "pattern": "^(warning|error)$"
+            }
+          ]
         },
         "vueRuntimeOnly": {
           "description": "Compile with vue runtime.",
