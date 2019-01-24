@@ -12,7 +12,6 @@
 const chalk = require('chalk')
 
 module.exports = function printBuildError(err) {
-  console.log('errr', err)
   const message = err != null && err.message
   const stack = err != null && err.stack
 
