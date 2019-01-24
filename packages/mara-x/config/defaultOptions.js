@@ -61,5 +61,6 @@ module.exports = {
     }
   },
   // hybrid 项目配置，存在此属性时，将会生成 zip 包
-  hybrid: {}
+  // 默认保持缺省，dev deploy 做存在验证
+  hybrid: undefined
 }

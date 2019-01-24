@@ -157,8 +157,10 @@ function success({ entryInput, stats, publicPath, outputPath, warnings }) {
   return entryInput
 }
 
-async function deploy({ entry, ftpBranch, entryArgs, remotePath }) {
-  if (config.hybrid && remotePath) {
+async function hybridDeploy({ entry, entryArgs, remotePath }) {
+  // hybrid deplpy 需提供 hybrid 配置
+  // 并且为 app 模式
+  if (config.hybrid && config.target === 'app' && remotePath) {
     await hybridDevPublish(entry, remotePath)
   } else if (entryArgs.test !== null) {
     await hybridTestPublish(entry, entryArgs.test)
@@ -208,7 +210,7 @@ module.exports = argv => {
     .then(build)
     .then(success)
     .then(ftp)
-    .then(deploy)
+    .then(hybridDeploy)
     .then(done)
     .catch(error)
 }

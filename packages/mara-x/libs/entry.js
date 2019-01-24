@@ -62,8 +62,9 @@ function result(entry = '', argv) {
   let entryArgs = {}
 
   // npx marax build --ftp
-  // yarn run build --ftp
-  if (argv.ftp) {
+  // npm run build --ftp
+  // yarn build --ftp
+  if (argv.ftp !== undefined) {
     ftpBranch = argv.ftp === true ? '' : argv.ftp
     config.build.uploadFtp = true
   } else if (config.build.uploadFtp) {

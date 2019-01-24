@@ -43,23 +43,26 @@ async function updateRemoteHbConf(hbConf) {
   }
 }
 
-async function getGitRepoName() {
+async function getRepoName() {
+  let repoName = ''
+
   try {
-    const { stdout: remoteUrl } = await execa('git', [
-      'config',
-      '--get',
-      'remote.origin.url'
-    ])
-
-    return path.basename(remoteUrl, '.git')
+    repoName = await getGitRepoName()
   } catch (e) {
-    error(e)
+    repoName = require(config.paths.packageJson).name
   }
 
-  function error(e) {
-    console.log('获取git工程名失败，请检查是否设置远程git仓库')
-    throw new Error(e)
-  }
+  return repoName
+}
+
+async function getGitRepoName() {
+  const { stdout: remoteUrl } = await execa('git', [
+    'config',
+    '--get',
+    'remote.origin.url'
+  ])
+
+  return path.basename(remoteUrl, '.git')
 }
 
 async function getHbConf(confPath) {
@@ -90,7 +93,7 @@ module.exports = async function(entry, remotePath) {
   console.log(publishStep[0])
 
   const hbConf = await getHbConf(CONF_URL)
-  const repoName = await getGitRepoName()
+  const repoName = await getRepoName()
   const moduleName = `${repoName}/${entry}`
   const localPkgPath = rootPath(`dist/${entry}/${entry}.php`)
   const moduleIdx = hbConf.data.modules.findIndex(

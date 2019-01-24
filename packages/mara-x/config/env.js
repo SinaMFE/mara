@@ -40,20 +40,6 @@ function loadDotEnv() {
   })
 }
 
-// hybrid 两端统一用，特别优待 jsbridgeBuildType 装载到 node 环境
-// function loadHybridEnv() {
-//   const envField = 'jsbridgeBuildType'
-
-//   // 短路操作，确保通过命令参数 --target 设置的 env 优先级最高
-//   if (process.env[envField] || !maraConf.globalEnv) return
-
-//   if (envField in maraConf.globalEnv) {
-//     const buildEnv = maraConf.globalEnv[envField]
-
-//     process.env[envField] = buildEnv === 'wap' ? 'web' : buildEnv
-//   }
-// }
-
 function loadBrowserslist() {
   const browserslist = require('browserslist')
 

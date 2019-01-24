@@ -12,20 +12,36 @@ const defConf = require('./defaultOptions')
 const pkgName = require(paths.packageJson).name
 const maraxVer = require(paths.maraxPackageJson).version
 const isProd = process.env.NODE_ENV === 'production'
-let maraConf = defConf
 
-if (fs.existsSync(paths.marauder)) {
-  const userOptions = require(paths.marauder)
+const maraConf = getMaraConf()
+const publicPath = isProd ? maraConf.publicPath : maraConf.publicDevPath
+const useTypeScript = fs.existsSync(paths.tsConfig)
+const env = getEnv(publicPath.slice(0, -1), maraConf.globalEnv)
 
-  if (validateOptions(maraxOptionsSchema, userOptions, 'mararc', 'Marax')) {
-    maraConf = merge({}, defConf, userOptions)
+function getMaraConf() {
+  let maraConf = defConf
+
+  if (fs.existsSync(paths.marauder)) {
+    const userOptions = require(paths.marauder)
+
+    if (validateOptions(maraxOptionsSchema, userOptions, 'mararc', 'Marax')) {
+      maraConf = merge({}, defConf, userOptions)
+    }
   }
+
+  return maraConf
 }
 
-function getBuildTarget() {
+function getBuildTarget(globalEnv) {
+  let envBuildType = globalEnv.jsbridgeBuildType
+
+  // 兼容 wap 值, wap -> web
+  envBuildType = envBuildType === 'wap' ? 'web' : envBuildType
+
   switch (argv.target) {
     case 'web':
     case 'wap':
+      // 兼容 wap 值, wap -> web
       return 'web'
     case 'mf':
       return 'submod'
@@ -34,7 +50,7 @@ function getBuildTarget() {
     case 'app':
       return 'app'
     default:
-      return process.env.jsbridgeBuildType || 'web'
+      return envBuildType || 'web'
   }
 }
 
@@ -62,15 +78,13 @@ function getHashConf(hash) {
   return { main, chunk }
 }
 
-const publicPath = isProd ? maraConf.publicPath : maraConf.publicDevPath
-const useTypeScript = fs.existsSync(paths.tsConfig)
-
 const maraContext = {
   argv: argv,
   // 为了防止不同文件夹下的同名资源文件冲突
   // 资源文件不提供 hash 修改权限
   hash: getHashConf(maraConf.hash),
-  target: getBuildTarget(),
+  env: env,
+  target: getBuildTarget(env.raw),
   version: maraxVer,
   debug: getCLIBooleanOptions('debug', maraConf.debug),
   library: {
@@ -91,7 +105,6 @@ const maraContext = {
   paths: paths,
   assetsPublicPath: getServedPath(publicPath),
   prerender: maraConf.prerender,
-  env: getEnv(publicPath.slice(0, -1), maraConf.globalEnv),
   build: {
     sourceMap: maraConf.sourceMap,
     bundleAnalyzerReport: getCLIBooleanOptions('report'),
