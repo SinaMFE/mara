@@ -5,4 +5,9 @@ module.exports = {
   publicPath: './',
   // 生成 js 与 css source map
   sourceMap: false
+  // hybrid 项目发布使用
+  // hybrid: {
+  //   hb_frame_version: '0.8',
+  //   app_version: '680'
+  // }
 }
