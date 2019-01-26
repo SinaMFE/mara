@@ -12,12 +12,16 @@ class BuildJsonPlugin {
   }
 
   apply(compiler) {
-    compiler.hooks.compilation.tap(this.constructor.name, compilation => {
-      this.genBuildJson(compilation)
+    const pluginName = this.constructor.name
+
+    compiler.hooks.make.tap(pluginName, compilation => {
+      compilation.hooks.additionalAssets.tap(pluginName, () => {
+        compilation.assets[this.fileName] = this.getBuildJson()
+      })
     })
   }
 
-  genBuildJson(compilation) {
+  getBuildJson() {
     const source = JSON.stringify(
       {
         target: this.options.target,
@@ -29,7 +33,7 @@ class BuildJsonPlugin {
       2
     )
 
-    compilation.assets[this.fileName] = {
+    return {
       source: () => source,
       size: () => source.length
     }
