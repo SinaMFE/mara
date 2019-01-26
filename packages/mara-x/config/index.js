@@ -14,9 +14,10 @@ const maraxVer = require(paths.maraxPackageJson).version
 const isProd = process.env.NODE_ENV === 'production'
 
 const maraConf = getMaraConf()
-const publicPath = isProd ? maraConf.publicPath : maraConf.publicDevPath
+const target = getBuildTarget()
 const useTypeScript = fs.existsSync(paths.tsConfig)
-const env = getEnv(publicPath.slice(0, -1), maraConf.globalEnv)
+const publicPath = isProd ? maraConf.publicPath : maraConf.publicDevPath
+const env = getEnv(publicPath.slice(0, -1), maraConf.globalEnv, target)
 
 function getMaraConf() {
   let maraConf = defConf
@@ -33,11 +34,6 @@ function getMaraConf() {
 }
 
 function getBuildTarget(globalEnv) {
-  let envBuildType = globalEnv.jsbridgeBuildType
-
-  // 兼容 wap 值, wap -> web
-  envBuildType = envBuildType === 'wap' ? 'web' : envBuildType
-
   switch (argv.target) {
     case 'web':
     case 'wap':
@@ -50,7 +46,8 @@ function getBuildTarget(globalEnv) {
     case 'app':
       return 'app'
     default:
-      return envBuildType || 'web'
+      // 其他 target 视为无效值
+      return null
   }
 }
 
@@ -84,7 +81,8 @@ const maraContext = {
   // 资源文件不提供 hash 修改权限
   hash: getHashConf(maraConf.hash),
   env: env,
-  target: getBuildTarget(env.raw),
+  // 优先读取 target，其次以 jsbridgeBuildType 回退
+  target: target || env.raw.jsbridgeBuildType,
   version: maraxVer,
   debug: getCLIBooleanOptions('debug', maraConf.debug),
   library: {
@@ -107,7 +105,8 @@ const maraContext = {
   prerender: maraConf.prerender,
   build: {
     sourceMap: maraConf.sourceMap,
-    bundleAnalyzerReport: getCLIBooleanOptions('report'),
+    report: getCLIBooleanOptions('report'),
+    writeStatsJson: getCLIBooleanOptions('stats'),
     // upload bundle use ftp
     // `npm run build <page> --ftp [namespace]`
     // Set to `true` or `false` to always turn it on or off

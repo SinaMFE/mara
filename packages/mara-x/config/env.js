@@ -77,7 +77,7 @@ loadDotEnv()
 // browserslist 供 babel-preset-env，postcss-env 使用
 loadBrowserslist()
 
-module.exports = function getEnv(publicUrl, globalEnv = {}) {
+module.exports = function getEnv(publicUrl, globalEnv = {}, target) {
   // NODE_ENV，PUBLIC_URL 放在 assign 尾部
   // 防止被用户覆盖
   const baseEnv = Object.assign({}, globalEnv, {
@@ -90,6 +90,13 @@ module.exports = function getEnv(publicUrl, globalEnv = {}) {
     // 例：<img src="%PUBLIC_URL%/img/logo.png">
     PUBLIC_URL: publicUrl
   })
+
+  if (target) {
+    baseEnv.jsbridgeBuildType = target
+  } else if (baseEnv.jsbridgeBuildType !== 'app') {
+    baseEnv.jsbridgeBuildType = 'web'
+  }
+
   const raw = getMaraEnv(baseEnv)
 
   // DefinePlugin 需要传入序列化参数值
