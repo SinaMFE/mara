@@ -21,7 +21,11 @@ const getWebpackConfig = require('../webpack/webpack.prod.conf')
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages')
 const { hybridDevPublish, hybridTestPublish } = require('../libs/hybrid')
 const printBuildError = require('../libs/printBuildError')
-const buildReporter = require('../libs/buildReporter')
+const {
+  getLastBuildSize,
+  printBuildResult,
+  getBuildSizeOfFileMap
+} = require('../libs/buildReporter')
 const prehandleConfig = require('../libs/prehandleConfig')
 
 // These sizes are pretty large. We'll warn for bundles exceeding them.
@@ -30,7 +34,7 @@ const WARN_AFTER_CHUNK_GZIP_SIZE = 1024 * 1024
 
 const spinner = ora('Building for production...')
 
-function build({ entryInput, dist }) {
+function build({ entryInput, preBuildSize, dist }) {
   let webpackConfig = getWebpackConfig({ spinner, ...entryInput })
   webpackConfig = prehandleConfig('build', webpackConfig)
   const compiler = webpack(webpackConfig)
@@ -39,6 +43,9 @@ function build({ entryInput, dist }) {
     compiler.run((err, stats) => {
       let messages
       spinner.stop()
+
+      const tinifyOriginSizes = getBuildSizeOfFileMap(compiler._tinifySourceMap)
+      preBuildSize.sizes = Object.assign(preBuildSize.sizes, tinifyOriginSizes)
 
       if (err) {
         if (!err.message) return reject(err)
@@ -78,8 +85,9 @@ function build({ entryInput, dist }) {
       }
 
       return resolve({
-        entryInput,
         stats,
+        entryInput,
+        preBuildSize,
         publicPath: webpackConfig.output.publicPath,
         outputPath: webpackConfig.output.path,
         warnings: messages.warnings
@@ -88,16 +96,25 @@ function build({ entryInput, dist }) {
   })
 }
 
-function clean(entryInput) {
+async function clean(entryInput) {
   const dist = path.join(paths.dist, entryInput.entry)
+  const preBuildSize = await getLastBuildSize(dist)
 
   return fs.emptyDir(dist).then(() => ({
     entryInput,
+    preBuildSize,
     dist
   }))
 }
 
-function success({ entryInput, stats, publicPath, outputPath, warnings }) {
+function success({
+  stats,
+  entryInput,
+  preBuildSize,
+  publicPath,
+  outputPath,
+  warnings
+}) {
   const result = stats.toJson({
     hash: false,
     chunks: false,
@@ -108,6 +125,8 @@ function success({ entryInput, stats, publicPath, outputPath, warnings }) {
   if (warnings.length) {
     console.log(chalk.yellow('Compiled with warnings:\n'))
     console.log(warnings.join('\n\n'))
+    // add new line
+    console.log()
   }
 
   let buildTime = result.time
@@ -123,9 +142,10 @@ function success({ entryInput, stats, publicPath, outputPath, warnings }) {
 
   result.assets['__dist'] = outputPath
 
-  buildReporter(
+  printBuildResult(
     // page 为数组
     { page: [result.assets] },
+    preBuildSize,
     WARN_AFTER_BUNDLE_GZIP_SIZE,
     WARN_AFTER_CHUNK_GZIP_SIZE
   )
@@ -134,7 +154,7 @@ function success({ entryInput, stats, publicPath, outputPath, warnings }) {
   console.log(
     `The ${chalk.cyan(
       'dist/' + entryInput.entry
-    )} directory is ready to be deployed.\n`
+    )} folder is ready to be deployed.\n`
   )
 
   if (publicPath === '/') {
@@ -191,6 +211,13 @@ function ftp({ entry, entryArgs, ftpBranch }) {
 
 function setup(entryInput) {
   spinner.start()
+
+  // Make sure to force cancel
+  ;['SIGINT', 'SIGTERM'].forEach(sig => {
+    process.on(sig, () => {
+      process.exit()
+    })
+  })
 
   return entryInput
 }

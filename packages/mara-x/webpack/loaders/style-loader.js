@@ -110,6 +110,9 @@ function getStyleLoaders(cssOptions = {}, preProcessor) {
     }
   ]
 
+  // loader 数组反向加载
+  // 确保预处理 loader 在 postcss 之后
+  // 以保证实际优先处理
   if (preProcessor) {
     loaders.push({
       loader: preProcessor,

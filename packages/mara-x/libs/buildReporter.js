@@ -2,15 +2,23 @@ const fs = require('fs')
 const path = require('path')
 const filesize = require('filesize')
 const chalk = require('chalk')
+const recursive = require('recursive-readdir')
 const stripAnsi = require('strip-ansi')
 const gzipSize = require('gzip-size').sync
 const { groupBy } = require('lodash')
 
 // assetsData：{<Object>: <Array>}
-function reporter(assetsData, maxBundleGzipSize, maxChunkGzipSize) {
+function printBuildResult(
+  assetsData,
+  previousSizeMap,
+  maxBundleGzipSize,
+  maxChunkGzipSize
+) {
   // https://raw.githubusercontent.com/webpack/analyse/master/app/pages/upload/example.json
   let labelLengthArr = []
   let suggestBundleSplitting = false
+  // const root = previousSizeMap.root
+  const preSizes = previousSizeMap.sizes
   const isJS = val => /\.js$/.test(val)
   const isCSS = val => /\.css$/.test(val)
   const isMinJS = val => /\.min\.js$/.test(val)
@@ -60,18 +68,39 @@ function reporter(assetsData, maxBundleGzipSize, maxChunkGzipSize) {
     )
   }
 
+  // Input: 1024, 2048
+  // Output: "(+1 KB)"
+  function getDifferenceLabel(currentSize, previousSize) {
+    const FIFTY_KILOBYTES = 1024 * 50
+    const difference = currentSize - previousSize
+    const fileSize = !Number.isNaN(difference) ? filesize(difference) : 0
+
+    if (difference >= FIFTY_KILOBYTES) {
+      return chalk.red('+' + fileSize)
+    } else if (difference < FIFTY_KILOBYTES && difference > 0) {
+      return chalk.yellow('+' + fileSize)
+    } else if (difference < 0) {
+      return chalk.green(fileSize)
+    } else {
+      return ''
+    }
+  }
+
   function parseAssets(assets) {
     const seenNames = new Map()
     const assetsInfo = groupBy(
       assets
-        .filter(a =>
-          seenNames.has(a.name) ? false : seenNames.set(a.name, true)
+        .filter(
+          a => (seenNames.has(a.name) ? false : seenNames.set(a.name, true))
         )
         .map(asset => {
           const buildDir = assets['__dist'] || asset['__dist']
           const fileContents = fs.readFileSync(path.join(buildDir, asset.name))
           const size = gzipSize(fileContents)
-          const sizeLabel = filesize(size)
+          const previousSize = preSizes[removeFileNameHash(asset.name)]
+          const difference = getDifferenceLabel(size, previousSize)
+          const sizeLabel =
+            filesize(size) + (difference ? ' (' + difference + ')' : '')
 
           labelLengthArr.push(stripAnsi(sizeLabel).length)
 
@@ -150,4 +179,63 @@ function reporter(assetsData, maxBundleGzipSize, maxChunkGzipSize) {
   }
 }
 
-module.exports = reporter
+function canReadAsset(asset) {
+  return (
+    /\.(js|css|php)$/.test(asset) &&
+    !/service-worker\.js/.test(asset) &&
+    !/precache-manifest\.[0-9a-f]+\.js/.test(asset)
+  )
+}
+
+function removeFileNameHash(fileName, buildFolder = '') {
+  return fileName
+    .replace(buildFolder, '')
+    .replace(/\\/g, '/')
+    .replace(/^\//, '')
+    .replace(
+      /\/?(.*)(\.[0-9a-f]+)(\.chunk)?(\.js|\.css)/,
+      (match, p1, p2, p3, p4) => p1 + p4
+    )
+}
+
+function getBuildSizeOfFileMap(fileMap = {}) {
+  if (!Object.keys(fileMap).length) return {}
+
+  return Object.entries(fileMap).reduce((sizes, [file, originFile]) => {
+    const contents = fs.readFileSync(originFile)
+
+    sizes[file] = gzipSize(contents)
+
+    return sizes
+  }, {})
+}
+
+function getLastBuildSize(buildFolder) {
+  return new Promise(resolve => {
+    recursive(buildFolder, (err, fileNames) => {
+      let sizes = {}
+
+      if (!err && fileNames) {
+        sizes = fileNames.filter(canReadAsset).reduce((memo, fileName) => {
+          const contents = fs.readFileSync(fileName)
+          const key = removeFileNameHash(fileName, buildFolder)
+
+          memo[key] = gzipSize(contents)
+
+          return memo
+        }, {})
+      }
+
+      resolve({
+        root: buildFolder,
+        sizes: sizes
+      })
+    })
+  })
+}
+
+module.exports = {
+  getLastBuildSize,
+  printBuildResult,
+  getBuildSizeOfFileMap
+}

@@ -272,13 +272,17 @@ module.exports = function({ entry, cmd, spinner }) {
   }
 
   // bundle 大小分析
-  if (config.build.bundleAnalyzerReport) {
+  if (config.build.report || config.build.writeStatsJson) {
     const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
 
     webpackConfig.plugins.push(
       new BundleAnalyzerPlugin({
+        logLevel: 'warn',
         analyzerHost: localIp(),
-        defaultSizes: 'gzip'
+        defaultSizes: 'gzip',
+        analyzerMode: config.build.report ? 'server' : 'disabled',
+        statsFilename: 'build-stats.json',
+        generateStatsFile: config.build.writeStatsJson
       })
     )
   }

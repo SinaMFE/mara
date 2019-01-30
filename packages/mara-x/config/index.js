@@ -113,6 +113,7 @@ const maraContext = {
     uploadFtp: process.env.npm_config_ftp,
     testDeploy: process.env.npm_config_test
   },
+  tinifyKeys: maraConf.tinifyKeys,
   devServer: maraConf.devServer,
   useTypeScript,
   ftp: maraConf.ftp,

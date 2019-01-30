@@ -196,30 +196,34 @@ module.exports = function(entry) {
           loader: require.resolve('url-loader'),
           options: {
             limit: 1024 * 4,
-            name: `${assetsDir}img/[name].[hash:8].[ext]`
+            tinifyKeys: config.tinifyKeys,
+            minify: isProd,
+            fallback: require.resolve('@mara/image-loader'),
+            name: `${assetsDir}img/[name].[contenthash:8].[ext]`
           }
         },
         // don't base64-inline SVGs.
         // https://github.com/facebookincubator/create-react-app/pull/1180
         {
           test: /\.(svg)(\?.*)?$/,
-          loader: require.resolve('file-loader'),
+          loader: require.resolve('@mara/image-loader'),
           options: {
-            name: `${assetsDir}img/[name].[hash:8].[ext]`
+            minify: isProd,
+            name: `${assetsDir}img/[name].[contenthash:8].[ext]`
           }
         },
         {
           test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
           loader: require.resolve('file-loader'),
           options: {
-            name: `${assetsDir}fonts/[name].[hash:8].[ext]`
+            name: `${assetsDir}fonts/[name].[contenthash:8].[ext]`
           }
         },
         {
           test: /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/,
           loader: require.resolve('file-loader'),
           options: {
-            name: `${assetsDir}media/[name].[hash:8].[ext]`
+            name: `${assetsDir}media/[name].[contenthash:8].[ext]`
           }
         }
       ]

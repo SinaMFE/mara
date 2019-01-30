@@ -120,6 +120,11 @@
       "description": "Options for the hybrid deployment.",
       "type": "object"
     },
+    "tinifyKeys": {
+      "description": "Developer API key from https://tinypng.com/developers.",
+      "type": "array",
+      "items": { "type": "string" }
+    },
     "ftp": {
       "description": "Options for the ftp server.",
       "additionalProperties": false,
