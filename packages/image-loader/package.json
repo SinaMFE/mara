@@ -1,0 +1,41 @@
+{
+  "name": "@mara/image-loader",
+  "version": "1.0.0",
+  "keywords": [
+    "optimize",
+    "tinify",
+    "image-loader",
+    "webpack"
+  ],
+  "description": "A loader for webpack which compress png/svg/jpg images",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "jest --env node --verbose --coverage"
+  },
+  "files": [
+    "lib"
+  ],
+  "engines": {
+    "node": ">= 6"
+  },
+  "dependencies": {
+    "cacache": "^11.3.2",
+    "find-cache-dir": "^2.0.0",
+    "loader-utils": "^1.2.3",
+    "svgo": "^1.1.1",
+    "tinify": "^1.6.0-beta.2"
+  },
+  "devDependencies": {
+    "jest": "^23.6.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "Vincent Lee <vv314@foxmail.com>",
+  "bugs": "https://github.com/SinaMFE/marauder/issues",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:SinaMFE/marauder.git"
+  },
+  "license": "MIT"
+}
