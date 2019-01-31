@@ -5,6 +5,7 @@ const path = require('path')
 const glob = require('glob')
 const devIp = require('dev-ip')
 const portscanner = require('portscanner')
+const { createHash } = require('crypto')
 
 // 【注意】utils.js 为纯工具库，请不要依赖 config/index.js
 
@@ -193,6 +194,16 @@ function sortObject(obj, keyOrder, dontSortByUnicode) {
   return res
 }
 
+function md5(data) {
+  const hash = createHash('md5')
+
+  if (isObject(data)) {
+    data = JSON.stringify(data)
+  }
+
+  return hash.update(data).digest('hex')
+}
+
 module.exports = {
   assetsPath,
   isObject,
@@ -210,5 +221,6 @@ module.exports = {
   sortObject,
   camelName,
   buffer2String,
-  readJson
+  readJson,
+  md5
 }

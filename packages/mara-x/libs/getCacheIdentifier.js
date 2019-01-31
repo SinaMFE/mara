@@ -1,6 +1,5 @@
-const hash = require('hash-sum')
 const config = require('../config')
-const { readJson } = require('./utils')
+const { readJson, md5 } = require('./utils')
 const tsConfig = readJson(config.paths.tsConfig)
 
 module.exports = function getCacheIdentifier(packages = []) {
@@ -15,7 +14,7 @@ module.exports = function getCacheIdentifier(packages = []) {
     return pkgs
   }, {})
 
-  return hash({
+  return md5({
     pkgIds,
     config,
     tsConfig

@@ -1,7 +1,6 @@
 'use strict'
 
 const fs = require('fs')
-const md5 = require('md5')
 const Vinyl = require('vinyl')
 const chalk = require('chalk')
 const axios = require('axios')
@@ -9,7 +8,7 @@ const path = require('path')
 const execa = require('execa')
 const config = require('../../config')
 const { uploadVinylFile } = require('../ftp')
-const { rootPath } = require('../utils')
+const { rootPath, md5 } = require('../utils')
 const CONF_DIR = '/wap_front/hybrid/config/'
 const CONF_NAME = getHbConfName(config.ciConfig)
 const CONF_URL = `http://wap_front.dev.sina.cn/hybrid/config/${CONF_NAME}`
