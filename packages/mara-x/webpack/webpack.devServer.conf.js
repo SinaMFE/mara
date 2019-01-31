@@ -9,7 +9,7 @@ const { localIp, rootPath } = require('../libs/utils')
 const config = require('../config')
 const paths = config.paths
 
-module.exports = function(entry, proxy, protocol) {
+module.exports = function({ entry, proxy, protocol }) {
   const pagePublicDir = rootPath(`${paths.page}/${entry}/public`)
 
   return {

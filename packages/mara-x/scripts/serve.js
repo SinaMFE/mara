@@ -8,54 +8,33 @@ process.on('unhandledRejection', err => {
 })
 
 const ora = require('ora')
+const fs = require('fs-extra')
 const webpack = require('webpack')
-const clearConsole = require('react-dev-utils/clearConsole')
 const config = require('../config')
 const getEntry = require('../libs/entry')
 const { getFreePort } = require('../libs/utils')
 const getWebpackConfig = require('../webpack/webpack.dev.conf')
 const createDevServerConfig = require('../webpack/webpack.devServer.conf')
 const prehandleConfig = require('../libs/prehandleConfig')
+const DevServerPlugin = require('../libs/DevServerPlugin')
 const DEFAULT_PORT = parseInt(process.env.PORT, 10) || config.devServer.port
 const PROTOCOL = config.devServer.https === true ? 'https' : 'http'
+const useYarn = fs.existsSync(config.paths.yarnLock)
 const spinner = ora('Starting development server...')
-// 是否为交互模式
-const isInteractive = process.stdout.isTTY
 
 async function getCompiler(webpackConf, devServerConf, { entry, port } = {}) {
-  const openBrowser = require('react-dev-utils/openBrowser')
-  const hostUri = getServerHostUri(devServerConf.host, port)
   const compiler = webpack(webpackConf)
-  let isFirstCompile = true
 
-  compiler.hooks.afterEmit.tapAsync(
-    'maraDevServer',
-    (compilation, callback) => {
-      if (isFirstCompile) {
-        // spinner.stop()
-        // 交互模式下清除 console
-        isInteractive && clearConsole()
-      }
-      callback()
-    }
-  )
-
-  compiler.hooks.done.tap('maraDevServer', stats => {
-    const messages = stats.toJson({}, true)
-
-    // If errors exist, only show errors.
-    if (messages.errors.length) {
-      return isFirstCompile && spinner.stop()
-    }
-
-    if (isFirstCompile) {
-      spinner.stop()
-
-      console.log(`> Listening at ${hostUri}/\n`)
-      config.devServer.open && openBrowser(getServerURL(hostUri, entry))
-      isFirstCompile = false
-    }
-  })
+  new DevServerPlugin({
+    port,
+    entry,
+    useYarn,
+    spinner,
+    protocol: PROTOCOL,
+    host: devServerConf.host,
+    publicPath: config.assetsPublicPath,
+    openBrowser: config.devServer.open
+  }).apply(compiler)
 
   // 为每一个入口文件添加 webpack-dev-server 客户端
   Object.values(webpackConf.entry).forEach(addHotDevClient)
@@ -77,24 +56,14 @@ function addHotDevClient(entry) {
 async function createDevServer(webpackConf, opts) {
   const DevServer = require('webpack-dev-server')
   const proxyConfig = config.devServer.proxy
-  const serverConf = createDevServerConfig(opts.entry, proxyConfig, PROTOCOL)
+  const serverConf = createDevServerConfig({
+    entry: opts.entry,
+    proxy: proxyConfig,
+    protocol: PROTOCOL
+  })
   const compiler = await getCompiler(webpackConf, serverConf, opts)
 
   return new DevServer(compiler, serverConf)
-}
-
-function getServerHostUri(host, port) {
-  return `${PROTOCOL}://${host || 'localhost'}:${port}`
-}
-
-function getServerURL(hostUri, entry) {
-  let publicDevPath = config.assetsPublicPath
-
-  // 以绝对路径 / 开头时，加入 url 中在浏览器打开
-  // 以非 / 开头时，回退为 /，避免浏览器路径错乱
-  publicDevPath = publicDevPath.startsWith('/') ? publicDevPath : '/'
-
-  return `${hostUri + publicDevPath + entry}.html`
 }
 
 async function server(entryInput) {
@@ -109,6 +78,7 @@ async function server(entryInput) {
     entry: entryInput.entry,
     port
   })
+
   // Ctrl + C 触发
   ;['SIGINT', 'SIGTERM'].forEach(sig => {
     process.on(sig, () => {

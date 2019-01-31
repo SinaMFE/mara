@@ -294,6 +294,7 @@ module.exports = function(entry) {
       // prevent webpack from injecting useless setImmediate polyfill because Vue
       // source contains it (although only uses it if it's native).
       setImmediate: false,
+      module: 'empty',
       dgram: 'empty',
       fs: 'empty',
       net: 'empty',
