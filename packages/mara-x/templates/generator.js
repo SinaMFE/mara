@@ -166,8 +166,10 @@ function fillProjectContent({ tmplType, preset, useTs, ownPath, appPath }) {
   }
 
   // 通用共享资源
-  copyRootFiles(rootConfigPath, appPath, src =>
-    useTs ? true : !src.includes('tsconfig.json')
+  copyRootFiles(
+    rootConfigPath,
+    appPath,
+    src => (useTs ? true : !src.includes('tsconfig.json'))
   )
 
   // 项目共享资源
@@ -273,7 +275,7 @@ module.exports = function({
 
   console.log(
     chalk.cyan('  cd'),
-    getCdPath(appName, appPath, originalDirectory)
+    chalk.green(getCdPath(appName, appPath, originalDirectory))
   )
   console.log(`  ${chalk.cyan(`${runScript} dev`)}\n`)
 
