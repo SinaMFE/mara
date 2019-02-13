@@ -5,7 +5,7 @@
 ## 命令
 
 ```bash
-npx @mara my-app
+npx @mara/create my-app
 ```
 
 ```bash
