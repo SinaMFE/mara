@@ -76,9 +76,12 @@ class ValidationError extends Error {
     this.name = 'OptionsValidationError'
     this.validationErrors = validationErrors
     this.message = (configName ? `${configName} ` : '') + `Invalid Options.\n`
-    this.message += binName
-      ? `${binName} has been ran using a config object that does not match the API schema.\n\n`
-      : '\n'
+
+    if (binName) {
+      this.message += `${binName} has been ran using a config object that does not match the API schema.`
+    }
+
+    this.message += '\n\n'
 
     validationErrors.forEach(err => {
       this.message +=
@@ -267,6 +270,11 @@ class ValidationError extends Error {
         )
       },
       minimum: () =>
+        formatError(
+          `${dataPath} ${err.message}.`,
+          getSchemaPartDescription(err.parentSchema)
+        ),
+      maximum: () =>
         formatError(
           `${dataPath} ${err.message}.`,
           getSchemaPartDescription(err.parentSchema)
