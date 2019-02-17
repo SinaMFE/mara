@@ -12,6 +12,7 @@ const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const InlineUmdHtmlPlugin = require('../libs/InlineUmdHtmlPlugin')
 const BuildJsonPlugin = require('../libs/BuildJsonPlugin')
+const ManifestPlugin = require('../libs/hybrid/ManifestPlugin')
 const BuildProgressPlugin = require('../libs/BuildProgressPlugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const safePostCssParser = require('postcss-safe-parser')
@@ -205,6 +206,10 @@ module.exports = function({ entry, cmd, spinner }) {
         version: require(config.paths.packageJson).version,
         marax: require(config.paths.maraxPackageJson).version
       }),
+      new ManifestPlugin({
+        entry,
+        target: config.target
+      }),
       ...copyPublicFiles(entry, distPageDir)
     ].filter(Boolean)
   })
@@ -346,7 +351,9 @@ function copyPublicFiles(entry, distPageDir) {
       from: src,
       // 放置于根路径
       to: distPageDir,
-      ignore: ['.*']
+      // 忽略 manifest.json
+      // 交由 maraManifestPlugin 处理
+      ignore: ['.*', 'manifest.json']
     }
   }
 

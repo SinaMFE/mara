@@ -38,7 +38,7 @@ class SinaHybridPlugin {
       const maraCtx = compiler['maraContext'] || {}
 
       this.genVersionFile(compilation)
-      this.updateManifestVersion()
+      // this.updateManifestVersion()
       this.injectDataSource(compilation, maraCtx.dataSource)
     })
   }

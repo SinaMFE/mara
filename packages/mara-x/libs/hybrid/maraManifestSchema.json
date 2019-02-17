@@ -1,0 +1,222 @@
+{
+  "additionalProperties": true,
+  "properties": {
+    "background_color": {
+      "description": "为 Web 应用程序预定义的背景颜色",
+      "type": "string"
+    },
+    "descriptionSection": {
+      "description": "提供有关 Web 应用程序的一般描述",
+      "type": "string"
+    },
+    "dir": {
+      "description": "指定名称、短名称和描述成员的主文本方向",
+      "enum": ["ltr", "rtl", "auto"]
+    },
+    "lang": {
+      "description": "指定 name 和 short_name 成员中的值的主要语言",
+      "type": "string"
+    },
+    "name": {
+      "description": "为应用程序提供一个人类可读的名称",
+      "type": "string"
+    },
+    "orientation": {
+      "description": "定义所有 Web 应用程序顶级的默认方向",
+      "enum": [
+        "any",
+        "natural",
+        "landscape",
+        "landscape-primary",
+        "landscape-secondary",
+        "portrait",
+        "portrait-primary",
+        "portrait-secondary"
+      ]
+    },
+    "prefer_related_applications": {
+      "type": "boolean"
+    },
+    "icons": {
+      "description": "指定可在各种环境中用作应用程序图标的图像对象数组",
+      "type": "array",
+      "items": {
+        "additionalProperties": false,
+        "type": "object",
+        "properties": {
+          "sizes": {
+            "description": "包含空格分隔的图像尺寸的字符串",
+            "type": "string"
+          },
+          "src": {
+            "description": "图像文件的路径。如果src是一个相对URL，则基本URL将是manifest的URL",
+            "type": "string"
+          },
+          "type": {
+            "description": "提示图像的媒体类型",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "related_applications": {
+      "type": "array",
+      "items": {
+        "additionalProperties": false,
+        "type": "object",
+        "properties": {
+          "platform": {
+            "description": "可以找到应用程序的平台",
+            "type": "string"
+          },
+          "url": {
+            "description": "可以找到应用程序的URL",
+            "type": "string"
+          },
+          "id": {
+            "description": "用于表示指定平台上的应用程序的ID",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "scope": {
+      "description": "定义此 Web 应用程序的应用程序上下文的导航范围",
+      "type": "string"
+    },
+    "short_name": {
+      "description": "为应用程序提供简短易读的名称",
+      "type": "string"
+    },
+    "start_url": {
+      "description": "指定用户从设备启动应用程序时加载的URL",
+      "type": "string"
+    },
+    "theme_color": {
+      "description": "定义应用程序的默认主题颜色",
+      "type": "string"
+    },
+    "version": {
+      "description": "Hybrid 包版本号",
+      "type": "string"
+    },
+    "specVersion": {
+      "description": "Hybrid manifest 协议版本",
+      "type": "string"
+    },
+    "miniJsSDKVersion": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "rank": {
+      "description": "Hybrid 包下载优先级，数字越小优先级越高",
+      "type": "integer",
+      "maximum": 9
+    },
+    "dataSource": {
+      "type": "object"
+    },
+    "display": {
+      "type": "object",
+      "properties": {
+        "pullDownRefreshBackgroundColor": {
+          "description": "下拉刷新背景色，HexColor 十六进制色值",
+          "type": "string"
+        },
+        "androidAdjustFontSize": {
+          "type": "boolean"
+        },
+        "navigationBarType": {
+          "type": "integer"
+        },
+        "showNavigationLeftItem": {
+          "type": "boolean"
+        },
+        "showNavigationRightItem": {
+          "type": "boolean"
+        },
+        "showStatusBar": {
+          "type": "boolean"
+        },
+        "navigationBarTitleType": {
+          "description": "导航栏标题样式",
+          "type": "integer"
+        },
+        "enableOverflowScrolling": {
+          "description": "启用弹性滚动",
+          "type": "boolean"
+        },
+        "iOS-viewPositionBelowStatusBar": {
+          "type": "boolean"
+        },
+        "iOS-viewPositionBelowNavigationBar": {
+          "type": "boolean"
+        },
+        "enableDayNightMode": {
+          "description": "启用日夜间模式",
+          "type": "boolean"
+        },
+        "enableLeftSlip": {
+          "type": "boolean"
+        },
+        "abTestIds": {
+          "type": "object"
+        },
+        "gkTestIds": {
+          "description": "gk 实验",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "qeTestIds": {
+          "description": "qe 实验",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "comment": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "display": {
+              "type": "boolean"
+            },
+            "sendServerUrl": {
+              "type": "string"
+            },
+            "barConfig": {
+              "type": "object",
+              "properties": {
+                "btnList": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                }
+              }
+            },
+            "uploadParam": {
+              "type": "object",
+              "properties": {
+                "s3": {
+                  "type": "string"
+                },
+                "sync": {
+                  "type": "string"
+                }
+              }
+            },
+            "commentConfig": {
+              "type": "object",
+              "btnList": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "type": "object"
+}
