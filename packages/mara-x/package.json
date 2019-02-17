@@ -8,7 +8,7 @@
   "author": "Vincent Lee <vv314@foxmail.com>",
   "repository": {
     "type": "git",
-    "url": "git@github.com:SinaMFE/marauder.git"
+    "url": "https://github.com/SinaMFE/marauder.git"
   },
   "types": "types/react-app.d.ts",
   "bugs": "https://github.com/SinaMFE/marauder/issues",

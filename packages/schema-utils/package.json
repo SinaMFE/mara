@@ -33,7 +33,7 @@
   "bugs": "https://github.com/SinaMFE/marauder/issues",
   "repository": {
     "type": "git",
-    "url": "git@github.com:SinaMFE/marauder.git"
+    "url": "https://github.com/SinaMFE/marauder.git"
   },
   "license": "MIT"
 }
