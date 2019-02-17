@@ -3,9 +3,10 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const config = require('../../config')
 const isProd = process.env.NODE_ENV === 'production'
+const isDev = process.env.NODE_ENV === 'development'
 const shouldUseRelativeAssetPaths = config.assetsPublicPath === './'
 const shouldExtract = isProd && config.compiler.cssExtract !== false
-const shouldUseSourceMap = isProd && config.build.sourceMap
+const shouldUseSourceMap = isDev ? config.build.sourceMap : isDev
 
 function getPostCSSPlugins(useSourceMap, needInlineMinification, preProcessor) {
   const basic = [
