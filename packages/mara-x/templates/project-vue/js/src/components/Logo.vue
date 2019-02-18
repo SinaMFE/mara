@@ -38,11 +38,10 @@
   </div>
 </template>
 
-<script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
-
-@Component
-export default class App extends Vue {}
+<script>
+export default {
+  name: 'Logo'
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

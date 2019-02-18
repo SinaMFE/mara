@@ -1,22 +1,21 @@
 <template>
   <div id="app">
     <Logo />
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+    <HelloWorld msg="Welcome to Your Vue.js App"/>
   </div>
 </template>
 
-<script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+<script>
 import Logo from '../../components/Logo.vue'
 import HelloWorld from '../../components/HelloWorld.vue'
 
-@Component({
+export default {
+  name: 'app',
   components: {
     Logo,
     HelloWorld
   }
-})
-export default class App extends Vue {}
+}
 </script>
 
 <style>
