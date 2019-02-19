@@ -1,6 +1,6 @@
 # marax
 
-[![npm](https://img.shields.io/npm/v/webpack-marauder.svg)](https://www.npmjs.com/package/webpack-marauder)
+[![npm](https://img.shields.io/npm/v/@mara/x.svg)](https://www.npmjs.com/package/@mara/x)
 
 基于 webpack 的项目打包工具。
 

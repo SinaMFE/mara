@@ -1,15 +1,41 @@
 # @mara/create
 
-用于生成项目模板
+[![npm](https://img.shields.io/npm/v/@mara/x.svg)](https://www.npmjs.com/package/@mara/x)
+
+Marauder 项目模板生成工具。
 
 ## 命令
 
-```bash
+**npx（推荐）**
+
+```sh
 npx @mara/create my-app
 ```
 
-```bash
+_需要 npm 5.2+ 版本_
+
+**npm**
+
+```sh
 npm init @mara my-app
+```
+
+_需要 npm 6+ 版本_
+
+**yarn**
+
+```sh
+yarn create @mara my-app
+```
+
+_需要 yarn 0.25+ 版本_
+
+**Marauder CLI**
+
+```sh
+npm i @mara/cli -g
+
+mara create my-app
 ```
 
 ### 参数
