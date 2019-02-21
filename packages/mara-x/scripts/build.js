@@ -230,7 +230,7 @@ function done() {
   hour > 21 && console.log(chalk.magenta('🚜  marauder loves you'))
 }
 
-module.exports = argv => {
+module.exports = function runBuild(argv) {
   return getEntry(argv)
     .then(setup)
     .then(clean)

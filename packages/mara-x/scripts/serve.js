@@ -93,6 +93,6 @@ async function server(entryInput) {
   })
 }
 
-module.exports = argv => {
+module.exports = function runServe(argv) {
   return getEntry(argv).then(server)
 }
