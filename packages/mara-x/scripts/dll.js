@@ -93,7 +93,7 @@ function errorLog(err) {
   process.exit(1)
 }
 
-export default function() {
+module.exports = function runDll() {
   return build()
     .then(output => {
       // webpack 打包结果统计
@@ -107,11 +107,13 @@ export default function() {
         }) + '\n\n'
       )
 
-      console.log(chalk.cyan('  DLL Build complete.\n'))
-
+      console.log(chalk.green('  DLL Build complete.\n'))
       console.log(
-        chalk.yellow('  Tip: DLL bundle is change, please rebuild your app.\n')
+        chalk.yellow(
+          '  Vender bundle has been generated, please rebuild your app:\n'
+        )
       )
+      console.log(chalk.cyan('  $ yarn build <page_name>\n'))
     })
     .then(ftp)
     .catch(errorLog)
