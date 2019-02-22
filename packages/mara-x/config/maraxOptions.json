@@ -51,7 +51,26 @@
       "items": { "type": "object" }
     },
     "vendor": {
-      "type": "object"
+      "oneOf": [
+        {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        {
+          "additionalProperties": false,
+          "type": "object",
+          "properties": {
+            "libs": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "name": {
+              "description": "vendor entry.",
+              "type": "string"
+            }
+          }
+        }
+      ]
     },
     "compiler": {
       "type": "object",
