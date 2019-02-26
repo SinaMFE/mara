@@ -56,18 +56,34 @@ mara create my-app
 
 ### 选择模板
 
-Marauder 预置 Vue、React 及 Vanilla Js 模板，可通过 `--preset` 参数指定。
+Marauder 预设 Vue 及 React 模板，可通过 `--preset | -p` 参数指定。
 
-创建 React + Typescript 项目：
-
-```
-npx @mara/create react-app --preset react
-```
-
-创建原生 js 项目：
+默认情况下创建 Vue + Typescript 项目:
 
 ```
-npx @mara/create react-app --preset --no-ts
+npx @mara/create my-app
+```
+
+创建 React + Typescript 项目:
+
+```
+npx @mara/create my-app --p react
+```
+
+#### Vanilla Js 模板
+
+当 `--preset` 参数指定其他非预设值时，将应用 Vanilla Js 模板
+
+使用 zepto:
+
+```
+npx @mara/create my-app --preset zepto --no-ts
+```
+
+不使用任何类库：
+
+```
+npx @mara/create my-app --preset --no-ts
 ```
 
 完整的命令行参数有：
@@ -167,9 +183,9 @@ view
 
 ### 二期目标
 
-- ESLint 强约束
-- 建全测试用例
-- 完善文档网站
-- 开发辅助脚本
-- typescript 重构
-- 设计器支援
+- [] ESLint 强约束
+- [] 建全测试用例
+- [] 完善文档网站
+- [] 开发辅助脚本
+- [] typescript 重构
+- [] 设计器支援
