@@ -96,8 +96,8 @@ const maraContext = {
   webpackPluginsHandler: maraConf.webpackPluginsHandler,
   // 编译配置
   compiler: maraConf.compiler,
-  // 通知 babel 编译 node_module 里额外的模块
-  esm: maraConf.esm,
+  // 通知 babel 以项目级配置编译 node_module 里额外的模块
+  esm: ['@mfelibs'],
   // 打包 dll
   vendor: maraConf.vendor,
   paths: paths,

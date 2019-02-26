@@ -211,11 +211,7 @@ module.exports = function({ entry, cmd, spinner }) {
         target: config.target
       }),
       ...copyPublicFiles(entry, distPageDir)
-    ].filter(Boolean),
-    // 禁用包体积性能警告
-    performance: {
-      hints: false
-    }
+    ].filter(Boolean)
   })
 
   // 预加载

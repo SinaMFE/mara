@@ -109,10 +109,6 @@ module.exports = function() {
       net: 'empty',
       tls: 'empty',
       child_process: 'empty'
-    },
-    // 禁用包体积性能警告
-    performance: {
-      hints: false
     }
   }
 }

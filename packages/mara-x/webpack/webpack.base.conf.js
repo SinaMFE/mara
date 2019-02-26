@@ -177,6 +177,8 @@ module.exports = function(entry) {
                 // disable type checker
                 // 起到加速作用
                 transpileOnly: true,
+                // https://webpack.docschina.org/guides/build-performance/#typescript-loader
+                experimentalWatchApi: !isProd,
                 getCustomTransformers: tsImportLibs.length
                   ? () => ({
                       before: [tsImportPluginFactory(tsImportLibs)]
@@ -216,7 +218,8 @@ module.exports = function(entry) {
           test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
           loader: require.resolve('file-loader'),
           options: {
-            name: `${assetsDir}fonts/[name].[contenthash:8].[ext]`
+            // 不支持 contenthash
+            name: `${assetsDir}fonts/[name].[hash:8].[ext]`
           }
         },
         {
@@ -269,7 +272,6 @@ module.exports = function(entry) {
             module: 'esnext',
             moduleResolution: 'node',
             resolveJsonModule: true,
-            isolatedModules: true,
             noEmit: true,
             // https://www.tslang.cn/docs/handbook/jsx.html
             // 保留 jsx 语法格式，交由 babel 做后续处理
@@ -300,6 +302,10 @@ module.exports = function(entry) {
       net: 'empty',
       tls: 'empty',
       child_process: 'empty'
+    },
+    // 禁用包体积性能警告
+    performance: {
+      hints: false
     }
   }
 }
