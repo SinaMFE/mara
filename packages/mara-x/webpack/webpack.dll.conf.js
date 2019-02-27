@@ -109,6 +109,9 @@ module.exports = function() {
       net: 'empty',
       tls: 'empty',
       child_process: 'empty'
+    },
+    performance: {
+      hints: false
     }
   }
 }

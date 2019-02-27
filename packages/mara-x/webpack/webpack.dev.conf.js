@@ -72,8 +72,6 @@ module.exports = function({ entry, spinner }) {
       hasHtml && new InterpolateHtmlPlugin(HtmlWebpackPlugin, config.env.raw),
       // https://github.com/glenjamin/webpack-hot-middleware#installation--usage
       new webpack.HotModuleReplacementPlugin(),
-      // 出错时只打印错误，但不重新加载页面
-      new webpack.NoEmitOnErrorsPlugin(),
       // 安装缺失模块后不用重启服务
       new WatchMissingNodeModulesPlugin(config.paths.nodeModules),
       // 确保在 FriendlyErrorsPlugin 之前
@@ -85,13 +83,7 @@ module.exports = function({ entry, spinner }) {
         additionalFormatters: [formatter]
       }),
       new CaseSensitivePathsPlugin()
-    ].filter(Boolean),
-    // Turn off performance hints during development because we don't do any
-    // splitting or minification in interest of speed. These warnings become
-    // cumbersome.
-    performance: {
-      hints: false
-    }
+    ].filter(Boolean)
   })
 
   return webpackConfig
