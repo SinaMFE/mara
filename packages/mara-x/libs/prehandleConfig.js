@@ -1,13 +1,17 @@
 const config = require('../config')
 
-module.exports = function(command, webpackConfig, entry) {
+module.exports = function({ command, webpackConfig, entry }) {
   if (config.webpackPluginsHandler) {
-    webpackConfig.plugins = config.webpackPluginsHandler(
+    const context = {
+      entry,
       command,
-      webpackConfig.plugins,
-      config.argv,
-      entry
-    )
+      argv: config.argv,
+      target: config.target,
+      mode: process.env.NODE_ENV,
+      webpackPlugins: webpackConfig.plugins
+    }
+
+    config.webpackPluginsHandler(context)
   }
 
   return webpackConfig

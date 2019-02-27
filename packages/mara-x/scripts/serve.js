@@ -69,12 +69,16 @@ async function createDevServer(webpackConf, opts) {
 async function server(entryInput) {
   spinner.start()
 
-  const webpackConf = prehandleConfig(
-    'dev',
-    getWebpackConfig({ spinner, ...entryInput })
-  )
+  let webpackConfig = getWebpackConfig({ spinner, ...entryInput })
+
+  webpackConfig = prehandleConfig({
+    command: 'dev',
+    webpackConfig,
+    entry: entryInput.entry
+  })
+
   const port = await getFreePort(DEFAULT_PORT)
-  const devServer = await createDevServer(webpackConf, {
+  const devServer = await createDevServer(webpackConfig, {
     entry: entryInput.entry,
     port
   })

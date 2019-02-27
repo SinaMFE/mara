@@ -36,7 +36,13 @@ const spinner = ora('Building for production...')
 
 function build({ entryInput, preBuildSize, dist }) {
   let webpackConfig = getWebpackConfig({ spinner, ...entryInput })
-  webpackConfig = prehandleConfig('build', webpackConfig)
+
+  webpackConfig = prehandleConfig({
+    command: 'build',
+    webpackConfig,
+    entry: entryInput.entry
+  })
+
   const compiler = webpack(webpackConfig)
 
   return new Promise((resolve, reject) => {
