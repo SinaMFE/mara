@@ -1,17 +1,4 @@
 const path = require('path')
-const fs = require('fs-extra')
-
-const emitCountMap = new Map()
-
-function getFileType(str) {
-  str = str.replace(/\?.*/, '')
-  var split = str.split('.')
-  var ext = split.pop()
-  if (this.opts.transformExtensions.test(ext)) {
-    ext = split.pop() + '.' + ext
-  }
-  return ext
-}
 
 class BuildJsonPlugin {
   constructor(options) {
@@ -19,7 +6,10 @@ class BuildJsonPlugin {
       target: '',
       version: '',
       debug: false,
-      marax: ''
+      marax: '',
+      publicPath: null,
+      basePath: '',
+      zenJs: false
     }
 
     this.fileName = 'build.json'
@@ -27,22 +17,35 @@ class BuildJsonPlugin {
   }
 
   apply(compiler) {
-    const pluginName = this.constructor.name
+    this.moduleAssets = {}
 
-    compiler.hooks.make.tap(pluginName, compilation => {
-      compilation.hooks.additionalAssets.tap(pluginName, () => {
-        compilation.assets[this.fileName] = this.getBuildJson()
-      })
+    const pluginOptions = {
+      name: this.constructor.name,
+      stage: Infinity
+    }
+
+    compiler.hooks.compilation.tap(pluginOptions, compilation => {
+      compilation.hooks.moduleAsset.tap(
+        pluginOptions,
+        this.collectModuleAsset.bind(this)
+      )
+    })
+
+    compiler.hooks.emit.tap(pluginOptions, compilation => {
+      const manifest = this.getAssetsManifest(compilation)
+
+      compilation.assets[this.fileName] = this.getBuildJson(manifest)
     })
   }
 
-  getBuildJson() {
+  getBuildJson(manifest = {}) {
     const source = JSON.stringify(
       {
         target: this.options.target,
         version: this.options.version,
         debug: this.options.debug,
-        marax: this.options.marax
+        marax: this.options.marax,
+        manifest: manifest
       },
       null,
       2
@@ -54,216 +57,145 @@ class BuildJsonPlugin {
     }
   }
 
-  assetsManifest(compiler) {
-    let moduleAssets = {}
+  sortAssetField(files) {
+    const isJS = val => /\.js$/.test(val)
+    const isCSS = val => /\.css$/.test(val)
 
-    var outputFolder = compiler.options.output.path
-    var outputFile = path.resolve(outputFolder, this.opts.fileName)
-    var outputName = path.relative(outputFolder, outputFile)
+    return files.sort((a, b) => {
+      if (isJS(a.name) && isCSS(b.name)) return -1
+      if (isCSS(a.name) && isJS(b.name)) return 1
 
-    function moduleAsset(module, file) {
-      if (module.userRequest) {
-        moduleAssets[file] = path.join(
-          path.dirname(file),
-          path.basename(module.userRequest)
-        )
-      }
+      return 1
+    })
+  }
+
+  collectModuleAsset(module, file) {
+    if (module.userRequest) {
+      this.moduleAssets[file] = path.join(
+        path.dirname(file),
+        path.basename(module.userRequest)
+      )
+    }
+  }
+
+  getAssetsManifest(compilation) {
+    const publicPath =
+      this.options.publicPath != null
+        ? this.options.publicPath
+        : compilation.options.output.publicPath
+    const stats = compilation.getStats().toJson()
+
+    const getFileType = str => {
+      str = str.replace(/\?.*/, '')
+
+      return str.split('.').pop()
     }
 
-    const emit = function(compilation, compileCallback) {
-      const emitCount = emitCountMap.get(outputFile) - 1
-      emitCountMap.set(outputFile, emitCount)
+    let files = compilation.chunks.reduce((files, chunk) => {
+      return chunk.files.reduce((files, path) => {
+        let name = chunk.name ? chunk.name : null
+        const isInitial = chunk.isOnlyInitial()
 
-      var seed = this.opts.seed || {}
-
-      var publicPath =
-        this.opts.publicPath != null
-          ? this.opts.publicPath
-          : compilation.options.output.publicPath
-      var stats = compilation.getStats().toJson()
-
-      var files = compilation.chunks.reduce(
-        function(files, chunk) {
-          return chunk.files.reduce(
-            function(files, path) {
-              var name = chunk.name ? chunk.name : null
-
-              if (name) {
-                name = name + '.' + getFileType(path)
-              } else {
-                // For nameless chunks, just map the files directly.
-                name = path
-              }
-
-              // Webpack 4: .isOnlyInitial()
-              // Webpack 3: .isInitial()
-              // Webpack 1/2: .initial
-              return files.concat({
-                path: path,
-                chunk: chunk,
-                name: name,
-                isInitial: chunk.isOnlyInitial
-                  ? chunk.isOnlyInitial()
-                  : chunk.isInitial
-                    ? chunk.isInitial()
-                    : chunk.initial,
-                isChunk: true,
-                isAsset: false,
-                isModuleAsset: false
-              })
-            }.bind(this),
-            files
-          )
-        }.bind(this),
-        []
-      )
-
-      // module assets don't show up in assetsByChunkName.
-      // we're getting them this way;
-      files = stats.assets.reduce(function(files, asset) {
-        var name = moduleAssets[asset.name]
         if (name) {
-          return files.concat({
-            path: asset.name,
-            name: name,
-            isInitial: false,
-            isChunk: false,
-            isAsset: true,
-            isModuleAsset: true
-          })
+          if (isInitial) {
+            name = `static/${getFileType(path)}/` + name
+          }
+
+          name += '.' + getFileType(path)
+        } else {
+          // For nameless chunks, just map the files directly.
+          name = path
         }
 
-        var isEntryAsset = asset.chunks.length > 0
-        if (isEntryAsset) {
-          return files
+        if (this.options.zenJs && isInitial) {
+          path = path.replace(/\.js$/, '')
         }
 
+        // Webpack 4: .isOnlyInitial()
+        // Webpack 3: .isInitial()
+        // Webpack 1/2: .initial
         return files.concat({
-          path: asset.name,
-          name: asset.name,
-          isInitial: false,
-          isChunk: false,
-          isAsset: true,
+          path,
+          chunk,
+          name,
+          isInitial,
+          isChunk: true,
+          isAsset: false,
           isModuleAsset: false
         })
       }, files)
+    }, [])
 
-      files = files.filter(function(file) {
-        // Don't add hot updates to manifest
-        var isUpdateChunk = file.path.indexOf('hot-update') >= 0
-        // Don't add manifest from another instance
-        var isManifest =
-          emitCountMap.get(path.join(outputFolder, file.name)) !== undefined
+    // module assets don't show up in assetsByChunkName.
+    // we're getting them this way;
+    files = stats.assets.reduce((files, asset) => {
+      const name = this.moduleAssets[asset.name]
 
-        return !isUpdateChunk && !isManifest
+      if (name) {
+        return files.concat({
+          path: asset.name,
+          name: name,
+          isInitial: false,
+          isChunk: false,
+          isAsset: true,
+          isModuleAsset: true
+        })
+      }
+
+      const isEntryAsset = asset.chunks.length > 0
+
+      if (isEntryAsset) return files
+
+      return files.concat({
+        path: asset.name,
+        name: asset.name,
+        isInitial: false,
+        isChunk: false,
+        isAsset: true,
+        isModuleAsset: false
       })
+    }, files)
 
-      // Append optional basepath onto all references.
-      // This allows output path to be reflected in the manifest.
-      if (this.opts.basePath) {
-        files = files.map(
-          function(file) {
-            file.name = this.opts.basePath + file.name
-            return file
-          }.bind(this)
-        )
-      }
+    files = files.filter(file => {
+      // Don't add hot updates to manifest
+      const isUpdateChunk = file.path.indexOf('hot-update') >= 0
 
-      if (publicPath) {
-        // Similar to basePath but only affects the value (similar to how
-        // output.publicPath turns require('foo/bar') into '/public/foo/bar', see
-        // https://github.com/webpack/docs/wiki/configuration#outputpublicpath
-        files = files.map(
-          function(file) {
-            file.path = publicPath + file.path
-            return file
-          }.bind(this)
-        )
-      }
+      return !isUpdateChunk
+    })
 
+    // Append optional basepath onto all references.
+    // This allows output path to be reflected in the manifest.
+    if (this.options.basePath) {
       files = files.map(file => {
-        file.name = file.name.replace(/\\/g, '/')
-        file.path = file.path.replace(/\\/g, '/')
+        file.name = this.options.basePath + file.name
         return file
       })
-
-      if (this.opts.filter) {
-        files = files.filter(this.opts.filter)
-      }
-
-      if (this.opts.map) {
-        files = files.map(this.opts.map)
-      }
-
-      if (this.opts.sort) {
-        files = files.sort(this.opts.sort)
-      }
-
-      var manifest
-      if (this.opts.generate) {
-        manifest = this.opts.generate(seed, files)
-      } else {
-        manifest = files.reduce(function(manifest, file) {
-          manifest[file.name] = file.path
-          return manifest
-        }, seed)
-      }
-
-      const isLastEmit = emitCount === 0
-      if (isLastEmit) {
-        var output = this.opts.serialize(manifest)
-
-        compilation.assets[outputName] = {
-          source: function() {
-            return output
-          },
-          size: function() {
-            return output.length
-          }
-        }
-
-        if (this.opts.writeToFileEmit) {
-          fs.outputFileSync(outputFile, output)
-        }
-      }
-
-      if (compiler.hooks) {
-        compiler.hooks.webpackManifestPluginAfterEmit.call(manifest)
-      } else {
-        compilation.applyPluginsAsync(
-          'webpack-manifest-plugin-after-emit',
-          manifest,
-          compileCallback
-        )
-      }
-    }.bind(this)
-
-    function beforeRun(compiler, callback) {
-      let emitCount = emitCountMap.get(outputFile) || 0
-      emitCountMap.set(outputFile, emitCount + 1)
-
-      if (callback) {
-        callback()
-      }
     }
 
-    const SyncWaterfallHook = require('tapable').SyncWaterfallHook
-    const pluginOptions = {
-      name: 'ManifestPlugin',
-      stage: Infinity
+    if (publicPath) {
+      // Similar to basePath but only affects the value (similar to how
+      // output.publicPath turns require('foo/bar') into '/public/foo/bar', see
+      // https://github.com/webpack/docs/wiki/configuration#outputpublicpath
+      files = files.map(file => {
+        file.path = publicPath + file.path
+        return file
+      })
     }
 
-    compiler.hooks.webpackManifestPluginAfterEmit = new SyncWaterfallHook([
-      'manifest'
-    ])
+    files = files.map(file => {
+      file.name = file.name.replace(/\\/g, '/')
+      file.path = file.path.replace(/\\/g, '/')
 
-    compiler.hooks.compilation.tap(pluginOptions, function(compilation) {
-      compilation.hooks.moduleAsset.tap(pluginOptions, moduleAsset)
+      return file
     })
-    compiler.hooks.emit.tap(pluginOptions, emit)
 
-    compiler.hooks.run.tap(pluginOptions, beforeRun)
-    compiler.hooks.watchRun.tap(pluginOptions, beforeRun)
+    files = this.sortAssetField(files)
+
+    return files.reduce((manifest, file) => {
+      manifest[file.name] = file.path
+
+      return manifest
+    }, {})
   }
 }
 
