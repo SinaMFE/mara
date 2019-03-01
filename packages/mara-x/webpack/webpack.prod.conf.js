@@ -11,6 +11,7 @@ const InlineChunkHtmlPlugin = require('react-dev-utils/InlineChunkHtmlPlugin')
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const InlineUmdHtmlPlugin = require('../libs/InlineUmdHtmlPlugin')
+const ZenJsPlugin = require('../libs/ZenJsPlugin')
 const BuildJsonPlugin = require('../libs/BuildJsonPlugin')
 const ManifestPlugin = require('../libs/hybrid/ManifestPlugin')
 const BuildProgressPlugin = require('../libs/BuildProgressPlugin')
@@ -46,6 +47,7 @@ module.exports = function({ entry, cmd, spinner }) {
   const debugLabel = config.debug ? '.debug' : ''
   const useTypeScript = fs.existsSync(config.paths.tsConfig)
   const isHybridMode = config.target === 'app'
+  const shouldUseZenJs = config.compiler.zenJs && config.target != 'app'
 
   // https://github.com/survivejs/webpack-merge
   const webpackConfig = merge(baseWebpackConfig, {
@@ -137,7 +139,7 @@ module.exports = function({ entry, cmd, spinner }) {
       // https://medium.com/webpack/webpack-4-code-splitting-chunk-graph-and-the-splitchunks-optimization-be739a861366
       splitChunks: {
         chunks: 'all',
-        name: false
+        name: true
       },
       // Keep the runtime chunk seperated to enable long term caching
       // https://twitter.com/wSokra/status/969679223278505985
@@ -173,6 +175,7 @@ module.exports = function({ entry, cmd, spinner }) {
           }
         }),
       hasHtml && new InlineUmdHtmlPlugin(HtmlWebpackPlugin),
+      hasHtml && shouldUseZenJs && new ZenJsPlugin(HtmlWebpackPlugin),
       hasHtml &&
         new InlineChunkHtmlPlugin(HtmlWebpackPlugin, [/runtime~.+[.]js/]),
       hasHtml && new InterpolateHtmlPlugin(HtmlWebpackPlugin, config.env.raw),
