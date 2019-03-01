@@ -43,6 +43,7 @@ module.exports = class ProgressBar {
     this.total = total
     this.chars = ['#', '-']
     this.spinner = spinner
+    this.maxWidth = 75
     this._callback = callback
     clearLine(stdout)
   }
@@ -97,13 +98,16 @@ module.exports = class ProgressBar {
     let bar = ` ${this.curr}%`
 
     // calculate size of actual bar
-    // $FlowFixMe: investigate process.stderr.columns flow error
     const availableSpace = Math.max(0, this.stdout.columns - bar.length - 3)
-    const width = Math.min(this.total, availableSpace) - this.offsetLen
+    let width = Math.min(this.total, availableSpace) - this.offsetLen
+
+    // limit width
+    width = width > this.maxWidth ? this.maxWidth : width
+
     const completeLength = Math.round(width * ratio)
     const complete = this.chars[0].repeat(completeLength)
     const incomplete = this.chars[1].repeat(width - completeLength)
-    bar = `${this.name}[${complete}${incomplete}]${bar}`
+    bar = `${this.name}[${complete}${incomplete}]${bar}\n`
 
     if (this.spinner) {
       this.spinner.text = bar
