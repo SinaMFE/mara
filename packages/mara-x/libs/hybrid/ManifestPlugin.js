@@ -141,7 +141,9 @@ module.exports = class ManifestPlugin {
     const version = { version: this.version }
 
     // 确保将 version 排序至第一位
-    return Object.assign(version, filter(manifest), version)
+    // 第一个 version 是为了将字段提升至第一位
+    // 最后一个 version 是为了覆盖原有值
+    return Object.assign({}, version, filter(manifest), version)
   }
 
   genManifest() {
