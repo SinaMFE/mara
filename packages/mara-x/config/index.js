@@ -129,7 +129,8 @@ const maraContext = {
       // image-set polyfill 与雪碧图使用时存在 bug，在此禁用
       'css-images-image-set-notation': false
     }
-  }
+  },
+  marax: maraConf.marax
 }
 
 module.exports = maraContext

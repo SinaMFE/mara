@@ -55,7 +55,13 @@ module.exports = function({ entry, spinner }) {
       runtimeChunk: false
     },
     plugins: [
-      new BuildProgressPlugin({ spinner, name: 'Starting' }),
+      // 由于 base.conf 会被外部引用，在一些情况下不需要 ProgressPlugin
+      // 因此独立放在 dev.conf 中
+      new BuildProgressPlugin({
+        spinner,
+        name: 'Starting',
+        type: config.marax.progress
+      }),
       hasHtml &&
         new HtmlWebpackPlugin({
           // 以页面文件夹名作为模板名称

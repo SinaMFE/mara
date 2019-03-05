@@ -68,5 +68,8 @@ module.exports = {
   hybrid: undefined,
   // tinypng keys
   // https://tinypng.com/developers
-  tinifyKeys: []
+  tinifyKeys: [],
+  marax: {
+    progress: 'bar'
+  }
 }

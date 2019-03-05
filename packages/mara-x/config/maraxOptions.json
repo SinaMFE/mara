@@ -192,6 +192,15 @@
           "type": "boolean"
         }
       }
+    },
+    "marax": {
+      "description": "Marax internal configuration.",
+      "type": "object",
+      "properties": {
+        "progress": {
+          "enum": ["bar", "text"]
+        }
+      }
     }
   },
   "type": "object"

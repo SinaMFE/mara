@@ -147,7 +147,13 @@ module.exports = function({ entry, cmd, spinner }) {
       runtimeChunk: false
     },
     plugins: [
-      new BuildProgressPlugin({ spinner, name: 'Building' }),
+      // 由于 base.conf 会被外部引用，在一些情况下不需要 ProgressPlugin
+      // 因此独立放在 prod.conf 中
+      new BuildProgressPlugin({
+        spinner,
+        name: 'Building',
+        type: config.marax.progress
+      }),
       hasHtml &&
         new HtmlWebpackPlugin({
           // 生成出来的html文件名
