@@ -93,6 +93,10 @@
             }
           ]
         },
+        "splitChunks": {
+          "description": "Split initial chunks.",
+          "type": "boolean"
+        },
         "vueRuntimeOnly": {
           "description": "Compile with vue runtime.",
           "type": "boolean"
@@ -184,7 +188,7 @@
           }
         },
         "hybridPublish": {
-          "description": "Refresh resource cache.",
+          "description": "Release the hybrid package to the dev environment.",
           "type": "boolean"
         }
       }

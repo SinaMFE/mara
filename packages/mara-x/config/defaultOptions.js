@@ -29,7 +29,9 @@ module.exports = {
     // 默认启用 runtime，仅允许 vue 文件内的模板
     vueRuntimeOnly: true,
     // @TODO 移除 console
-    dropConsole: false
+    dropConsole: false,
+    // 分离 initial chunk
+    splitChunks: true
   },
   webpackPluginsHandler: (command, webpackConf) => webpackConf,
   proxyTable: {},
