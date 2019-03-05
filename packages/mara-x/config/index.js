@@ -25,8 +25,13 @@ function getMaraConf() {
   if (fs.existsSync(paths.marauder)) {
     const userOptions = require(paths.marauder)
 
-    if (validateOptions(maraxOptionsSchema, userOptions, 'mararc', 'Marax')) {
-      maraConf = merge({}, defConf, userOptions)
+    try {
+      if (validateOptions(maraxOptionsSchema, userOptions, 'mararc', 'Marax')) {
+        maraConf = merge({}, defConf, userOptions)
+      }
+    } catch (e) {
+      console.log(e.message)
+      process.exit(1)
     }
   }
 
