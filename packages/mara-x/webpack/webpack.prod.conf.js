@@ -200,7 +200,7 @@ module.exports = function({ entry, cmd, spinner }) {
       //   emitError: config.compiler.checkDuplicatePackage
       // }),
       new webpack.BannerPlugin({
-        banner: banner(), // 其值为字符串，将作为注释存在
+        banner: banner(config.target), // 其值为字符串，将作为注释存在
         entryOnly: false // 如果值为 true，将只在入口 chunks 文件中添加
       }),
       new BuildJsonPlugin({

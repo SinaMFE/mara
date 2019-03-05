@@ -126,13 +126,13 @@ function pubDate(dt) {
  * 生成 banner
  * @return {String} 包含项目版本号，构建日期
  */
-function banner() {
+function banner(target = '') {
   return (
     `@version ${process.env.npm_package_version}\n` +
     `@date ${pubDate(new Date())}\n` +
     // 对 bundle 文件添加 @generated 标识
     // 在 code review 面板忽略相关 diff
-    `@generated`
+    `@generated ${target}`
   )
 }
 
