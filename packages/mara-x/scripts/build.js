@@ -19,7 +19,7 @@ const config = require('../config')
 const paths = config.paths
 const getWebpackConfig = require('../webpack/webpack.prod.conf')
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages')
-const { hybridDevPublish, hybridTestPublish } = require('../libs/hybrid')
+const { hybridDevPublish, testDeploy } = require('../libs/hybrid')
 const printBuildError = require('../libs/printBuildError')
 const {
   getLastBuildSize,
@@ -183,13 +183,16 @@ function success({
   return entryInput
 }
 
-async function hybridDeploy({ entry, entryArgs, remotePath }) {
+async function deploy({ entry, entryArgs, remotePath }) {
+  // @TODO config.hybrid 是否有必要？
+  const isHybridMode = config.hybrid && config.target === 'app'
+
   // hybrid deplpy 需提供 hybrid 配置
   // 并且为 app 模式
-  if (config.hybrid && config.target === 'app' && remotePath) {
+  if (isHybridMode && config.ftp.hybridPublish && remotePath) {
     await hybridDevPublish(entry, remotePath)
   } else if (entryArgs.test !== null) {
-    await hybridTestPublish(entry, entryArgs.test)
+    await testDeploy(entry, entryArgs.test)
   }
 }
 
@@ -243,7 +246,7 @@ module.exports = function runBuild(argv) {
     .then(build)
     .then(success)
     .then(ftp)
-    .then(hybridDeploy)
+    .then(deploy)
     .then(done)
     .catch(error)
 }

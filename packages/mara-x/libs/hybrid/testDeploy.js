@@ -7,7 +7,7 @@ const execa = require('execa')
 
 const GITLAB_HOST = 'https://gitlab.weibo.cn'
 const fetch = axios.create({
-  baseURL: `${GITLAB_HOST}/api/v4/`,
+  baseURL: `${GITLAB_HOST}/api/v4/`
 })
 
 // 内部调试用
@@ -214,7 +214,7 @@ async function addCommit(verInfo) {
   const { stdout: commitInfo } = await execa('git', [
     'commit',
     '-m',
-    `[TEST] v${verInfo}`,
+    `[TEST] v${verInfo}`
   ])
 
   return commitInfo
@@ -239,7 +239,7 @@ async function showManualTip(repoUrl, type = 'token') {
   }
 }
 
-module.exports = async function hybridTestPublish(entry, testMsg) {
+module.exports = async function testDeploy(entry, testMsg) {
   const path = require('path')
   const config = require('../../config')
   const { URL } = require('url')
@@ -250,17 +250,17 @@ module.exports = async function hybridTestPublish(entry, testMsg) {
   const tagName = tagPrefix + verInfo
   const tagMsg = testMsg || `test ${entry} v${verInfo}`
 
-  console.log('----------- Test Publish -----------\n')
+  console.log('----------- Test Deploy -----------\n')
 
   const { stdout: branchName } = await execa('git', [
     'symbolic-ref',
     '--short',
-    'HEAD',
+    'HEAD'
   ])
   const { stdout: remoteUrl } = await execa('git', [
     'config',
     '--get',
-    'remote.origin.url',
+    'remote.origin.url'
   ])
 
   checkRepo(remoteUrl, branchName)

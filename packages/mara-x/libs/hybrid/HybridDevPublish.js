@@ -88,7 +88,7 @@ function logResult(hbMod) {
 }
 
 module.exports = async function(entry, remotePath) {
-  console.log('----------- Hybrid Publish Dev -----------\n')
+  console.log('----------- Hybrid Publish: Dev -----------\n')
   console.log(publishStep[0])
 
   const hbConf = await getHbConf(CONF_URL)

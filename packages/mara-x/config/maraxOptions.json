@@ -182,6 +182,10 @@
               "type": "boolean"
             }
           }
+        },
+        "hybridPublish": {
+          "description": "Refresh resource cache.",
+          "type": "boolean"
         }
       }
     }

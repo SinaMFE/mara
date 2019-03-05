@@ -58,7 +58,8 @@ module.exports = {
     openBrowser: true, // 上传完毕后自动打开浏览器
     remotePath: {
       version: false // 添加 version 路径
-    }
+    },
+    hybridPublish: true // dev 环境 hybrid 资源包发布
   },
   // hybrid 项目配置，存在此属性时，将会生成 zip 包
   // 默认保持缺省，dev deploy 做存在验证
