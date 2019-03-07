@@ -199,6 +199,10 @@
       "properties": {
         "progress": {
           "enum": ["bar", "text"]
+        },
+        "inspire": {
+          "description": "Get an inspiring quote after successful build.",
+          "type": "boolean"
         }
       }
     }

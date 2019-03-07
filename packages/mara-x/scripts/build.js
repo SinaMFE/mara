@@ -236,7 +236,11 @@ function done() {
   const date = new Date()
   const hour = date.getHours()
 
-  hour > 21 && console.log(chalk.magenta('🚜  marauder loves you'))
+  if (config.marax.inspire || hour >= 20) {
+    const quote = require('../libs/inspire').random()
+
+    console.log(chalk.yellow('🚜 ' + quote))
+  }
 }
 
 module.exports = function runBuild(argv) {

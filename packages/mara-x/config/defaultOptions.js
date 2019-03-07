@@ -70,6 +70,8 @@ module.exports = {
   // https://tinypng.com/developers
   tinifyKeys: [],
   marax: {
-    progress: 'bar'
+    // bar 状态条，text 详细信息
+    progress: 'text',
+    inspire: false
   }
 }

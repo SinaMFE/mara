@@ -204,6 +204,18 @@ function md5(data) {
   return hash.update(data).digest('hex')
 }
 
+/**
+ * 返回指定精度的整随机数
+ *
+ * @param  {Number} min 左边距
+ * @param  {Number} max 右边距
+ * @return {Number}   指定范围随机数
+ * random(1, 3)  // 1 | 2 | 3
+ */
+function random(max = 1, min = 0) {
+  return Math.floor(Math.random() * (max - min + 1) + min)
+}
+
 module.exports = {
   assetsPath,
   isObject,
@@ -221,6 +233,7 @@ module.exports = {
   sortObject,
   camelName,
   buffer2String,
+  random,
   readJson,
   md5
 }
