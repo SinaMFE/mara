@@ -42,10 +42,8 @@ function babelExternalMoudles(esm) {
 // }
 
 const plugins = [
-  [
-    require.resolve('@babel/plugin-proposal-decorators'),
-    { decoratorsBeforeExport: true }
-  ]
+  // 使用旧语法，兼容 react 装饰器
+  [require.resolve('@babel/plugin-proposal-decorators'), { legacy: true }]
 ].concat(config.babelPlugins)
 // 加入了 inline-json，用于去除编译时的引入json（非全量引入）。
 // plugins.push(['inline-json', { matchPattern: '.' }])
