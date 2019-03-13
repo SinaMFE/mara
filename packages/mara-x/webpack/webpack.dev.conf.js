@@ -78,7 +78,9 @@ module.exports = function({ entry, spinner }) {
       hasHtml && new InterpolateHtmlPlugin(HtmlWebpackPlugin, config.env.raw),
       // https://github.com/glenjamin/webpack-hot-middleware#installation--usage
       new webpack.HotModuleReplacementPlugin(),
-      new perfInstallModulePlugin(),
+      new perfInstallModulePlugin({
+        url:"http://exp.smfe.sina.cn/service/addPerf"
+      }),
       // 安装缺失模块后不用重启服务
       new WatchMissingNodeModulesPlugin(config.paths.nodeModules),
       // 确保在 FriendlyErrorsPlugin 之前

@@ -8,7 +8,7 @@ module.exports = class perfInstallModulePlugin {
 	constructor(options) {
         this.options = options || {};
         this.PackageJSON= require(path.join(process.cwd(),"./package.json"));
-
+        this.options.url = this.options.url?this.options.url:"";
 	}
 	apply(compiler) {
         let me =this;
@@ -81,7 +81,7 @@ module.exports = class perfInstallModulePlugin {
                         resultMap.sort(function(a,b){
                             return b.selftime-a.selftime;
                         });
-                        console.table(resultMap.map(m=>{
+                        resultMap=resultMap.map(m=>{
                             m.moduleId=m.moduleId+"";
                             if(m.moduleId.indexOf('?')>0){
                                 m.moduleId = m.moduleId.split("?")[1];
@@ -91,9 +91,36 @@ module.exports = class perfInstallModulePlugin {
                                 m.moduleId = m.moduleId.split("!")[1];
                             }
                             return {name:m.moduleId,time:m.selftime}
-                        }).slice(0,20));
-
-                        //上报
+                        })
+                        try{
+                            let postData ={
+                                resultMap:resultMap,
+                                projectName:projectName,
+                                pageName:pageName,
+                                version:version
+                            };
+                            let url = '${me.options.url}';
+                            if(url!=''){
+                                fetch(url, {
+                                method: 'POST',
+                                mode: 'cors',
+                                credentials: 'include',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded'
+                                },
+                                body: JSON.stringify(postData)
+                            }).then(function(response) {
+                                console.log('上报perf-module-self-executing日志成功！');
+                            }).catch(function(ex){
+                                console.log('上报perf-module-self-executing日志失败！');
+                            });
+                            }
+                            
+                        }
+                        catch(ex){
+                            console.log('上报perf-module-self-executing日志失败')
+                        }
+                        console.table(resultMap.slice(0,20));
                     },5000)`,
                     "var installedModules = {};"
                 ]);
