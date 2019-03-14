@@ -9,7 +9,7 @@ const WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeM
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin')
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin')
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
-
+const perfInstallModulePlugin =require("../libs/perfInstallModulePlugin")
 const { transformer, formatter } = require('../libs/resolveLoaderError')
 const BuildProgressPlugin = require('../libs/BuildProgressPlugin')
 const CleanConsolePlugin = require('../libs/CleanConsolePlugin')
@@ -78,6 +78,9 @@ module.exports = function({ entry, spinner }) {
       hasHtml && new InterpolateHtmlPlugin(HtmlWebpackPlugin, config.env.raw),
       // https://github.com/glenjamin/webpack-hot-middleware#installation--usage
       new webpack.HotModuleReplacementPlugin(),
+      new perfInstallModulePlugin({
+        url:"http://exp.smfe.sina.cn/service/addPerf"
+      }),
       // 安装缺失模块后不用重启服务
       new WatchMissingNodeModulesPlugin(config.paths.nodeModules),
       // 确保在 FriendlyErrorsPlugin 之前
