@@ -94,7 +94,10 @@ module.exports = function(entry) {
       ]
     },
     module: {
-      strictExportPresence: true,
+      // ts 模式输出的 interface 不被识别，
+      // 这里不使用严格模式，使构建继续下去
+      // https://github.com/webpack/webpack/issues/7378
+      strictExportPresence: false,
       noParse: /^(vue|vue-router|vuex|vuex-router-sync)$/,
       rules: [
         // Disable require.ensure as it's not a standard language feature.
@@ -273,6 +276,10 @@ module.exports = function(entry) {
             moduleResolution: 'node',
             resolveJsonModule: true,
             noEmit: true,
+            // 将每个文件作为单独的模块, 与 babel 配合需要强制设为 true
+            // https://github.com/facebook/create-react-app/issues/6054
+            // https://github.com/Microsoft/TypeScript/issues/28481
+            isolatedModules: true,
             // https://www.tslang.cn/docs/handbook/jsx.html
             // 保留 jsx 语法格式，交由 babel 做后续处理
             jsx: 'preserve'
