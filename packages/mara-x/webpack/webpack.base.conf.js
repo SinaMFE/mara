@@ -36,6 +36,18 @@ module.exports = function(entry) {
   const entryGlob = `src/view/${entry}/index.@(ts|tsx|js|jsx)`
   const useTypeScript = config.useTypeScript
   const { vueRuntimeOnly } = config.compiler
+  const tsCompilerOptions = {
+    // 输出 ESM 模块系统代码，交由 babel 二次编译
+    module: 'esnext',
+    // 输出最新语法，交由 babel 二次编译
+    target: 'esnext',
+    moduleResolution: 'node',
+    resolveJsonModule: true,
+    noEmit: true,
+    // https://www.tslang.cn/docs/handbook/jsx.html
+    // 保留 jsx 语法格式，交由 babel 做后续处理
+    jsx: 'preserve'
+  }
 
   const extensions = ['.mjs', '.js', '.ts', '.tsx', '.jsx', '.vue', '.json']
 
@@ -187,9 +199,9 @@ module.exports = function(entry) {
                       before: [tsImportPluginFactory(tsImportLibs)]
                     })
                   : undefined,
-                compilerOptions: {
-                  module: 'ESNext'
-                }
+                compilerOptions: tsCompilerOptions,
+                // 仅打包被 webpack 加载的模块
+                onlyCompileBundledFiles: true
                 // https://github.com/TypeStrong/ts-loader#happypackmode-boolean-defaultfalse
                 // happyPackMode: useThreads
               }
@@ -271,19 +283,7 @@ module.exports = function(entry) {
           async: false,
           checkSyntacticErrors: true,
           tsconfig: paths.tsConfig,
-          compilerOptions: {
-            module: 'esnext',
-            moduleResolution: 'node',
-            resolveJsonModule: true,
-            noEmit: true,
-            // 将每个文件作为单独的模块, 与 babel 配合需要强制设为 true
-            // https://github.com/facebook/create-react-app/issues/6054
-            // https://github.com/Microsoft/TypeScript/issues/28481
-            isolatedModules: true,
-            // https://www.tslang.cn/docs/handbook/jsx.html
-            // 保留 jsx 语法格式，交由 babel 做后续处理
-            jsx: 'preserve'
-          },
+          compilerOptions: tsCompilerOptions,
           reportFiles: [
             '**',
             '!**/*.json',
