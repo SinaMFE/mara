@@ -61,10 +61,10 @@ module.exports = function({ entry, cmd, spinner }) {
       publicPath: config.assetsPublicPath,
       // 保持传统，非 debug 的 main js 添加 min 后缀
       filename: config.hash.main
-        ? `static/js/[name].[chunkhash:8]${debugLabel}.js`
+        ? `static/js/[name].[contenthash:8]${debugLabel}.js`
         : `static/js/[name]${debugLabel || '.min'}.js`,
       chunkFilename: config.hash.chunk
-        ? `static/js/[name].[chunkhash:8].chunk${debugLabel}.js`
+        ? `static/js/[name].[contenthash:8].chunk${debugLabel}.js`
         : `static/js/[name].chunk${debugLabel}.js`,
       // Point sourcemap entres to original disk location (format as URL on Windows)
       devtoolModuleFilenameTemplate: info =>
