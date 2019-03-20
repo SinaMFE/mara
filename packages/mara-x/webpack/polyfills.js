@@ -2,7 +2,7 @@
 
 if (typeof Promise === 'undefined') {
   require('promise/lib/rejection-tracking').enable()
-  window.Promise = require('promise/lib/es6-extensions.js')
+  window.Promise = require('promise/lib/es6-extensions')
 }
 
 // Object.assign() is commonly used with React.
@@ -10,9 +10,9 @@ if (typeof Promise === 'undefined') {
 Object.assign = require('object-assign')
 
 // Support for...of (a commonly used syntax feature that requires Symbols)
-require('core-js/es6/symbol')
+require('core-js/es/symbol')
 // Support iterable spread (...Set, ...Map)
-require('core-js/fn/array/from')
+require('core-js/es/array/from')
 
 // In tests, polyfill requestAnimationFrame since jsdom doesn't provide it yet.
 // We don't polyfill it in the browser--this is user's responsibility.
