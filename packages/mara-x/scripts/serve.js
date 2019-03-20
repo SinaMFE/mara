@@ -22,19 +22,8 @@ const PROTOCOL = config.devServer.https === true ? 'https' : 'http'
 const useYarn = fs.existsSync(config.paths.yarnLock)
 const spinner = ora('Starting development server...')
 
-async function getCompiler(webpackConf, devServerConf, { entry, port } = {}) {
+function getCompiler(webpackConf) {
   const compiler = webpack(webpackConf)
-
-  new DevServerPlugin({
-    port,
-    entry,
-    useYarn,
-    spinner,
-    protocol: PROTOCOL,
-    host: devServerConf.host,
-    publicPath: config.assetsPublicPath,
-    openBrowser: config.devServer.open
-  }).apply(compiler)
 
   // 为每一个入口文件添加 webpack-dev-server 客户端
   Object.values(webpackConf.entry).forEach(addHotDevClient)
@@ -53,7 +42,7 @@ function addHotDevClient(entry) {
   ])
 }
 
-async function createDevServer(webpackConf, opts) {
+function createDevServer(webpackConf, opts) {
   const DevServer = require('webpack-dev-server')
   const proxyConfig = config.devServer.proxy
   const serverConf = createDevServerConfig({
@@ -61,9 +50,29 @@ async function createDevServer(webpackConf, opts) {
     proxy: proxyConfig,
     protocol: PROTOCOL
   })
-  const compiler = await getCompiler(webpackConf, serverConf, opts)
+  const compiler = getCompiler(webpackConf)
 
-  return new DevServer(compiler, serverConf)
+  // 确保在 new DevServer 前执行
+  // 避免错过事件钩子
+  new DevServerPlugin({
+    port: opts.port,
+    entry: opts.entry,
+    useYarn,
+    spinner,
+    protocol: PROTOCOL,
+    root: config.paths.app,
+    host: serverConf.host,
+    publicPath: config.assetsPublicPath,
+    openBrowser: config.devServer.open,
+    useTypeScript: config.useTypeScript,
+    onTsError(severity, errors) {
+      devServer.sockWrite(devServer.sockets, `${severity}s`, errors)
+    }
+  }).apply(compiler)
+
+  const devServer = new DevServer(compiler, serverConf)
+
+  return devServer
 }
 
 async function server(entryInput) {
@@ -78,7 +87,7 @@ async function server(entryInput) {
   })
 
   const port = await getFreePort(DEFAULT_PORT)
-  const devServer = await createDevServer(webpackConfig, {
+  const devServer = createDevServer(webpackConfig, {
     entry: entryInput.entry,
     port
   })

@@ -8,11 +8,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeModulesPlugin')
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin')
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin')
-const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
 const perfInstallModulePlugin = require('../libs/perfInstallModulePlugin')
-const { transformer, formatter } = require('../libs/resolveLoaderError')
 const BuildProgressPlugin = require('../libs/BuildProgressPlugin')
-const CleanConsolePlugin = require('../libs/CleanConsolePlugin')
 const { getEntryPoints } = require('../libs/utils')
 const config = require('../config')
 
@@ -84,14 +81,6 @@ module.exports = function({ entry, spinner }) {
       // }),
       // 安装缺失模块后不用重启服务
       new WatchMissingNodeModulesPlugin(config.paths.nodeModules),
-      // 确保在 FriendlyErrorsPlugin 之前
-      new CleanConsolePlugin(),
-      // friendly error plugin displays very confusing errors when webpack
-      // fails to resolve a loader, so we provide custom handlers to improve it
-      new FriendlyErrorsPlugin({
-        additionalTransformers: [transformer],
-        additionalFormatters: [formatter]
-      }),
       new CaseSensitivePathsPlugin()
     ].filter(Boolean)
   })

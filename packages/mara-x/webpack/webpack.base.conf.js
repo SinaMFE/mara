@@ -28,9 +28,10 @@ const {
 const { getEntries, rootPath } = require('../libs/utils')
 const paths = config.paths
 
-const isProd = process.env.NODE_ENV === 'production'
-
 module.exports = function(entry) {
+  const isDev = process.env.NODE_ENV === 'development'
+  const isProd = process.env.NODE_ENV === 'production'
+
   const isLib = entry === '__LIB__'
   const assetsDir = isLib ? '' : 'static/'
   const entryGlob = `src/view/${entry}/index.@(ts|tsx|js|jsx)`
@@ -201,7 +202,11 @@ module.exports = function(entry) {
                   : undefined,
                 compilerOptions: tsCompilerOptions,
                 // 仅打包被 webpack 加载的模块
-                onlyCompileBundledFiles: true
+                onlyCompileBundledFiles: true,
+                // 添加 type 标识，用于识别错误输出
+                errorFormatter: error => {
+                  return Object.assign({}, error, { type: 'diagnostic' })
+                }
                 // https://github.com/TypeStrong/ts-loader#happypackmode-boolean-defaultfalse
                 // happyPackMode: useThreads
               }
@@ -280,7 +285,10 @@ module.exports = function(entry) {
             basedir: paths.nodeModules
           }),
           vue: true,
-          async: false,
+          async: isDev,
+          // 在 vue 模式下存在 bug，这里保持默认行为（vue 下禁用）
+          // https://github.com/Realytics/fork-ts-checker-webpack-plugin/issues/219
+          // useTypescriptIncrementalApi: true,
           checkSyntacticErrors: true,
           tsconfig: paths.tsConfig,
           compilerOptions: tsCompilerOptions,
@@ -294,7 +302,7 @@ module.exports = function(entry) {
           ],
           watch: paths.src,
           silent: true,
-          formatter: tsFormatter
+          formatter: isProd ? tsFormatter : undefined
         })
     ].filter(Boolean),
     // Some libraries import Node modules but don't use them in the browser.
@@ -306,6 +314,7 @@ module.exports = function(entry) {
       module: 'empty',
       dgram: 'empty',
       fs: 'empty',
+      http2: 'empty',
       net: 'empty',
       tls: 'empty',
       child_process: 'empty'
