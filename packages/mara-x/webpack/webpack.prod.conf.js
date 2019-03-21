@@ -139,6 +139,8 @@ module.exports = function({ entry, cmd, spinner }) {
       // https://medium.com/webpack/webpack-4-code-splitting-chunk-graph-and-the-splitchunks-optimization-be739a861366
       splitChunks: {
         chunks: config.compiler.splitChunks ? 'all' : 'async',
+        // 一些 CDN 不支持 `~`，因此指定为 `-``
+        automaticNameDelimiter: '_',
         name: true
       },
       // Keep the runtime chunk seperated to enable long term caching
