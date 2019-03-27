@@ -43,7 +43,7 @@ function babelExternalMoudles(esm) {
 
 const plugins = [
   // 使用旧语法，兼容 react 装饰器
-  [require.resolve('@babel/plugin-proposal-decorators'), { legacy: true }]
+  // [require.resolve('@babel/plugin-proposal-decorators'), { legacy: true }]
 ].concat(config.babelPlugins)
 // 加入了 inline-json，用于去除编译时的引入json（非全量引入）。
 // plugins.push(['inline-json', { matchPattern: '.' }])
@@ -54,7 +54,12 @@ const baseLoader = isProd => ({
     customize: require.resolve('babel-preset-react-app/webpack-overrides'),
     babelrc: false,
     configFile: false,
-    presets: [require.resolve('babel-preset-react-app')],
+    presets: [
+      [
+        require.resolve('babel-preset-react-app'),
+        { flow: false, typescript: true }
+      ]
+    ],
     // 严格确保缓存标识唯一
     cacheIdentifier: getCacheIdentifier([
       'babel-preset-react-app',
@@ -70,12 +75,27 @@ const baseLoader = isProd => ({
   }
 })
 
-module.exports.babelLoader = isProd => [
+module.exports.babelLoader = (isProd, useTypeScript) => [
   merge(baseLoader(isProd), {
-    test: /\.(js|mjs|jsx)$/,
+    test: /\.(js|mjs|jsx|ts|tsx)$/,
     include: [paths.src, ...nodeModulesRegExp(config.esm)],
     options: {
-      plugins
+      plugins,
+      overrides: [
+        {
+          plugins: [
+            [
+              require('@babel/plugin-proposal-decorators').default,
+              { legacy: true }
+            ]
+          ]
+        },
+        // https://devblogs.microsoft.com/typescript/typescript-and-babel-7/
+        useTypeScript && {
+          test: /\.vue$/,
+          plugins: [require('@babel/plugin-transform-typescript').default]
+        }
+      ].filter(Boolean)
     }
   }),
   // 对 node_modules 中的 js 资源附加处理

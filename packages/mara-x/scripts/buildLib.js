@@ -25,7 +25,7 @@ const buildReporter = require('../libs/buildReporter')
 const prehandleConfig = require('../libs/prehandleConfig')
 const Stopwatch = require('../libs/Stopwatch')
 
-const spinner = ora('Biuld library (commonjs + umd)...')
+const spinner = ora('Building library (commonjs + umd)...')
 
 const pages = getPageList(config.paths.entryGlob)
 const libs = [
@@ -141,7 +141,7 @@ function success(output) {
     return stats.assets
   })
 
-  buildReporter(compAssets)
+  // buildReporter(compAssets)
 }
 
 // 旧版脚手架 umd 文件输出为 dist/main.min.js

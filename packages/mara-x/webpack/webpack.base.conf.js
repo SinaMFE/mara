@@ -172,47 +172,49 @@ module.exports = function(entry) {
         },
         {
           // Process JS with Babel.
-          oneOf: babelLoader(isProd)
+          oneOf: babelLoader(isProd, useTypeScript)
         },
-        {
-          test: /\.tsx?$/,
-          include: babelExternalMoudles,
-          use: [
-            {
-              loader: require.resolve('cache-loader'),
-              options: {
-                cacheDirectory: rootPath('node_modules/.cache/ts-loader'),
-                cacheIdentifier: getCacheIdentifier(['ts-loader', 'typescript'])
-              }
-            },
-            babelForTs(isProd),
-            {
-              loader: require.resolve('ts-loader'),
-              options: {
-                appendTsSuffixTo: ['\\.vue$'],
-                // disable type checker
-                // 起到加速作用
-                transpileOnly: true,
-                // https://webpack.docschina.org/guides/build-performance/#typescript-loader
-                experimentalWatchApi: !isProd,
-                getCustomTransformers: tsImportLibs.length
-                  ? () => ({
-                      before: [tsImportPluginFactory(tsImportLibs)]
-                    })
-                  : undefined,
-                compilerOptions: tsCompilerOptions,
-                // 仅打包被 webpack 加载的模块
-                onlyCompileBundledFiles: true,
-                // 添加 type 标识，用于识别错误输出
-                errorFormatter: error => {
-                  return Object.assign({}, error, { type: 'diagnostic' })
-                }
-                // https://github.com/TypeStrong/ts-loader#happypackmode-boolean-defaultfalse
-                // happyPackMode: useThreads
-              }
-            }
-          ]
-        },
+        // {
+        //   test: /\.tsx?$/,
+        //   include: babelExternalMoudles,
+        //   use: [
+        //     {
+        //       loader: require.resolve('cache-loader'),
+        //       options: {
+        //         cacheDirectory: rootPath('node_modules/.cache/ts-loader'),
+        //         cacheIdentifier: getCacheIdentifier(['ts-loader', 'typescript'])
+        //       }
+        //     },
+        //     babelForTs(isProd),
+        //     {
+        //       loader: require.resolve('ts-loader'),
+        //       options: {
+        //         appendTsSuffixTo: ['\\.vue$'],
+        //         // disable type checker
+        //         // 起到加速作用
+        //         // transpileOnly: true,
+        //         // https://webpack.docschina.org/guides/build-performance/#typescript-loader
+        //         experimentalWatchApi: isDev,
+        //         getCustomTransformers: tsImportLibs.length
+        //           ? () => ({
+        //               before: [tsImportPluginFactory(tsImportLibs)]
+        //             })
+        //           : undefined,
+        //         compilerOptions: tsCompilerOptions,
+        //         // 仅打包被 webpack 加载的模块
+        //         onlyCompileBundledFiles: true,
+        //         allowTsInNodeModules: true,
+        //         errorFormatter: error => {
+        //           // ForkTsCheckerWebpackPlugin 使用 `diagnostic` 标识 ts 错误
+        //           // 这里同样指定 type，方便错误归类
+        //           return Object.assign({}, error, { type: 'diagnostic' })
+        //         }
+        //         // https://github.com/TypeStrong/ts-loader#happypackmode-boolean-defaultfalse
+        //         // happyPackMode: useThreads
+        //       }
+        //     }
+        //   ]
+        // },
         {
           test: /\.(bmp|png|jpe?g|gif|webp)(\?.*)?$/,
           loader: require.resolve('url-loader'),
