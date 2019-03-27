@@ -19,7 +19,6 @@ const prehandleConfig = require('../libs/prehandleConfig')
 const DevServerPlugin = require('../libs/DevServerPlugin')
 const DEFAULT_PORT = parseInt(process.env.PORT, 10) || config.devServer.port
 const PROTOCOL = config.devServer.https === true ? 'https' : 'http'
-const useYarn = fs.existsSync(config.paths.yarnLock)
 const spinner = ora('Starting development server...')
 
 function getCompiler(webpackConf) {
@@ -57,7 +56,7 @@ function createDevServer(webpackConf, opts) {
   new DevServerPlugin({
     port: opts.port,
     entry: opts.entry,
-    useYarn,
+    useYarn: config.useYarn,
     spinner,
     protocol: PROTOCOL,
     root: config.paths.app,

@@ -16,6 +16,7 @@ const isProd = process.env.NODE_ENV === 'production'
 const maraConf = getMaraConf()
 const target = getBuildTarget()
 const useTypeScript = fs.existsSync(paths.tsConfig)
+const useYarn = fs.existsSync(paths.yarnLock)
 const publicPath = isProd ? maraConf.publicPath : maraConf.publicDevPath
 const env = getEnv(publicPath.slice(0, -1), maraConf.globalEnv, target)
 
@@ -120,6 +121,7 @@ const maraContext = {
   },
   tinifyKeys: maraConf.tinifyKeys,
   devServer: maraConf.devServer,
+  useYarn,
   useTypeScript,
   ftp: maraConf.ftp,
   ciConfig: maraConf.ciConfig,

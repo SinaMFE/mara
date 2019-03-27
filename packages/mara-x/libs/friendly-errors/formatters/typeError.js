@@ -30,7 +30,7 @@ function removeVueTsSuffix(error) {
   return error
 }
 
-function format(errors, severity, showFirst) {
+function format(errors, severity, { showFirst }) {
   const tsErrors = errors.filter(isTsError)
 
   // 为了减少干扰，由 showFirst 控制展示

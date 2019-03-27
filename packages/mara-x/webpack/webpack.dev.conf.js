@@ -78,6 +78,7 @@ module.exports = function({ entry, spinner }) {
       // new perfInstallModulePlugin({
       //   url:"http://exp.smfe.sina.cn/service/addPerf"
       // }),
+      // 严格区分大小写
       new CaseSensitivePathsPlugin()
     ].filter(Boolean)
   })

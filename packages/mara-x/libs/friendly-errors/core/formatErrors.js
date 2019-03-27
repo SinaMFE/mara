@@ -8,8 +8,8 @@
  * of log statements to print.
  *
  */
-function formatErrors(errors, formatters, errorType, showFirst) {
-  const format = formatter => formatter(errors, errorType, showFirst) || []
+function formatErrors(errors, formatters, errorType, options) {
+  const format = formatter => formatter(errors, errorType, options) || []
   const flatten = (accum, curr) => accum.concat(curr)
 
   return formatters.map(format).reduce(flatten, [])

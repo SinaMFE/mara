@@ -53,7 +53,8 @@ module.exports = class MaraDevServerPlugin {
     // friendly error plugin displays very confusing errors when webpack
     // fails to resolve a loader, so we provide custom handlers to improve it
     const friendErrors = new FriendlyErrorsPlugin({
-      showFirstError: true
+      showFirstError: true,
+      useYarn: this.options.useYarn
       // additionalTransformers: [transformer],
       // additionalFormatters: [formatter]
     })

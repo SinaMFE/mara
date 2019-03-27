@@ -28,6 +28,7 @@ class FriendlyErrorsWebpackPlugin {
     this.showFirstError = !!options.showFirstError
     this.compilationSuccessInfo = options.compilationSuccessInfo || {}
     this.onErrors = options.onErrors
+    this.useYarn = options.useYarn
     this.shouldClearConsole =
       options.clearConsole == null ? true : Boolean(options.clearConsole)
     this.formatters = concat(defaultFormatters, options.additionalFormatters)
@@ -116,12 +117,10 @@ class FriendlyErrorsWebpackPlugin {
       this.onErrors(severity, topErrors)
     }
 
-    formatErrors(
-      topErrors,
-      this.formatters,
-      severity,
-      this.showFirstError
-    ).forEach(chunk => output.log(chunk))
+    formatErrors(topErrors, this.formatters, severity, {
+      showFirst: this.showFirstError,
+      useYarn: this.useYarn
+    }).forEach(chunk => output.log(chunk))
   }
 }
 

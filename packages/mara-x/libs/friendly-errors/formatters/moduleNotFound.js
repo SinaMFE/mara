@@ -31,32 +31,33 @@ function formatGroup(group) {
     .filter(Boolean)
     .map(removeLoaders)
 
-  return ` - ${group.module}${formatFileList(files)}`
+  return ` ${group.module}${formatFileList(files)}`
 }
 
-function forgetToInstall(missingDependencies) {
+function forgetToInstall(missingDependencies, useYarn) {
   const moduleNames = missingDependencies.map(
     missingDependency => missingDependency.module
   )
+  const install = useYarn ? 'yarn add' : 'npm install'
+  const it = missingDependencies.length === 1 ? 'it' : 'them'
 
-  if (missingDependencies.length === 1) {
-    return `To install it, you can run: yarn add ${moduleNames.join(' ')}`
-  }
-
-  return `To install them, you can run: yarn add ${moduleNames.join(' ')}`
+  return `To install ${it}, you can run: ${install} ${moduleNames.join(' ')}`
 }
 
-function dependenciesNotFound(dependencies) {
+function dependenciesNotFound(dependencies, useYarn) {
   if (dependencies.length === 0) return
 
+  const items = dependencies.map(formatGroup)
+  const listPrefix = item => ` -${item}`
+
   return concat(
-    dependencies.length === 1
-      ? 'This dependency was not found:'
-      : 'These dependencies were not found:',
+    dependencies.length > 1
+      ? 'These dependencies were not found:'
+      : 'This dependency was not found:',
     '',
-    dependencies.map(formatGroup),
+    items.length > 1 ? items.map(listPrefix) : items,
     '',
-    forgetToInstall(dependencies)
+    forgetToInstall(dependencies, useYarn)
   )
 }
 
@@ -89,7 +90,7 @@ function groupModules(errors) {
   }))
 }
 
-function formatErrors(errors) {
+function formatErrors(errors, useYarn) {
   if (errors.length === 0) {
     return []
   }
@@ -100,15 +101,18 @@ function formatErrors(errors) {
   const relativeModules = groups.filter(group => group.relative)
 
   return concat(
-    dependenciesNotFound(dependencies),
+    dependenciesNotFound(dependencies, useYarn),
     dependencies.length && relativeModules.length ? ['', ''] : null,
     relativeModulesNotFound(relativeModules)
   )
 }
 
-function format(errors) {
+function format(errors, severity, { useYarn = false }) {
   // 所有错误聚合展示
-  return formatErrors(errors.filter(e => e.type === 'module-not-found'))
+  return formatErrors(
+    errors.filter(e => e.type === 'module-not-found'),
+    useYarn
+  )
 }
 
 module.exports = format

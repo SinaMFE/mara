@@ -17,7 +17,7 @@ function displayError(error) {
   return [error.message, '']
 }
 
-function format(errors, type) {
+function format(errors) {
   const lintErrors = errors.filter(e => e.type === 'lint-error')
   if (lintErrors.length > 0) {
     const flatten = (accum, curr) => accum.concat(curr)
