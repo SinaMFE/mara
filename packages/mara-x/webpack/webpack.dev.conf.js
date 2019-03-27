@@ -5,7 +5,6 @@ const path = require('path')
 const webpack = require('webpack')
 const merge = require('webpack-merge')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeModulesPlugin')
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin')
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin')
 const perfInstallModulePlugin = require('../libs/perfInstallModulePlugin')
@@ -79,8 +78,6 @@ module.exports = function({ entry, spinner }) {
       // new perfInstallModulePlugin({
       //   url:"http://exp.smfe.sina.cn/service/addPerf"
       // }),
-      // 安装缺失模块后不用重启服务
-      new WatchMissingNodeModulesPlugin(config.paths.nodeModules),
       new CaseSensitivePathsPlugin()
     ].filter(Boolean)
   })
