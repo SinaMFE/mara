@@ -4,15 +4,21 @@
 
 基于 webpack 的项目打包工具。
 
-`webpack-marauder` 的诞生离不开社区优秀的开源项目，本工具**持续跟进**并融合了 [create-react-app](https://github.com/facebook/create-react-app) 与 [vue-webpack](https://github.com/vuejs-templates/webpack) 的最佳配置，旨在为 `React`，`Vue` 以及 `Vanilla JS` 项目提供**一致性**的构建流程与开发体验。
+`marax` 的诞生离不开社区优秀的开源项目，本工具**持续跟进**并融合了 [create-react-app](https://github.com/facebook/create-react-app) 与 [vue-webpack](https://github.com/vuejs-templates/webpack) 的最佳配置，旨在为 `React`，`Vue` 以及 `Vanilla JS` 项目提供**一致性**的构建流程与开发体验。
 
 ## 安装
 
 > 依赖 Node.js 8.0 以上
 
-推荐使用本工具配套的脚手架 `@mara/cli` 生成项目
+推荐使用 marax 配套的项目生成工具 [@mara/create](https://www.npmjs.com/package/@mara/create) 创建项目
+
+```bash
+npx @mara/create my-app
+```
 
 ### 手动安装
+
+也可以在现有项目中手动安装 @mara/x
 
 ```bash
 yarn add @mara/x -D
@@ -24,9 +30,8 @@ yarn add @mara/x -D
 
 ```bash
 "scripts": {
-   "test": "marax test",
-   "dev": "marax dev",
-   "build": "marax build"
+  "dev": "marax dev",
+  "build": "marax build"
  },
  ...
 ```
@@ -131,7 +136,11 @@ npm run build
 
 #### 动态代码分割
 
-@TODO
+使用 import() 方法生成动态 chunk 包
+
+```javascript
+import('./foo')
+```
 
 #### 静态代码分割
 
@@ -146,4 +155,4 @@ npm run build
 
 #### 打包 vendor
 
-@TODO
+默认的，marax 会自动拆分 vendor 包。
