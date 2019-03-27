@@ -1,6 +1,6 @@
 # @mara/create
 
-[![npm](https://img.shields.io/npm/v/@mara/x.svg)](https://www.npmjs.com/package/@mara/x)
+[![npm](https://img.shields.io/npm/v/@mara/create.svg)](https://www.npmjs.com/package/@mara/create)
 
 Marauder 项目模板生成工具。
 
