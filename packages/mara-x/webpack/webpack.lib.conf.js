@@ -20,6 +20,7 @@ function getLibraryConf() {
 
 module.exports = function(options) {
   const baseWebpackConfig = require('./webpack.base.conf')('__LIB__')
+  const { vueRuntimeOnly } = config.compiler
 
   const webpackConfig = merge(baseWebpackConfig, {
     mode: 'production',
@@ -105,7 +106,15 @@ module.exports = function(options) {
       new MiniCssExtractPlugin({
         filename: options.minify ? 'style.min.css' : 'style.css'
       })
-    ].filter(Boolean)
+    ].filter(Boolean),
+    // lib 打包排除第三方库
+    externals: {
+      jquery: 'jQuery',
+      vue: 'Vue',
+      zepto: 'Zepto',
+      react: 'React',
+      'react-dom': 'ReactDom'
+    }
   })
 
   return webpackConfig

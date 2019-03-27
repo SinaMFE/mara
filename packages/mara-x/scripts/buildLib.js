@@ -27,7 +27,8 @@ const Stopwatch = require('../libs/Stopwatch')
 
 const spinner = ora('Building library (commonjs + umd)...')
 
-const pages = getPageList(config.paths.entryGlob)
+// const pages = getPageList(config.paths.entryGlob)
+const pages = []
 const libs = [
   {
     format: 'commonjs2',
