@@ -3,7 +3,6 @@
 const path = require('path')
 const stripAnsi = require('strip-ansi')
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages')
-const concat = require('../utils').concat
 const formatTitle = require('../utils/colors').formatTitle
 
 function cleanMessage(message, filepath) {
@@ -13,25 +12,9 @@ function cleanMessage(message, filepath) {
       // this should match
       // linux => "(SyntaxError: )Unexpected token (5:11)"
       // windows => "(SyntaxError: C:/projects/index.js: )Unexpected token (5:11)"
+      // .replace(`${filepath}: `, '')
       .replace(/^Module build failed.*:\s/, 'Syntax Error: ')
       .replace(/SyntaxError*:\s/, '')
-      .replace(`${filepath}: `, '')
-  )
-}
-
-function displayError(severity, error) {
-  const baseError = formatTitle(severity, severity)
-  let filepath = removeLoaders(error.file)
-
-  filepath = path.join(process.cwd(), filepath)
-
-  return concat(
-    `${baseError} in ${filepath}`,
-    '',
-    cleanMessage(error.message, filepath),
-    error.origin ? error.origin : undefined,
-    '',
-    error.infos
   )
 }
 
@@ -41,7 +24,8 @@ function removeLoaders(file) {
   const split = file.split('!')
   const filePath = split[split.length - 1]
 
-  return filePath.replace('?vue&type=script&lang=ts&', '')
+  // 去除 vue-loader 附加后缀
+  return filePath.replace(/\?vue&type=.+/, '')
 }
 
 function isDefaultError(error) {
@@ -79,10 +63,8 @@ function format(errors, severity) {
       .replace(`${filepath}: `, '')
     const title = `${formatTitle(severity, severity)} in ${filepath}`
 
-    return [title, '', content, ''].join('\n')
+    return [title, '', cleanMessage(content), ''].join('\n')
   })
-
-  // .reduce((accum, error) => accum.concat(displayError(severity, error)), [])
 }
 
 module.exports = format

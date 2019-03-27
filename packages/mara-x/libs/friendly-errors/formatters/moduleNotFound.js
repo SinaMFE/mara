@@ -6,17 +6,32 @@ function isRelative(module) {
   return module.startsWith('./') || module.startsWith('../')
 }
 
+function removeLoaders(file) {
+  if (!file) return ''
+
+  const split = file.split('!')
+  const filePath = split[split.length - 1]
+
+  return filePath.replace('?vue&type=script&lang=ts&', '')
+}
+
 function formatFileList(files) {
   const length = files.length
+
   if (!length) return ''
+
   return ` in ${files[0]}${files[1] ? `, ${files[1]}` : ''}${
     length > 2 ? ` and ${length - 2} other${length === 3 ? '' : 's'}` : ''
   }`
 }
 
 function formatGroup(group) {
-  const files = group.errors.map(e => e.file).filter(Boolean)
-  return `* ${group.module}${formatFileList(files)}`
+  const files = group.errors
+    .map(e => e.file)
+    .filter(Boolean)
+    .map(removeLoaders)
+
+  return ` - ${group.module}${formatFileList(files)}`
 }
 
 function forgetToInstall(missingDependencies) {
@@ -25,14 +40,10 @@ function forgetToInstall(missingDependencies) {
   )
 
   if (missingDependencies.length === 1) {
-    return `To install it, you can run: npm install --save ${moduleNames.join(
-      ' '
-    )}`
+    return `To install it, you can run: yarn add ${moduleNames.join(' ')}`
   }
 
-  return `To install them, you can run: npm install --save ${moduleNames.join(
-    ' '
-  )}`
+  return `To install them, you can run: yarn add ${moduleNames.join(' ')}`
 }
 
 function dependenciesNotFound(dependencies) {
@@ -96,6 +107,7 @@ function formatErrors(errors) {
 }
 
 function format(errors) {
+  // 所有错误聚合展示
   return formatErrors(errors.filter(e => e.type === 'module-not-found'))
 }
 

@@ -30,8 +30,15 @@ function removeVueTsSuffix(error) {
   return error
 }
 
-function format(errors, severity) {
-  return errors.filter(isTsError).reduce((accum, error) => {
+function format(errors, severity, showFirst) {
+  const tsErrors = errors.filter(isTsError)
+
+  // 为了减少干扰，由 showFirst 控制展示
+  if (showFirst) {
+    tsErrors.length = 1
+  }
+
+  return tsErrors.reduce((accum, error) => {
     error = removeVueTsSuffix(error)
 
     if (isTypeError(error)) {

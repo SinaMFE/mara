@@ -97,10 +97,6 @@ class FriendlyErrorsWebpackPlugin {
   }
 
   displayErrors(errors, severity) {
-    if (this.showFirstError && severity === 'error') {
-      errors.length = 1
-    }
-
     const processedErrors = transformErrors(errors, this.transformers)
     const topErrors = getMaxSeverityErrors(processedErrors)
     const nbErrors = topErrors.length
@@ -120,9 +116,12 @@ class FriendlyErrorsWebpackPlugin {
       this.onErrors(severity, topErrors)
     }
 
-    formatErrors(topErrors, this.formatters, severity).forEach(chunk =>
-      output.log(chunk)
-    )
+    formatErrors(
+      topErrors,
+      this.formatters,
+      severity,
+      this.showFirstError
+    ).forEach(chunk => output.log(chunk))
   }
 }
 
