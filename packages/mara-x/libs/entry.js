@@ -6,6 +6,7 @@ const { prompt } = require('inquirer')
 const config = require('../config')
 const C = require('../config/const')
 const { getViews, rootPath } = require('./utils')
+const skeleton = require('./skeleton')
 const views = getViews(config.paths.entryGlob)
 
 // TL
@@ -22,26 +23,15 @@ const views = getViews(config.paths.entryGlob)
 // 输入出错
 
 function empty() {
-  let msg = '请按如下结构创建入口文件'
+  let msg = '请按如下结构创建页面'
 
   if (fs.existsSync(rootPath(`${C.SRC_DIR}/view`))) {
     msg += '，如果您从 marax@1.x 迁移，请将 view 目录重命名为 views'
   }
 
-  console.log(`😶 ${chalk.red(msg)}`)
-  console.log(
-    `
-  src
-  └── views
-      ├── index
-      │   ├── ${chalk.green('index.html')}
-      │   └── ${chalk.green('index.(js|ts)')}
-      └── other
-          ├── ${chalk.green('index.html')}
-          └── ${chalk.green('index.(js|ts)')}`,
-    '\n'
-  )
-  process.exit(1)
+  console.log(chalk.red(msg))
+  console.log(skeleton.project, '\n')
+  process.exit(0)
 }
 
 function getEntryArgs(argv, optField) {

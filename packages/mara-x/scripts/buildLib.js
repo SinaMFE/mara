@@ -21,6 +21,7 @@ const getWebpackProdConf = require('../webpack/webpack.prod.conf')
 const getWebpackLibConf = require('../webpack/webpack.lib.conf')
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages')
 const printBuildError = require('../libs/printBuildError')
+const skeleton = require('../libs/skeleton')
 const {
   getLastBuildSize,
   printBuildResult,
@@ -173,16 +174,7 @@ function error(err) {
 async function setup(distDir, libDir) {
   if (!glob.sync(paths.libEntry).length) {
     console.log(chalk.red('请按如下结构创建入口文件'))
-    console.log(
-      `
-    src
-    ├── ${chalk.green('index.(js|ts)')} ${chalk.cyan('-- lib 入口文件')}
-    └── views ${chalk.cyan('-- 视图文件夹，存放 demo 页面')}
-        └── demo ${chalk.cyan('-- demo 页面，可选')}
-            ├── ${chalk.green('index.html')}
-            └── ${chalk.green('index.(js|ts)')}`,
-      '\n'
-    )
+    console.log(skeleton.library, '\n')
     process.exit(0)
   }
 
