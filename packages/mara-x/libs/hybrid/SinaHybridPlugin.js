@@ -5,7 +5,7 @@ const devalue = require('devalue')
 const chalk = require('chalk')
 const ConcatSource = require('webpack-sources/lib/ConcatSource')
 const { rootPath } = require('../../libs/utils')
-const C = require('../../config/const')
+const ManifestPlugin = require('./ManifestPlugin')
 
 /**
  * 生成版本文件
@@ -17,10 +17,9 @@ class SinaHybridPlugin {
     // @FIXME
     // use semver check
     this.version = process.env.npm_package_version
-    this.rewriteField = genRewriteFn([
-      rootPath('public/manifest.json'),
-      rootPath(`${C.VIEWS_DIR}/${this.options.entry}/public/manifest.json`)
-    ])
+    this.rewriteField = genRewriteFn(
+      ManifestPlugin.getManifestPath(this.options.entry)
+    )
     const pkgVersion = require(rootPath('package.json')).version
 
     if (pkgVersion !== this.version) {
@@ -39,7 +38,6 @@ class SinaHybridPlugin {
       const maraCtx = compiler['maraContext'] || {}
 
       this.genVersionFile(compilation)
-      // this.updateManifestVersion()
       this.injectDataSource(compilation, maraCtx.dataSource)
     })
   }
@@ -50,10 +48,6 @@ class SinaHybridPlugin {
       source: () => '',
       size: () => 0
     }
-  }
-
-  updateManifestVersion() {
-    this.rewriteField('version', this.version)
   }
 
   injectDataSource(compilation, dataSource) {

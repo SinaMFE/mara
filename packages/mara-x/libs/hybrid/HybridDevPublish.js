@@ -9,6 +9,7 @@ const execa = require('execa')
 const config = require('../../config')
 const C = require('../../config/const')
 const { uploadVinylFile } = require('../ftp')
+const ManifestPlugin = require('./ManifestPlugin')
 const { rootPath, md5 } = require('../utils')
 const CONF_DIR = '/wap_front/hybrid/config/'
 const CONF_NAME = getHbConfName(config.ciConfig)
@@ -104,10 +105,9 @@ module.exports = async function(entry, remotePath) {
   let downloadRank = 5
 
   try {
-    const manifest = require(rootPath(
-      `${C.VIEWS_DIR}/${entry}/public/manifest.json`
-    ))
+    const manifest = require(ManifestPlugin.getManifestPath(entry))
 
+    // manifest 可能不存在，所以放到 try catch 中避免空指针
     gkTestIds = manifest.display.gkTestIds || []
     qeTestIds = manifest.display.qeTestIds || []
     downloadRank = manifest.rank || 5

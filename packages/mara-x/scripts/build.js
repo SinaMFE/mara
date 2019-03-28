@@ -197,6 +197,10 @@ async function deploy({ entry, entryArgs, remotePath }) {
 }
 
 function error(err) {
+  // 构建中途报错将直接被 error 捕获
+  // 这里确保 spinner 被及时关闭
+  spinner.stop()
+
   console.log(chalk.red('\n🕳   Failed to compile.\n'))
   printBuildError(err)
   process.exit(1)

@@ -48,7 +48,7 @@ function dependenciesNotFound(dependencies, useYarn) {
   if (dependencies.length === 0) return
 
   const items = dependencies.map(formatGroup)
-  const listPrefix = item => ` -${item}`
+  const listPrefix = item => ` *${item}`
 
   return concat(
     dependencies.length > 1

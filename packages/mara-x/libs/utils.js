@@ -217,6 +217,10 @@ function random(max = 1, min = 0) {
   return Math.floor(Math.random() * (max - min + 1) + min)
 }
 
+function relativePath(filePath) {
+  return '.' + path.sep + path.relative(appDirectory, filePath)
+}
+
 module.exports = {
   assetsPath,
   isObject,
@@ -236,5 +240,6 @@ module.exports = {
   buffer2String,
   random,
   readJson,
+  relativePath,
   md5
 }

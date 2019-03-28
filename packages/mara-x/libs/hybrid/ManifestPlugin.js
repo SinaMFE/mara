@@ -2,16 +2,20 @@ const fs = require('fs')
 const chalk = require('chalk')
 const validator = require('@mara/schema-utils')
 const maraManifestSchema = require('./maraManifestSchema')
-const { rootPath, isObject } = require('../utils')
+const { rootPath, isObject, relativePath } = require('../utils')
 const C = require('../../config/const')
 
+const MANIFEST_FILE_NAME = 'manifest.json'
+
 function readJsonFile(filePath) {
+  if (typeof filePath !== 'string') throw new Error('manifest 路径错误')
+
   const fileText = fs.readFileSync(filePath, 'utf8')
 
   try {
     return JSON.parse(fileText)
   } catch (e) {
-    throw new Error('manifest json 格式错误')
+    throw new Error('manifest json 解析错误')
   }
 }
 
@@ -40,6 +44,21 @@ function filterObjProps(props, isPick = true) {
   }
 }
 
+function getPathOrThrowConflict(rootFilePath, publicFilePath) {
+  const hasRootFile = fs.existsSync(rootFilePath)
+  const hasPublicFile = fs.existsSync(publicFilePath)
+
+  if (hasRootFile && hasPublicFile) {
+    throw new Error(
+      chalk.red('There are multiple manifest.json, please keep one:\n\n') +
+        ` * ${relativePath(rootFilePath)}  ${chalk.green('(recommend)')}\n` +
+        ` * ${relativePath(publicFilePath)}`
+    )
+  }
+
+  return hasRootFile ? rootFilePath : hasPublicFile ? publicFilePath : ''
+}
+
 module.exports = class ManifestPlugin {
   constructor(options) {
     const defOpt = {
@@ -49,7 +68,7 @@ module.exports = class ManifestPlugin {
     }
 
     this.options = Object.assign(defOpt, options)
-    this.fileName = 'manifest.json'
+
     // https://developer.mozilla.org/zh-CN/docs/Web/Manifest
     this.pwaField = [
       'dir',
@@ -69,27 +88,26 @@ module.exports = class ManifestPlugin {
     ]
     this.entry = this.options.entry
     this.rootFilePath = rootPath(
-      `${C.VIEWS_DIR}/${this.entry}/${this.fileName}`
+      `${C.VIEWS_DIR}/${this.entry}/${MANIFEST_FILE_NAME}`
     )
     this.publicFilePath = rootPath(
-      `${C.VIEWS_DIR}/${this.entry}/public/${this.fileName}`
+      `${C.VIEWS_DIR}/${this.entry}/public/${MANIFEST_FILE_NAME}`
     )
     this.hasRootFile = fs.existsSync(this.rootFilePath)
     this.hasPublicFile = fs.existsSync(this.publicFilePath)
     this.isHybrid = this.options.target === 'app'
     this.version = require(rootPath('package.json')).version
 
-    this._checkConflict()
+    this.manifestPath = ManifestPlugin.getManifestPath(this.entry)
   }
 
   apply(compiler) {
     const pluginName = this.constructor.name
-    const hasManifest = this.hasRootFile || this.hasPublicFile
 
-    if (hasManifest || this.isHybrid) {
+    if (this.manifestPath || this.isHybrid) {
       compiler.hooks.make.tap(pluginName, compilation => {
         compilation.hooks.additionalAssets.tap(pluginName, () => {
-          compilation.assets[this.fileName] = this.genManifest()
+          compilation.assets[MANIFEST_FILE_NAME] = this.genAsset(compilation)
         })
       })
     }
@@ -98,35 +116,26 @@ module.exports = class ManifestPlugin {
   // manifest 源
   // views/<view>/manifest.json
   // views/<view>/public/manifest.json
-  getManifest() {
-    let manifest
+  resolveManifest() {
+    let manifest = readJsonFile(this.manifestPath)
 
-    if (this.hasRootFile) {
-      manifest = readJsonFile(this.rootFilePath)
-    } else if (this.hasPublicFile) {
-      manifest = readJsonFile(this.publicFilePath)
-    }
-
-    // 为设置 manifest 时，设置缺省配置
+    // 未设置 manifest 时，设置缺省配置
     manifest = manifest || {}
 
-    if (validator(maraManifestSchema, manifest, this.fileName)) {
+    if (validator(maraManifestSchema, manifest, MANIFEST_FILE_NAME)) {
       return manifest
     }
   }
 
-  _checkConflict() {
-    if (this.hasRootFile && this.hasPublicFile) {
-      throw new Error(
-        chalk.red('There are multiple manifest.json, please keep one:\n\n') +
-          ` - ${this.rootFilePath} ${chalk.green('(recommend)')}\n` +
-          ` - ${this.publicFilePath}`
-      )
-    }
+  static getManifestPath(view, fileName = MANIFEST_FILE_NAME) {
+    const rootFilePath = rootPath(`${C.VIEWS_DIR}/${view}/${fileName}`)
+    const publicFilePath = rootPath(`${C.VIEWS_DIR}/${view}/public/${fileName}`)
+
+    return getPathOrThrowConflict(rootFilePath, publicFilePath)
   }
 
-  getTargetContent() {
-    const manifest = this.getManifest()
+  getManifest() {
+    const manifest = this.resolveManifest(this.manifestPath)
     const content = this._pickField(manifest, !this.isHybrid)
 
     // pwa manifest 与 hybrid manifest display 字段冲突
@@ -149,8 +158,8 @@ module.exports = class ManifestPlugin {
     return Object.assign({}, version, filter(manifest), version)
   }
 
-  genManifest() {
-    const manifest = this.getTargetContent()
+  genAsset(compilation) {
+    const manifest = this.getManifest()
     const source = JSON.stringify(manifest, null, 2)
 
     return {
