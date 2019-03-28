@@ -127,7 +127,7 @@ npm run dll
 npm run dll --ftp
 ```
 
-### 组件打包
+### 打包组件
 
 `marax` 除了支持项目打包外，也可作为组件打包工具。
 
@@ -145,7 +145,13 @@ npm-script 中配置
 npm run build
 ```
 
-打包后文件将在 `lib` 目录中输出
+打包后文件将在 `lib` 目录中输出构建结果
+
+此外还可指定 `--all` 参数来打包 demo
+
+```bash
+npm run build -- --all
+```
 
 ## 教程
 

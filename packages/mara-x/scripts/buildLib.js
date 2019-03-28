@@ -28,10 +28,10 @@ const {
 } = require('../libs/buildReporter')
 const prehandleConfig = require('../libs/prehandleConfig')
 const Stopwatch = require('../libs/Stopwatch')
+let shouldBuildDemos = false
 
-const spinner = ora('Building library (commonjs + umd)...')
+const spinner = ora()
 
-const demos = getViews(config.paths.entryGlob)
 const libs = [
   {
     format: 'commonjs2',
@@ -48,16 +48,16 @@ const libs = [
   }
 ]
 
-const webpackConfs = libs.concat(demos).map(target => {
-  return typeof target === 'object'
-    ? getWebpackLibConf(target)
-    : getWebpackProdConf({ entry: target, cmd: 'lib' })
-})
-
 function build(dists) {
   // @TODO 多配置应用 prehandleConfig
   // const webpackConfig = prehandleConfig('lib', webpackConfig);
   const ticker = new Stopwatch()
+  const demos = shouldBuildDemos ? getViews(config.paths.entryGlob) : []
+  const webpackConfs = libs.concat(demos).map(target => {
+    return typeof target === 'object'
+      ? getWebpackLibConf(target)
+      : getWebpackProdConf({ entry: target, cmd: 'lib' })
+  })
   const compiler = webpack(webpackConfs)
 
   return new Promise((resolve, reject) => {
@@ -98,6 +98,7 @@ function build(dists) {
         stats,
         dists,
         time,
+        demos,
         warnings: messages.warnings
       })
     })
@@ -147,32 +148,15 @@ function success(output) {
   })
 
   compAssets.demos = compAssets.demos.map((stats, i) => {
-    stats.assets['__dist'] = path.join(paths.dist, demos[i])
+    // 拼接完整路径
+    stats.assets['__dist'] = path.join(paths.dist, output.demos[i])
     return stats.assets
   })
 
   printBuildResult(compAssets, output.dists.preBuildSize)
-}
 
-// 旧版脚手架 umd 文件输出为 dist/main.min.js
-// 通过 --old 配置开启兼容模式
-async function backwards() {
-  if (!process.argv.slice(2).includes('--old')) return
-
-  const umdLibs = glob.sync(path.join(paths.lib, 'index?(.min).js'))
-
-  return Promise.all(
-    umdLibs.map(file => {
-      const name = path.basename(file).replace('index', 'main')
-      return fs.copy(file, path.join(paths.dist, name))
-    })
-  ).then(() => {
-    console.log(
-      chalk.green(
-        '\nSynchronized umd libs to dist for backwards compatibility.'
-      )
-    )
-  })
+  console.log()
+  console.log(`The ${chalk.cyan('lib')} folder is ready to be published.\n`)
 }
 
 function error(err) {
@@ -185,7 +169,7 @@ function error(err) {
 
 async function setup(distDir, libDir) {
   if (!glob.sync(paths.libEntry).length) {
-    console.log(`😶 ${chalk.red('请按如下结构创建入口文件')}`)
+    console.log(chalk.red('请按如下结构创建入口文件'))
     console.log(
       `
     src
@@ -199,7 +183,11 @@ async function setup(distDir, libDir) {
     process.exit(0)
   }
 
-  spinner.start()
+  spinner.start(
+    shouldBuildDemos
+      ? 'Building library & demos...'
+      : 'Building library (commonjs + umd)...'
+  )
 
   const preBuildSize = await getLastBuildSize(libDir)
 
@@ -211,9 +199,10 @@ async function setup(distDir, libDir) {
 }
 
 module.exports = args => {
+  shouldBuildDemos = args.all
+
   return setup(paths.dist, paths.lib)
     .then(build)
     .then(success)
-    .then(backwards)
     .catch(error)
 }
