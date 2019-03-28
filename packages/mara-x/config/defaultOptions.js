@@ -14,11 +14,6 @@ module.exports = {
   publicPath: './',
   publicDevPath: '/',
   sourceMap: false,
-  library: {
-    root: 'MyLibrary',
-    amd: '',
-    commonjs: ''
-  },
   tsImportLibs: [],
   // 编译配置
   compiler: {

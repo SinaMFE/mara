@@ -44,7 +44,8 @@
       "type": "string"
     },
     "library": {
-      "type": "object"
+      "description": "Library global name.",
+      "type": "string"
     },
     "tsImportLibs": {
       "type": "array",

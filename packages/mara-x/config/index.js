@@ -9,7 +9,6 @@ const getEnv = require('./env')
 const argv = require('./argv')
 const { ensureSlash, isObject } = require('../libs/utils')
 const defConf = require('./defaultOptions')
-const pkgName = require(paths.packageJson).name
 const maraxVer = require(paths.maraxPackageJson).version
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -91,11 +90,7 @@ const maraContext = {
   target: target || env.raw.jsbridgeBuildType,
   version: maraxVer,
   debug: getCLIBooleanOptions('debug', maraConf.debug),
-  library: {
-    root: 'MyLibrary',
-    amd: pkgName,
-    commonjs: pkgName
-  },
+  library: maraConf.library,
   parallel: false,
   globalEnv: maraConf.globalEnv,
   tsImportLibs: maraConf.tsImportLibs,

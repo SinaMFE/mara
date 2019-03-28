@@ -9,21 +9,25 @@ const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 
 const config = require('../config')
 const { banner, getEntries } = require('../libs/utils')
-
 const shouldUseSourceMap = config.build.sourceMap
 
-function getLibraryConf() {
-  const pkgName = require(config.paths.packageJson).name
+function getLibName(name) {
+  const str = name.replace(/^@\w+\//i, '').replace(/_|-/g, '.')
+  const camelCaseByDot = name => {
+    const upperFirstChar = str =>
+      str.replace(/^[a-z]{1}/, match => match.toUpperCase())
+    return name.split('.').reduce((camel, cur) => camel + upperFirstChar(cur))
+  }
 
-  return pkgName
+  return camelCaseByDot(str)
 }
 
 module.exports = function(options) {
   const baseWebpackConfig = require('./webpack.base.conf')('__LIB__')
-  const { vueRuntimeOnly } = config.compiler
+  const pkgName = require(config.paths.packageJson).name
 
   const webpackConfig = merge(baseWebpackConfig, {
-    mode: 'production',
+    mode: options.mode || 'production',
     // 在第一个错误出错时抛出，而不是无视错误
     bail: true,
     entry: getEntries(config.paths.libEntry),
@@ -31,7 +35,7 @@ module.exports = function(options) {
     output: {
       path: config.paths.lib,
       filename: options.filename,
-      library: getLibraryConf(),
+      library: config.library || getLibName(pkgName),
       // https://doc.webpack-china.org/configuration/output/#output-librarytarget
       libraryTarget: options.format
     },

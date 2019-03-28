@@ -35,15 +35,18 @@ const spinner = ora()
 const libs = [
   {
     format: 'commonjs2',
+    mode: 'production',
     filename: 'index.cjs.js'
   },
   {
     format: 'umd',
+    mode: 'production',
     filename: 'index.min.js',
     minify: true
   },
   {
     format: 'umd',
+    mode: 'production',
     filename: 'index.js'
   }
 ]

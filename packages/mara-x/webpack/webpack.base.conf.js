@@ -264,7 +264,7 @@ module.exports = function(entry) {
       // https://github.com/jmblog/how-to-optimize-momentjs-with-webpack
       // You can remove this if you don't use Moment.js:
       new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-      new webpack.DefinePlugin(config.env.stringified),
+      !isLib && new webpack.DefinePlugin(config.env.stringified),
       new VueLoaderPlugin(),
       // @FIXME
       // 等待 moduleDependency webpack4 适配就绪后
