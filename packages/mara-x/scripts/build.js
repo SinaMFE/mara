@@ -50,9 +50,6 @@ function build({ entryInput, preBuildSize, dist }) {
       let messages
       spinner.stop()
 
-      const tinifyOriginSizes = getBuildSizeOfFileMap(compiler._tinifySourceMap)
-      preBuildSize.sizes = Object.assign(preBuildSize.sizes, tinifyOriginSizes)
-
       if (err) {
         if (!err.message) return reject(err)
 
@@ -89,6 +86,9 @@ function build({ entryInput, preBuildSize, dist }) {
 
         return reject(new Error(messages.warnings.join('\n\n')))
       }
+
+      const tinifyOriginSizes = getBuildSizeOfFileMap(compiler._tinifySourceMap)
+      preBuildSize.sizes = Object.assign(preBuildSize.sizes, tinifyOriginSizes)
 
       return resolve({
         stats,

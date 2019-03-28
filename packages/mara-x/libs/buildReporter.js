@@ -11,11 +11,12 @@ const { groupBy } = require('lodash')
 function printBuildResult(
   assetsData,
   previousSizeMap,
-  maxBundleGzipSize,
-  maxChunkGzipSize
+  maxBundleGzipSize = Infinity,
+  maxChunkGzipSize = Infinity
 ) {
   // https://raw.githubusercontent.com/webpack/analyse/master/app/pages/upload/example.json
   let labelLengthArr = []
+  let libPathLengthArr = []
   let suggestBundleSplitting = false
   // const root = previousSizeMap.root
   const preSizes = previousSizeMap.sizes
@@ -36,19 +37,31 @@ function printBuildResult(
       suggestBundleSplitting = true
     }
 
-    printAssetPath(info, isLarge)
+    if (type === 'lib') {
+      libPathLengthArr.push(stripAnsi(info.name).length)
+    }
+
+    printAssetPath(info, type, isLarge)
   }
 
-  function printAssetPath(info, isLarge = false) {
+  function printAssetPath(info, type, isLarge = false) {
     let sizeLabel = info.sizeLabel
     const sizeLength = stripAnsi(sizeLabel).length
     const longestSizeLabelLength = Math.max.apply(null, labelLengthArr)
+    const longestLibPathLength = Math.max.apply(null, libPathLengthArr)
     let assetPath = chalk.dim(info.folder + path.sep)
 
     // path.normalize 跨平台格式化路径
     if (isJS(info.name)) {
       // lib 脚本文件添加模块格式标识
-      const formatLabel = info.format ? ` (${info.format})` : ''
+      let formatLabel = info.format ? `  [${info.format}]` : ''
+      const libPathLength = stripAnsi(info.name).length
+
+      if (formatLabel && libPathLength < longestLibPathLength) {
+        const leftPadding = ' '.repeat(longestLibPathLength - libPathLength)
+
+        formatLabel = leftPadding + formatLabel
+      }
 
       assetPath += chalk.yellowBright(info.name + formatLabel)
     } else if (isCSS(info.name)) {
@@ -139,9 +152,12 @@ function printBuildResult(
   })
 
   assetList.forEach(item => {
-    if (item.type === 'demos' && item.output.length) console.log('\nDEMO:')
+    if (item.type === 'demos' && item.output.length) {
+      console.log(`\nDEMO${item.output.length > 1 ? 'S' : ''}:`)
+    }
 
     item.output.forEach(assetsInfo => {
+      // add new line
       if (item.type === 'demos') console.log()
 
       assetsInfo.main

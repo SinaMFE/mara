@@ -21,14 +21,17 @@ const getWebpackProdConf = require('../webpack/webpack.prod.conf')
 const getWebpackLibConf = require('../webpack/webpack.lib.conf')
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages')
 const printBuildError = require('../libs/printBuildError')
-const buildReporter = require('../libs/buildReporter')
+const {
+  getLastBuildSize,
+  printBuildResult,
+  getBuildSizeOfFileMap
+} = require('../libs/buildReporter')
 const prehandleConfig = require('../libs/prehandleConfig')
 const Stopwatch = require('../libs/Stopwatch')
 
 const spinner = ora('Building library (commonjs + umd)...')
 
-// const demos = getViews(config.paths.entryGlob)
-const demos = []
+const demos = getViews(config.paths.entryGlob)
 const libs = [
   {
     format: 'commonjs2',
@@ -85,6 +88,12 @@ function build(dists) {
         return reject(new Error(messages.errors.join('\n\n')))
       }
 
+      const tinifyOriginSizes = getBuildSizeOfFileMap(compiler._tinifySourceMap)
+      dists.preBuildSize.sizes = Object.assign(
+        dists.preBuildSize.sizes,
+        tinifyOriginSizes
+      )
+
       return resolve({
         stats,
         dists,
@@ -96,7 +105,7 @@ function build(dists) {
 }
 
 function clean(dists) {
-  const distArr = Object.values(dists)
+  const distArr = [dists.distDir, dists.libDir]
 
   return Promise.all(distArr.map(dir => fs.emptyDir(dir))).then(() => dists)
 }
@@ -142,7 +151,7 @@ function success(output) {
     return stats.assets
   })
 
-  // buildReporter(compAssets)
+  printBuildResult(compAssets, output.dists.preBuildSize)
 }
 
 // 旧版脚手架 umd 文件输出为 dist/main.min.js
@@ -167,12 +176,14 @@ async function backwards() {
 }
 
 function error(err) {
+  spinner.stop()
+
   console.log(chalk.red('Failed to compile.\n'))
   printBuildError(err)
   process.exit(1)
 }
 
-function setup(distDir, libDir) {
+async function setup(distDir, libDir) {
   if (!glob.sync(paths.libEntry).length) {
     console.log(`😶 ${chalk.red('请按如下结构创建入口文件')}`)
     console.log(
@@ -190,8 +201,11 @@ function setup(distDir, libDir) {
 
   spinner.start()
 
+  const preBuildSize = await getLastBuildSize(libDir)
+
   return clean({
     distDir,
+    preBuildSize,
     libDir
   })
 }
