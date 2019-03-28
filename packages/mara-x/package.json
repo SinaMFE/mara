@@ -1,7 +1,17 @@
 {
   "name": "@mara/x",
   "version": "2.0.0-rc.1",
-  "description": "marauder 脚本库，支持打包 React，Vue 及 Vanilla JS ",
+  "description": "支持 React / Vue + Ts 的多页应用打包工具",
+  "keywords": [
+    "ts",
+    "typescript",
+    "bundle",
+    "vue",
+    "react",
+    "webpack",
+    "marax",
+    "marauder"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

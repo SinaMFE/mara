@@ -14,7 +14,7 @@ const chalk = require('chalk')
 const ora = require('ora')
 const glob = require('glob')
 const webpack = require('webpack')
-const { getPageList } = require('../libs/utils')
+const { getViews } = require('../libs/utils')
 const config = require('../config')
 const paths = config.paths
 const getWebpackProdConf = require('../webpack/webpack.prod.conf')
@@ -27,8 +27,8 @@ const Stopwatch = require('../libs/Stopwatch')
 
 const spinner = ora('Building library (commonjs + umd)...')
 
-// const pages = getPageList(config.paths.entryGlob)
-const pages = []
+// const demos = getViews(config.paths.entryGlob)
+const demos = []
 const libs = [
   {
     format: 'commonjs2',
@@ -45,7 +45,7 @@ const libs = [
   }
 ]
 
-const webpackConfs = libs.concat(pages).map(target => {
+const webpackConfs = libs.concat(demos).map(target => {
   return typeof target === 'object'
     ? getWebpackLibConf(target)
     : getWebpackProdConf({ entry: target, cmd: 'lib' })
@@ -126,7 +126,7 @@ function success(output) {
   })
   const compAssets = {
     lib: children.slice(0, libs.length),
-    demo: children.slice(libs.length)
+    demos: children.slice(libs.length)
   }
 
   compAssets.lib = compAssets.lib.map((stats, i) => {
@@ -137,8 +137,8 @@ function success(output) {
     })
   })
 
-  compAssets.demo = compAssets.demo.map((stats, i) => {
-    stats.assets['__dist'] = path.join(paths.dist, pages[i])
+  compAssets.demos = compAssets.demos.map((stats, i) => {
+    stats.assets['__dist'] = path.join(paths.dist, demos[i])
     return stats.assets
   })
 
@@ -179,7 +179,7 @@ function setup(distDir, libDir) {
       `
     src
     ├── ${chalk.green('index.(js|ts)')} ${chalk.cyan('-- lib 入口文件')}
-    └── view ${chalk.cyan('-- 视图文件夹，存放 demo 页面')}
+    └── views ${chalk.cyan('-- 视图文件夹，存放 demo 页面')}
         └── demo ${chalk.cyan('-- demo 页面，可选')}
             ├── ${chalk.green('index.html')}
             └── ${chalk.green('index.(js|ts)')}`,

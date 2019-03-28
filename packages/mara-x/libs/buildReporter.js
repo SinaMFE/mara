@@ -26,7 +26,7 @@ function printBuildResult(
   function mainAssetInfo(info, type) {
     // __format 属性为组件资源特有
     const isMainBundle =
-      type === 'page' && info.name.indexOf(`${info.folder}.`) === 0
+      type === 'view' && info.name.indexOf(`${info.folder}.`) === 0
     const maxRecommendedSize = isMainBundle
       ? maxBundleGzipSize
       : maxChunkGzipSize
@@ -90,8 +90,8 @@ function printBuildResult(
     const seenNames = new Map()
     const assetsInfo = groupBy(
       assets
-        .filter(
-          a => (seenNames.has(a.name) ? false : seenNames.set(a.name, true))
+        .filter(a =>
+          seenNames.has(a.name) ? false : seenNames.set(a.name, true)
         )
         .map(asset => {
           const buildDir = assets['__dist'] || asset['__dist']
@@ -139,10 +139,10 @@ function printBuildResult(
   })
 
   assetList.forEach(item => {
-    if (item.type === 'demo' && item.output.length) console.log('\nDEMO:')
+    if (item.type === 'demos' && item.output.length) console.log('\nDEMO:')
 
     item.output.forEach(assetsInfo => {
-      if (item.type === 'demo') console.log()
+      if (item.type === 'demos') console.log()
 
       assetsInfo.main
         .sort((a, b) => {

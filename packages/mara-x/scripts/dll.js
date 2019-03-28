@@ -113,7 +113,7 @@ module.exports = function runDll() {
           '  Vender bundle has been generated, please rebuild your app:\n'
         )
       )
-      console.log(chalk.cyan('  $ yarn build <page_name>\n'))
+      console.log(chalk.cyan('  $ yarn build <view_name>\n'))
     })
     .then(ftp)
     .catch(errorLog)

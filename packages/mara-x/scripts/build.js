@@ -149,8 +149,8 @@ function success({
   result.assets['__dist'] = outputPath
 
   printBuildResult(
-    // page 为数组
-    { page: [result.assets] },
+    // view 为数组
+    { view: [result.assets] },
     preBuildSize,
     WARN_AFTER_BUNDLE_GZIP_SIZE,
     WARN_AFTER_CHUNK_GZIP_SIZE

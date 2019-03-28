@@ -5,6 +5,7 @@ const devalue = require('devalue')
 const chalk = require('chalk')
 const ConcatSource = require('webpack-sources/lib/ConcatSource')
 const { rootPath } = require('../../libs/utils')
+const C = require('../../config/const')
 
 /**
  * 生成版本文件
@@ -18,7 +19,7 @@ class SinaHybridPlugin {
     this.version = process.env.npm_package_version
     this.rewriteField = genRewriteFn([
       rootPath('public/manifest.json'),
-      rootPath(`src/view/${this.options.entry}/public/manifest.json`)
+      rootPath(`${C.VIEWS_DIR}/${this.options.entry}/public/manifest.json`)
     ])
     const pkgVersion = require(rootPath('package.json')).version
 

@@ -10,7 +10,7 @@ const config = require('../config')
 const paths = config.paths
 
 module.exports = function({ entry, proxy, protocol }) {
-  const pagePublicDir = rootPath(`${paths.page}/${entry}/public`)
+  const localPublicDir = rootPath(`${paths.views}/${entry}/public`)
 
   return {
     // WebpackDevServer 2.4.3 introduced a security fix that prevents remote
@@ -39,12 +39,12 @@ module.exports = function({ entry, proxy, protocol }) {
     // 注意，不要通过 webpack import public 内的资源
     // 对于脚本及样式，应使用 script，link 标签引入
     // <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
-    // 在 js 内，可使用 process.env.PUBLIC 获取路径
+    // 在 js 内，可使用 process.env.PUBLIC_URL 获取路径
     contentBase: [
       paths.public,
-      pagePublicDir
+      localPublicDir
       // @FIXME 监听 html 文件变化，临时措施
-      // `${config.paths.page}/${entry}/*.html`
+      // `${config.paths.views}/${entry}/*.html`
     ],
     // By default files from `contentBase` will not trigger a page reload.
     watchContentBase: true,

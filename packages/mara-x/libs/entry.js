@@ -1,10 +1,12 @@
 'use strict'
 
+const fs = require('fs')
 const chalk = require('chalk')
 const { prompt } = require('inquirer')
 const config = require('../config')
-const { getPageList } = require('./utils')
-const pages = getPageList(config.paths.entryGlob)
+const C = require('../config/const')
+const { getViews, rootPath } = require('./utils')
+const views = getViews(config.paths.entryGlob)
 
 // TL
 // 识别 entry, branch
@@ -20,15 +22,21 @@ const pages = getPageList(config.paths.entryGlob)
 // 输入出错
 
 function empty() {
-  console.log(`😶 ${chalk.red('请按如下结构创建入口文件')}`)
+  let msg = '请按如下结构创建入口文件'
+
+  if (fs.existsSync(rootPath(`${C.SRC_DIR}/view`))) {
+    msg += '，如果您从 marax@1.x 迁移，请将 view 目录重命名为 views'
+  }
+
+  console.log(`😶 ${chalk.red(msg)}`)
   console.log(
     `
   src
-  └── view
-      ├── page1
+  └── views
+      ├── index
       │   ├── ${chalk.green('index.html')}
       │   └── ${chalk.green('index.(js|ts)')}
-      └── page2
+      └── other
           ├── ${chalk.green('index.html')}
           └── ${chalk.green('index.(js|ts)')}`,
     '\n'
@@ -90,7 +98,7 @@ function chooseOne(argv) {
     return chooseEntry('您输入的页面有误, 请选择:', argv)
   } else {
     // 无输入时返回默认页
-    return result(pages[0], argv)
+    return result(views[0], argv)
   }
 }
 
@@ -103,12 +111,12 @@ function chooseMany(argv) {
 }
 
 function validEntry(entry) {
-  return pages.includes(entry)
+  return views.includes(entry)
 }
 
 async function chooseEntry(msg, argv) {
-  const list = [...pages]
-  // const list = [...pages, new Separator(), { name: 'exit', value: '' }]
+  const list = [...views]
+  // const list = [...views, new Separator(), { name: 'exit', value: '' }]
   const question = {
     type: 'list',
     name: 'entry',
@@ -126,9 +134,9 @@ async function chooseEntry(msg, argv) {
 }
 
 module.exports = async function getEntry(argv) {
-  if (!pages.length) {
+  if (!views.length) {
     empty()
-  } else if (pages.length === 1) {
+  } else if (views.length === 1) {
     return chooseOne(argv)
   } else {
     return chooseMany(argv)

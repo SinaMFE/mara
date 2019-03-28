@@ -11,7 +11,7 @@ const tsErrorFormat = msg => `${msg.file}\n${tsFormatter(msg, true)}`
 const noop = () => {}
 
 function printInstructions(appName, urls, useYarn) {
-  console.log(`App view/${chalk.bold(appName)} running at:`)
+  console.log(`App views/${chalk.bold(appName)} running at:`)
   console.log()
 
   console.log(`  ${chalk.bold('Local:')}            ${urls.localUrl}`)

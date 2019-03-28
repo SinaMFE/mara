@@ -6,6 +6,7 @@ const glob = require('glob')
 const devIp = require('dev-ip')
 const portscanner = require('portscanner')
 const { createHash } = require('crypto')
+const C = require('../config/const')
 
 // 【注意】utils.js 为纯工具库，请不要依赖 config/index.js
 
@@ -22,7 +23,7 @@ function rootPath(relativePath) {
  * 获取入口文件名列表
  * @return {Array} 入口名数组
  */
-function getPageList(entryGlob) {
+function getViews(entryGlob) {
   const entries = getEntries(`${process.cwd()}/${entryGlob}`)
   return Object.keys(entries)
 }
@@ -54,14 +55,14 @@ async function getFreePort(defPort) {
  * @param  {String} preDep 前置模块
  * @return {Object}          入口名:路径 键值对
  * {
- *   pageA: ['a.js'],
- *   pageB: ['b.js']
+ *   viewA: ['a.js'],
+ *   viewB: ['b.js']
  * }
  */
 function getEntries(globPath, preDep = []) {
   const files = glob.sync(rootPath(globPath))
-  const getPageName = filepath => {
-    const dirname = path.dirname(path.relative('src/view/', filepath))
+  const getViewName = filepath => {
+    const dirname = path.dirname(path.relative(`${C.VIEWS_DIR}/`, filepath))
     // 兼容组件，src/index.js
     return dirname === '..' ? 'index' : dirname
   }
@@ -70,7 +71,7 @@ function getEntries(globPath, preDep = []) {
   // 通过 reverse 强制使 js 文件在 ts 之后，达到覆盖目的
   // 保证 index.js 优先原则
   return files.reverse().reduce((entries, filepath) => {
-    const name = getPageName(filepath)
+    const name = getViewName(filepath)
     // preDep 支持数组或字符串。所以这里使用 concat 方法
     entries[name] = [].concat(preDep, filepath)
 
@@ -219,7 +220,7 @@ function random(max = 1, min = 0) {
 module.exports = {
   assetsPath,
   isObject,
-  getPageList,
+  getViews,
   localIp,
   getFreePort,
   getEntries,

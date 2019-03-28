@@ -17,7 +17,7 @@ yarn
 运行开发命令将本地启动一个开发服务器，默认基础端口为 `3022`。当为多页应用时，需指定页面文件夹名称。
 
 ```bash
-npm run dev [page_name]
+npm run dev [view_name]
 ```
 
 示例：
@@ -32,7 +32,7 @@ npm run dev index
 执行 `build` 命令打包页面，当为多页应用时，需指定页面文件夹名称。
 
 ```bash
-npm run build [page_name]
+npm run build [view_name]
 ```
 
 #### FTP 上传
@@ -42,7 +42,7 @@ _注意，要使用 ftp 上传功能，需在 `marauder.config.js` 中配置好 
 在 `build` 命令基础上，可通过添加 `--ftp` 参数上传打包结果。此外，为方便多分支测试，还可通过可选的 `branch` 参数来指定线上分支路径。
 
 ```bash
-npm run build [page_name] --ftp [branch]
+npm run build [view_name] --ftp [branch]
 ```
 
 示例：
@@ -79,7 +79,7 @@ src
 │   ├── add_icon.jpg
 │   └── align_Hcenter.png
 ├── js  静态资源
-└── view  多页面开发目录
+└── views  多页面开发目录
     ├── index  index页面
     │   ├── index.html     index页面首页
     │   └── index.js      index页面入口js
@@ -89,7 +89,7 @@ src
 
 ### 约定
 
-- 页面名称由 view 下的文件夹名称决定，单页应用请保留一个文件夹
+- 页面名称由 views 下的文件夹名称决定，单页应用请保留一个文件夹
 - 入口页面必须命名为 index.html 且置为页面根目录
 - 入口 js 必须命名为 index.js 且置为页面根目录
 

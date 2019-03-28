@@ -2,13 +2,14 @@
 
 [![npm](https://img.shields.io/npm/v/@mara/x.svg)](https://www.npmjs.com/package/@mara/x)
 
-基于 webpack 的项目打包工具。
+支持 React / Vue + Ts 的多页应用打包工具。
 
-`marax` 的诞生离不开社区优秀的开源项目，本工具**持续跟进**并融合了 [create-react-app](https://github.com/facebook/create-react-app) 与 [vue-webpack](https://github.com/vuejs-templates/webpack) 的最佳配置，旨在为 `React`，`Vue` 以及 `Vanilla JS` 项目提供**一致性**的构建流程与开发体验。
+**灵感**
+站在巨人的肩膀上。`marax` 受众多开源项目启发，持续跟进并融合了 [create-react-app](https://github.com/facebook/create-react-app) 及 [vue-cli](https://github.com/vuejs/vue-cli) 的核心配置，旨在为 React/Vue/Js/Ts 等不同技术栈项目提供**一致性**的构建流程与**开箱即用**的开发体验。
 
 ## 安装
 
-> 依赖 Node.js 8.0 以上
+> 依赖 Node.js 8.10.0+
 
 推荐使用 marax 配套的项目生成工具 [@mara/create](https://www.npmjs.com/package/@mara/create) 创建项目
 
@@ -38,15 +39,22 @@ yarn add @mara/x -D
 
 ## 命令
 
+marax 提供开箱即用的多页应用打包服务，在 marax 中**页面**又称为**视图(view)**，存放于 `src/views` 目录下。
+
+我们约定，一个典型的**页面**应至少包含一个 `index.html` 文件和一个 `index.js` 文件。
+
+一个项目应至少含有一个页面。
+
 ### 启动开发环境
 
-运行开发命令将本地启动一个开发服务器，默认基础端口为 `3022`。
+运行开发命令在本地启动一个开发服务器，默认端口号 `3022`。
 
 ```bash
-npm run dev [page_name]
+npm run dev [view_name]
 ```
 
-当为多页应用时，dev 命令需传入参数 `page_name`，指定页面文件夹名称。
+当 views 下存在多个页面时，dev 命令需指定页面名（view_name），缺省情况下将进入交互模式进行选择。
+当只有一个页面时页面名可省略。
 
 示例：
 
@@ -57,20 +65,29 @@ npm run dev index
 
 ### 打包项目
 
-执行 `build` 命令打包页面，同 `dev` 命令，当为多页应用时，需指定页面文件夹名称。
+打包页面，将在 `dist/<view_name>` 目录下输出构建结果
 
 ```bash
-npm run build [page_name]
+npm run build [view_name]
+```
+
+当 views 下存在多个页面时，需显式指定或交互式选择页面名。单页时页面名可省略。
+
+示例：
+
+```bash
+# 打包 index 页面
+npm run build index
 ```
 
 #### FTP 上传
 
-使用 ftp 上传功能，需在 `marauder.config.js` 中注册 ftp 账号信息。
+在 build 模式下可配置使用 ftp 上传功能，需在项目根目录创建 `marauder.config.js` 文件，并注册 ftp 账号信息。
 
-在 `build` 命令基础上，可通过添加 `--ftp` 参数上传打包结果。此外，为方便多分支测试，还可通过可选的 `branch` 参数来指定线上分支路径。
+通过 `--ftp` 参数指定将打包结果上传 ftp。为方便多分支测试，当传递 `branch_name` 值时，将创建 branch 文件夹作路径隔离。
 
 ```bash
-npm run build [page_name] --ftp [branch]
+npm run build [view_name] --ftp [branch_name]
 ```
 
 示例：
@@ -83,14 +100,14 @@ npm run build index --ftp
 npm run build index --ftp feed_feature
 ```
 
-#### Test 发布
+#### Test 发布\*
 
 使用 Test 发布功能，需在 `marauder.config.js` 中注册 gitlab privateToken 信息。
 
 在 `build` 命令基础上，可通过添加 `--test` 参数发布到测试环境。
 
 ```bash
-npm run build [page_name] --test [tag_message]
+npm run build [view_name] --test [tag_message]
 ```
 
 ### 打包 dll 文件
@@ -112,9 +129,9 @@ npm run dll --ftp
 
 ### 组件打包
 
-`webpack-marauder` 除了打包项目外，也可作为组件打包工具
+`marax` 除了支持项目打包外，也可作为组件打包工具。
 
-在项目 `src` 文件夹中创建 `index.js` 文件作为组件入口
+在工程 `src` 文件夹中创建 `index.js` 文件作为组件入口
 
 npm-script 中配置
 
@@ -136,15 +153,23 @@ npm run build
 
 #### 动态代码分割
 
-使用 import() 方法生成动态 chunk 包
+使用动态 import 方法生成动态 chunk 包
 
 ```javascript
-import('./foo')
+import('./my-module.js').then(module => {
+  // Do something with the module.
+})
+```
+
+这种使用方式也支持 await 关键字。
+
+```javascript
+let module = await import('/modules/my-module.js')
 ```
 
 #### 静态代码分割
 
-此功能可零配置启用，凡是在 `view/<page_name>/` 下符合命名约定 `index.<chunk_name>.js` 的文件均会被视为 `chunk` 包拆分，拆分后的 bundle 文件以 `<chunk_name>.servant.js` 命名，这里称之为 `servant` 包。
+此功能可零配置启用，凡是在 `views/<view_name>/` 下符合命名约定 `index.<chunk_name>.js` 的文件均会被视为 `chunk` 包拆分，拆分后的 bundle 文件以 `<chunk_name>.servant.js` 命名，这里称之为 `servant` 包。
 
 其中 `chunk_name` 为拆分入口的名称，例如 `index.foo.js` 构建后将生成 `foo.servant.js`
 

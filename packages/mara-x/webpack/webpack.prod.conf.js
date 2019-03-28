@@ -23,6 +23,7 @@ const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const { SinaHybridPlugin } = require('../libs/hybrid')
 
 const config = require('../config')
+const C = require('../config/const')
 const {
   banner,
   rootPath,
@@ -42,10 +43,9 @@ const shouldUseSourceMap = !!config.build.sourceMap
 module.exports = function({ entry, cmd, spinner }) {
   const distPageDir = `${config.paths.dist}/${entry}`
   const baseWebpackConfig = require('./webpack.base.conf')(entry)
-  const hasHtml = fs.existsSync(`${config.paths.page}/${entry}/index.html`)
-  const entryPoints = getEntryPoints(`src/view/${entry}/index.*.js`)
+  const hasHtml = fs.existsSync(`${config.paths.views}/${entry}/index.html`)
+  const entryPoints = getEntryPoints(`${C.VIEWS_DIR}/${entry}/index.*.js`)
   const debugLabel = config.debug ? '.debug' : ''
-  const useTypeScript = fs.existsSync(config.paths.tsConfig)
   const isHybridMode = config.target === 'app'
   const shouldUseZenJs = config.compiler.zenJs && config.target != 'app'
 
@@ -162,7 +162,7 @@ module.exports = function({ entry, cmd, spinner }) {
           // 生成出来的html文件名
           filename: rootPath(`dist/${entry}/index.html`),
           // 每个html的模版，这里多个页面使用同一个模版
-          template: `${config.paths.page}/${entry}/index.html`,
+          template: `${config.paths.views}/${entry}/index.html`,
           // 自动将引用插入html
           inject: true,
           // 模块排序，common > entry > servant
@@ -355,7 +355,7 @@ module.exports = function({ entry, cmd, spinner }) {
 }
 
 function copyPublicFiles(entry, distPageDir) {
-  const pagePublicDir = rootPath(`${config.paths.page}/${entry}/public`)
+  const localPublicDir = rootPath(`${config.paths.views}/${entry}/public`)
   const plugins = []
 
   function getCopyOption(src) {
@@ -375,8 +375,8 @@ function copyPublicFiles(entry, distPageDir) {
   }
 
   // 页面级 public，能够覆盖全局 public
-  if (fs.existsSync(pagePublicDir)) {
-    plugins.push(new CopyWebpackPlugin([getCopyOption(pagePublicDir)]))
+  if (fs.existsSync(localPublicDir)) {
+    plugins.push(new CopyWebpackPlugin([getCopyOption(localPublicDir)]))
   }
 
   return plugins

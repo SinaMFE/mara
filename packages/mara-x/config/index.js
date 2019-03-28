@@ -114,7 +114,7 @@ const maraContext = {
     report: getCLIBooleanOptions('report'),
     writeStatsJson: getCLIBooleanOptions('stats'),
     // upload bundle use ftp
-    // `npm run build <page> --ftp [namespace]`
+    // `npm run build <view> --ftp [namespace]`
     // Set to `true` or `false` to always turn it on or off
     uploadFtp: process.env.npm_config_ftp,
     testDeploy: process.env.npm_config_test

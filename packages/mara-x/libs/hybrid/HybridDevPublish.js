@@ -7,6 +7,7 @@ const axios = require('axios')
 const path = require('path')
 const execa = require('execa')
 const config = require('../../config')
+const C = require('../../config/const')
 const { uploadVinylFile } = require('../ftp')
 const { rootPath, md5 } = require('../utils')
 const CONF_DIR = '/wap_front/hybrid/config/'
@@ -103,7 +104,9 @@ module.exports = async function(entry, remotePath) {
   let downloadRank = 5
 
   try {
-    const manifest = require(rootPath(`src/view/${entry}/public/manifest.json`))
+    const manifest = require(rootPath(
+      `${C.VIEWS_DIR}/${entry}/public/manifest.json`
+    ))
 
     gkTestIds = manifest.display.gkTestIds || []
     qeTestIds = manifest.display.qeTestIds || []

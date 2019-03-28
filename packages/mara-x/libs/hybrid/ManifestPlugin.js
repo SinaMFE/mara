@@ -3,6 +3,7 @@ const chalk = require('chalk')
 const validator = require('@mara/schema-utils')
 const maraManifestSchema = require('./maraManifestSchema')
 const { rootPath, isObject } = require('../utils')
+const C = require('../../config/const')
 
 function readJsonFile(filePath) {
   const fileText = fs.readFileSync(filePath, 'utf8')
@@ -67,9 +68,11 @@ module.exports = class ManifestPlugin {
       'prefer_related_applications'
     ]
     this.entry = this.options.entry
-    this.rootFilePath = rootPath(`src/view/${this.entry}/${this.fileName}`)
+    this.rootFilePath = rootPath(
+      `${C.VIEWS_DIR}/${this.entry}/${this.fileName}`
+    )
     this.publicFilePath = rootPath(
-      `src/view/${this.entry}/public/${this.fileName}`
+      `${C.VIEWS_DIR}/${this.entry}/public/${this.fileName}`
     )
     this.hasRootFile = fs.existsSync(this.rootFilePath)
     this.hasPublicFile = fs.existsSync(this.publicFilePath)
@@ -93,8 +96,8 @@ module.exports = class ManifestPlugin {
   }
 
   // manifest 源
-  // view/page/manifest.json
-  // view/page/public/manifest.json
+  // views/<view>/manifest.json
+  // views/<view>/public/manifest.json
   getManifest() {
     let manifest
 

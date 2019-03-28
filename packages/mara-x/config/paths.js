@@ -1,6 +1,7 @@
 'use strict'
 
 const path = require('path')
+const C = require('./const')
 const { rootPath } = require('../libs/utils')
 
 const resolveOwn = relativePath => path.resolve(__dirname, '..', relativePath)
@@ -8,15 +9,15 @@ const resolveOwn = relativePath => path.resolve(__dirname, '..', relativePath)
 module.exports = {
   app: rootPath('.'),
   dotenv: rootPath('.env'),
-  entryGlob: 'src/view/*/index.@(ts|tsx|js|jsx)',
-  libEntry: 'src/index.@(ts|js)',
-  setupProxy: rootPath('src/setupProxy.js'),
-  src: rootPath('src'),
-  page: rootPath('src/view'),
+  entryGlob: `${C.VIEWS_DIR}/*/index.@(ts|tsx|js|jsx)`,
+  libEntry: `${C.SRC_DIR}/index.@(ts|js)`,
+  setupProxy: rootPath(`src/setupProxy.js`),
+  src: rootPath(C.SRC_DIR),
+  views: rootPath(C.VIEWS_DIR),
   public: rootPath('public'),
-  dist: rootPath('dist'),
+  dist: rootPath(C.DIST_DIR),
   // 组件打包输出目录
-  lib: rootPath('lib'),
+  lib: rootPath(C.LIB_DIR),
   test: rootPath('test'),
   tsConfig: rootPath('tsconfig.json'),
   yarnLock: rootPath('yarn.lock'),

@@ -33,7 +33,7 @@ async function upload(filePath, remotePath) {
   })
 }
 
-function getRemotePath(page, namespace, target) {
+function getRemotePath(view, namespace, target) {
   const projName = process.env.npm_package_name
   const projVer = process.env.npm_package_version
 
@@ -46,7 +46,7 @@ function getRemotePath(page, namespace, target) {
     namespace,
     // 添加构建类型标识，隔离环境
     target || '',
-    page
+    view
   )
 }
 
@@ -70,19 +70,19 @@ module.exports.uploadVinylFile = async function(vinylFile, remoteFolder) {
 
 /**
  * 文件夹上传
- * @param  {string} page        页面名
+ * @param  {string} view        页面名
  * @param  {string} namespace   命名空间
  * @param  {string} [target]    页面类型
  * @return {Promise}
  */
-module.exports.uploadDir = async function(page, namespace, target) {
+module.exports.uploadDir = async function(view, namespace, target) {
   const HOST = 'http://wap_front.dev.sina.cn'
 
-  page = `${page}/` || ''
+  view = `${view}/` || ''
 
   // /wap_front/marauder/hdphoto/1.1.0/wensen/index
-  const remotePath = getRemotePath(page, namespace, target)
-  const localPath = rootPath(`dist/${page}`) + '/**'
+  const remotePath = getRemotePath(view, namespace, target)
+  const localPath = rootPath(`dist/${view}`) + '/**'
 
   try {
     await upload(localPath, remotePath)

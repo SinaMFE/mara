@@ -11,18 +11,19 @@ const perfInstallModulePlugin = require('../libs/perfInstallModulePlugin')
 const BuildProgressPlugin = require('../libs/BuildProgressPlugin')
 const { getEntryPoints } = require('../libs/utils')
 const config = require('../config')
+const C = require('../config/const')
 
-function parseEntryPoint(page) {
-  const entryPoints = getEntryPoints(`src/view/${page}/index.*.js`)
+function parseEntryPoint(view) {
+  const entryPoints = getEntryPoints(`${C.VIEWS_DIR}/${view}/index.*.js`)
   const files = [].concat(...Object.values(entryPoints))
 
-  return { [page]: files }
+  return { [view]: files }
 }
 
 module.exports = function({ entry, spinner }) {
   const baseWebpackConfig = require('./webpack.base.conf')(entry)
   const entryPoint = parseEntryPoint(entry)
-  const hasHtml = fs.existsSync(`${config.paths.page}/${entry}/index.html`)
+  const hasHtml = fs.existsSync(`${config.paths.views}/${entry}/index.html`)
 
   // https://github.com/survivejs/webpack-merge
   // 当 entry 为数组时，webpack-merge 默认执行 append
@@ -63,7 +64,7 @@ module.exports = function({ entry, spinner }) {
           // 以页面文件夹名作为模板名称
           filename: `${entry}.html`,
           // 生成各自的 html 模板
-          template: `${config.paths.page}/${entry}/index.html`,
+          template: `${config.paths.views}/${entry}/index.html`,
           inject: true,
           // 每个html引用的js模块，也可以在这里加上vendor等公用模块
           chunks: [entry]

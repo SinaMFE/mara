@@ -106,7 +106,7 @@ my-app
 ├── marauder.config.js
 ├── .gitignore
 └── src
-    └── view  # 视图目录
+    └── views  # 视图目录
         ├── home  # 页面
         │   ├── index.js
         │   └── index.html
@@ -117,7 +117,7 @@ my-app
 
 #### 视图目录
 
-marauder 为多页打包工具，我们约定 `src/view` 为**视图目录**，视图目录用于存放**页面**。
+marauder 为多页打包工具，我们约定 `src/views` 为**视图目录**，视图目录用于存放**页面**。
 
 #### 页面
 
@@ -142,7 +142,7 @@ ts > tsx > js > jsx
 页面示例：
 
 ```bash
-view
+views
 ├── home  # home 页面
 │   ├── index.js
 │   └── index.html
