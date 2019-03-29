@@ -24,10 +24,6 @@
         }
       ]
     },
-    "debug": {
-      "description": "Set debug mode to output uncompressed assets.",
-      "type": "boolean"
-    },
     "sourceMap": {
       "description": "Generate sourceMap for production build.",
       "type": "boolean"

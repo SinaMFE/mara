@@ -86,7 +86,7 @@ const maraContext = {
   // 优先读取 target，其次以 jsbridgeBuildType 回退
   target: target || env.raw.jsbridgeBuildType,
   version: maraxVer,
-  debug: getCLIBooleanOptions('debug', maraConf.debug),
+  debug: argv.debug,
   library: maraConf.library,
   parallel: false,
   globalEnv: maraConf.globalEnv,

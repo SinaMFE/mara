@@ -6,8 +6,6 @@ module.exports = {
     chunk: true
   },
   globalEnv: {},
-  // 用于生成未压缩文件
-  debug: false,
   // 预渲染页面，直出首屏模板，依赖 Puppeteer
   prerender: false,
   // 相对路径更加常用
