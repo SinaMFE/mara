@@ -168,10 +168,10 @@ module.exports = function({ entry, cmd, spinner, version }) {
           template: `${config.paths.views}/${entry}/index.html`,
           // 自动将引用插入html
           inject: true,
-          // 模块排序，common > entry > servant
+          // 模块排序: entry > servant
           chunksSortMode(a, b) {
             const chunkNames = Object.keys(entryPoints).sort()
-            const order = ['common', entry].concat(chunkNames)
+            const order = [entry].concat(chunkNames)
 
             return order.indexOf(a.names[0]) - order.indexOf(b.names[0])
           },
