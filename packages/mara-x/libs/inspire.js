@@ -20,7 +20,7 @@ const quotes = [
   'In programming the hard part isn’t solving problems, but deciding what problems to solve. - Paul Graham',
   'All programming is maintenance programming, because you are rarely writing original code. - Dave Thomas',
   'What I cannot build, I do not understand. - Richard Feynman',
-  'Marauder loves you. - Fish'
+  'Marauder loves you. - Vincent'
 ]
 
 module.exports = {

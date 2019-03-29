@@ -259,10 +259,10 @@ function done() {
   const date = new Date()
   const hour = date.getHours()
 
-  if (config.marax.inspire || hour >= 20) {
+  if (config.marax.inspire || hour >= 21) {
     const quote = require('../libs/inspire').random()
 
-    console.log(chalk.yellow('🚜 ' + quote))
+    console.log(chalk.magenta('☕️ ' + quote))
   }
 }
 
