@@ -2,6 +2,7 @@
 
 const fs = require('fs')
 const paths = require('./paths')
+const { TARGET } = require('./const')
 
 const NODE_ENV = process.env.NODE_ENV
 
@@ -93,8 +94,8 @@ module.exports = function getEnv(publicUrl, globalEnv = {}, target) {
 
   if (target) {
     baseEnv.jsbridgeBuildType = target
-  } else if (baseEnv.jsbridgeBuildType !== 'app') {
-    baseEnv.jsbridgeBuildType = 'web'
+  } else if (baseEnv.jsbridgeBuildType !== TARGET.APP) {
+    baseEnv.jsbridgeBuildType = TARGET.WEB
   }
 
   const raw = getMaraEnv(baseEnv)

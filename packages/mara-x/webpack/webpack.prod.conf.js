@@ -23,7 +23,7 @@ const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const { SinaHybridPlugin } = require('../libs/hybrid')
 
 const config = require('../config')
-const C = require('../config/const')
+const { VIEWS_DIR, DLL_DIR, TARGET } = require('../config/const')
 const {
   banner,
   rootPath,
@@ -44,10 +44,10 @@ module.exports = function({ entry, cmd, spinner, version }) {
   const distPageDir = `${config.paths.dist}/${entry}`
   const baseWebpackConfig = require('./webpack.base.conf')(entry)
   const hasHtml = fs.existsSync(`${config.paths.views}/${entry}/index.html`)
-  const entryPoints = getEntryPoints(`${C.VIEWS_DIR}/${entry}/index.*.js`)
+  const entryPoints = getEntryPoints(`${VIEWS_DIR}/${entry}/index.*.js`)
   const debugLabel = config.debug ? '.debug' : ''
-  const isHybridMode = config.target === 'app'
-  const shouldUseZenJs = config.compiler.zenJs && config.target != 'app'
+  const isHybridMode = config.target === TARGET.APP
+  const shouldUseZenJs = config.compiler.zenJs && config.target != TARGET.APP
 
   // 优先取外部注入的 version
   const buildVersion = version || require(config.paths.packageJson).version
@@ -278,7 +278,7 @@ module.exports = function({ entry, cmd, spinner, version }) {
     } catch (err) {
       console.log(
         chalk.yellow(
-          `dll/${namespace}manifest.json 未生成，请执行 npm run dll\n`
+          `${DLL_DIR}/${namespace}manifest.json 未生成，请执行 npm run dll\n`
         )
       )
       process.exit(1)

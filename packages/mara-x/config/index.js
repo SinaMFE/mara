@@ -9,6 +9,7 @@ const getEnv = require('./env')
 const argv = require('./argv')
 const { ensureSlash, isObject } = require('../libs/utils')
 const defConf = require('./defaultOptions')
+const { TARGET } = require('./const')
 const maraxVer = require(paths.maraxPackageJson).version
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -43,13 +44,9 @@ function getBuildTarget(globalEnv) {
     case 'web':
     case 'wap':
       // 兼容 wap 值, wap -> web
-      return 'web'
-    case 'mf':
-      return 'submod'
-    case 'lib':
-      return 'library'
+      return TARGET.WEB
     case 'app':
-      return 'app'
+      return TARGET.APP
     default:
       // 其他 target 视为无效值
       return null

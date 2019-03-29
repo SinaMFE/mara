@@ -4,7 +4,6 @@ const fs = require('fs')
 const chalk = require('chalk')
 const { prompt } = require('inquirer')
 const config = require('../config')
-const C = require('../config/const')
 const { getViews, rootPath } = require('./utils')
 const skeleton = require('./skeleton')
 const views = getViews(config.paths.entryGlob)
@@ -25,7 +24,7 @@ const views = getViews(config.paths.entryGlob)
 function empty() {
   let msg = '请按如下结构创建页面'
 
-  if (fs.existsSync(rootPath(`${C.SRC_DIR}/view`))) {
+  if (fs.existsSync(rootPath('src/view'))) {
     msg += '，如果您从 marax@1.x 迁移，请将 view 目录重命名为 views'
   }
 

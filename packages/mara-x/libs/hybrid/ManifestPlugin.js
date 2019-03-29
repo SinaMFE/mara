@@ -3,7 +3,7 @@ const chalk = require('chalk')
 const validator = require('@mara/schema-utils')
 const maraManifestSchema = require('./maraManifestSchema')
 const { rootPath, isObject, relativePath } = require('../utils')
-const C = require('../../config/const')
+const { VIEWS_DIR, TARGET } = require('../../config/const')
 
 const MANIFEST_FILE_NAME = 'manifest.json'
 
@@ -88,14 +88,14 @@ module.exports = class ManifestPlugin {
     ]
     this.entry = this.options.entry
     this.rootFilePath = rootPath(
-      `${C.VIEWS_DIR}/${this.entry}/${MANIFEST_FILE_NAME}`
+      `${VIEWS_DIR}/${this.entry}/${MANIFEST_FILE_NAME}`
     )
     this.publicFilePath = rootPath(
-      `${C.VIEWS_DIR}/${this.entry}/public/${MANIFEST_FILE_NAME}`
+      `${VIEWS_DIR}/${this.entry}/public/${MANIFEST_FILE_NAME}`
     )
     this.hasRootFile = fs.existsSync(this.rootFilePath)
     this.hasPublicFile = fs.existsSync(this.publicFilePath)
-    this.isHybrid = this.options.target === 'app'
+    this.isHybrid = this.options.target === TARGET.APP
     this.version = require(rootPath('package.json')).version
 
     this.manifestPath = ManifestPlugin.getManifestPath(this.entry)
@@ -128,8 +128,8 @@ module.exports = class ManifestPlugin {
   }
 
   static getManifestPath(view, fileName = MANIFEST_FILE_NAME) {
-    const rootFilePath = rootPath(`${C.VIEWS_DIR}/${view}/${fileName}`)
-    const publicFilePath = rootPath(`${C.VIEWS_DIR}/${view}/public/${fileName}`)
+    const rootFilePath = rootPath(`${VIEWS_DIR}/${view}/${fileName}`)
+    const publicFilePath = rootPath(`${VIEWS_DIR}/${view}/public/${fileName}`)
 
     return getPathOrThrowConflict(rootFilePath, publicFilePath)
   }

@@ -16,6 +16,7 @@ const webpack = require('webpack')
 const getEntry = require('../libs/entry')
 const { bumpProjectVersion } = require('../libs/utils')
 const config = require('../config')
+const { TARGET } = require('../config/const')
 const paths = config.paths
 const getWebpackConfig = require('../webpack/webpack.prod.conf')
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages')
@@ -27,7 +28,7 @@ const {
   getBuildSizeOfFileMap
 } = require('../libs/buildReporter')
 const prehandleConfig = require('../libs/prehandleConfig')
-const isHybridMode = config.hybrid && config.target === 'app'
+const isHybridMode = config.hybrid && config.target === TARGET.APP
 const { name: projectName, version: latestVersion } = require(config.paths
   .packageJson)
 // 追踪当前最新版本，可能会被重新赋值

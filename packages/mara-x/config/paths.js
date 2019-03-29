@@ -10,9 +10,9 @@ module.exports = {
   app: rootPath('.'),
   dotenv: rootPath('.env'),
   entryGlob: `${C.VIEWS_DIR}/*/index.@(ts|tsx|js|jsx)`,
-  libEntry: `${C.SRC_DIR}/index.@(ts|js)`,
+  libEntry: 'src/index.@(ts|js)',
   setupProxy: rootPath(`src/setupProxy.js`),
-  src: rootPath(C.SRC_DIR),
+  src: rootPath('src'),
   views: rootPath(C.VIEWS_DIR),
   public: rootPath('public'),
   dist: rootPath(C.DIST_DIR),
@@ -25,7 +25,7 @@ module.exports = {
   packageJson: rootPath('package.json'),
   // 配置文件
   marauder: rootPath('marauder.config.js'),
-  dll: rootPath('dll'),
+  dll: rootPath(C.DLL_DIR),
 
   // 脚手架自身相关路径
   marax: resolveOwn('.'),
