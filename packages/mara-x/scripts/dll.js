@@ -34,7 +34,6 @@ if (!Object.keys(vendorConf).length) {
 const fs = require('fs-extra')
 const ora = require('ora')
 const webpack = require('webpack')
-const { uploadDir } = require('../libs/ftp')
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages')
 const printBuildError = require('../libs/printBuildError')
 const prehandleConfig = require('../libs/prehandleConfig')
@@ -83,11 +82,20 @@ const vendorDir = namespace + 'vendor'
 fs.emptyDirSync(`${paths.dist}/${vendorDir}`)
 
 function ftp() {
-  // ftp upload
-  config.build.uploadFtp && uploadDir(vendorDir, input[0])
+  if (!config.build.uploadFtp) return
+
+  const { name: projectName } = require(config.paths.packageJson)
+
+  require('../libs/ftp').uploadDir({
+    project: projectName,
+    view: vendorDir,
+    namespace: input[0]
+  })
 }
 
 function errorLog(err) {
+  spinner.stop()
+
   console.log(chalk.red('Failed to compile.\n'))
   printBuildError(err)
   process.exit(1)

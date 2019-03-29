@@ -6,14 +6,15 @@ const openBrowser = require('react-dev-utils/openBrowser')
 const path = require('path')
 const chalk = require('chalk')
 const config = require('../config')
+const C = require('../config/const')
 const { rootPath } = require('./utils')
 
 const isInteractive = process.stdout.isTTY
 const ftpConf = config.ftp
 const uploadStep = [
-  `${chalk.blue('🌝  [1/3]')} Connecting ${chalk.yellow(config.ftp.host)}...`,
-  `${chalk.blue('🚀  [2/3]')} Uploading package...`,
-  `${chalk.blue('🎉  [3/3]')} ${chalk.green('Done')}\n`
+  `${chalk.blue('🌝  [1/2]')} Connecting ${chalk.yellow(config.ftp.host)}...`,
+  `${chalk.blue('🚀  [2/2]')} Uploading package...`,
+  `🎉  ${chalk.green('Success!')}\n`
 ]
 
 async function upload(filePath, remotePath) {
@@ -33,16 +34,12 @@ async function upload(filePath, remotePath) {
   })
 }
 
-function getRemotePath(view, namespace, target) {
-  const projName = process.env.npm_package_name
-  const projVer = process.env.npm_package_version
-
+function getRemotePath({ project, view, namespace, target }) {
   namespace = namespace ? `branch_${namespace}` : ''
 
   return path.posix.join(
     '/wap_front/marauder',
-    projName,
-    ftpConf.remotePath.version ? projVer : '',
+    project,
     namespace,
     // 添加构建类型标识，隔离环境
     target || '',
@@ -70,19 +67,20 @@ module.exports.uploadVinylFile = async function(vinylFile, remoteFolder) {
 
 /**
  * 文件夹上传
- * @param  {string} view        页面名
- * @param  {string} namespace   命名空间
- * @param  {string} [target]    页面类型
+ * @param  {object} options
+ * @param  {string} options.project      项目名
+ * @param  {string} options.view         页面名
+ * @param  {string} [options.namespace]  命名空间
+ * @param  {string} [options.target]     页面类型
  * @return {Promise}
  */
-module.exports.uploadDir = async function(view, namespace, target) {
+module.exports.uploadDir = async function(options) {
   const HOST = 'http://wap_front.dev.sina.cn'
-
-  view = `${view}/` || ''
+  const view = `${options.view}/` || ''
 
   // /wap_front/marauder/hdphoto/1.1.0/wensen/index
-  const remotePath = getRemotePath(view, namespace, target)
-  const localPath = rootPath(`dist/${view}`) + '/**'
+  const remotePath = getRemotePath(options)
+  const localPath = rootPath(`${C.DIST_DIR}/${view}`) + '/**'
 
   try {
     await upload(localPath, remotePath)

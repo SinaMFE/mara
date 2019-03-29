@@ -3,6 +3,7 @@
 const fs = require('fs-extra')
 const path = require('path')
 const glob = require('glob')
+const execa = require('execa')
 const devIp = require('dev-ip')
 const portscanner = require('portscanner')
 const { createHash } = require('crypto')
@@ -127,9 +128,9 @@ function pubDate(dt) {
  * 生成 banner
  * @return {String} 包含项目版本号，构建日期
  */
-function banner(target = '') {
+function banner(version, target = '') {
   return (
-    `@version ${process.env.npm_package_version}\n` +
+    `@version ${version}\n` +
     `@date ${pubDate(new Date())}\n` +
     // 对 bundle 文件添加 @generated 标识
     // 在 code review 面板忽略相关 diff
@@ -145,7 +146,7 @@ function isObject(obj) {
   return Object.prototype.toString.call(obj) === '[object Object]'
 }
 
-function ensureSlash(path, needsSlash) {
+function ensureSlash(path, needsSlash = true) {
   const hasSlash = path.endsWith('/')
 
   if (hasSlash && !needsSlash) {
@@ -221,8 +222,13 @@ function relativePath(filePath) {
   return '.' + path.sep + path.relative(appDirectory, filePath)
 }
 
+function bumpProjectVersion(version = 'prerelease') {
+  return execa.sync('npm', ['--no-git-tag-version', 'version', version])
+}
+
 module.exports = {
   assetsPath,
+  bumpProjectVersion,
   isObject,
   getViews,
   localIp,

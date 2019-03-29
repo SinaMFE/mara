@@ -40,7 +40,7 @@ const shouldUseSourceMap = !!config.build.sourceMap
  * @param  {String} options.cmd   当前命令
  * @return {Object}               webpack 配置对象
  */
-module.exports = function({ entry, cmd, spinner }) {
+module.exports = function({ entry, cmd, spinner, version }) {
   const distPageDir = `${config.paths.dist}/${entry}`
   const baseWebpackConfig = require('./webpack.base.conf')(entry)
   const hasHtml = fs.existsSync(`${config.paths.views}/${entry}/index.html`)
@@ -48,6 +48,9 @@ module.exports = function({ entry, cmd, spinner }) {
   const debugLabel = config.debug ? '.debug' : ''
   const isHybridMode = config.target === 'app'
   const shouldUseZenJs = config.compiler.zenJs && config.target != 'app'
+
+  // 优先取外部注入的 version
+  const buildVersion = version || require(config.paths.packageJson).version
 
   // https://github.com/survivejs/webpack-merge
   const webpackConfig = merge(baseWebpackConfig, {
@@ -209,13 +212,13 @@ module.exports = function({ entry, cmd, spinner }) {
       //   emitError: config.compiler.checkDuplicatePackage
       // }),
       new webpack.BannerPlugin({
-        banner: banner(config.target), // 其值为字符串，将作为注释存在
+        banner: banner(buildVersion, config.target), // 其值为字符串，将作为注释存在
         entryOnly: false // 如果值为 true，将只在入口 chunks 文件中添加
       }),
       new BuildJsonPlugin({
         debug: config.debug,
         target: config.target,
-        version: require(config.paths.packageJson).version,
+        version: buildVersion,
         marax: require(config.paths.maraxPackageJson).version
       }),
       new ManifestPlugin({

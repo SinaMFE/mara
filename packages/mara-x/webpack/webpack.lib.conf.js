@@ -24,7 +24,11 @@ function getLibName(name) {
 
 module.exports = function(options) {
   const baseWebpackConfig = require('./webpack.base.conf')('__LIB__')
-  const pkgName = require(config.paths.packageJson).name
+  const { name: pkgName, version: pkgVersion } = require(config.paths
+    .packageJson)
+
+  // 优先取外部注入的 version
+  const buildVersion = options.version || pkgVersion
 
   const webpackConfig = merge(baseWebpackConfig, {
     mode: options.mode || 'production',
@@ -104,7 +108,7 @@ module.exports = function(options) {
     },
     plugins: [
       new webpack.BannerPlugin({
-        banner: banner(), // 其值为字符串，将作为注释存在
+        banner: banner(buildVersion), // 其值为字符串，将作为注释存在
         entryOnly: true // 如果值为 true，将只在入口 chunks 文件中添加
       }),
       new MiniCssExtractPlugin({

@@ -2,7 +2,7 @@
 
 const webpack = require('webpack')
 const config = require('../config')
-const { banner, isObject } = require('../libs/utils')
+const { isObject } = require('../libs/utils')
 const webpackBaseConf = require('./webpack.base.conf')()
 const TerserPlugin = require('terser-webpack-plugin')
 const { babelLoader } = require('./loaders/babel-loader')
@@ -92,11 +92,6 @@ module.exports = function() {
         path: `${config.paths.dll}/${namespace}manifest.json`,
         // This must match the output.library option above
         name: library
-      }),
-      // 确保在 UglifyJsPlugin 后引入
-      new webpack.BannerPlugin({
-        banner: banner(), // 其值为字符串，将作为注释存在
-        entryOnly: true // 如果值为 true，将只在入口 chunks 文件中添加
       })
     ],
     node: {

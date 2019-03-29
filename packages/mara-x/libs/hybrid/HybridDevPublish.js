@@ -10,17 +10,17 @@ const config = require('../../config')
 const C = require('../../config/const')
 const { uploadVinylFile } = require('../ftp')
 const ManifestPlugin = require('./ManifestPlugin')
-const { rootPath, md5 } = require('../utils')
+const { rootPath, md5, ensureSlash } = require('../utils')
 const CONF_DIR = '/wap_front/hybrid/config/'
 const CONF_NAME = getHbConfName(config.ciConfig)
 const CONF_URL = `http://wap_front.dev.sina.cn/hybrid/config/${CONF_NAME}`
 
 const publishStep = [
-  `${chalk.blue('🐝  [1/4]')} Fetching config...`,
+  `${chalk.blue('🐝  [1/3]')} Fetching config...`,
   // ✏️ 后面需要多补充一个空格
-  `${chalk.blue('✏️   [2/4]')} Updating config...`,
-  `${chalk.blue('🚀  [3/4]')} Pushing config...`,
-  `${chalk.blue('🎉  [4/4]')} ${chalk.green('Success')}\n`
+  `${chalk.blue('✏️   [2/3]')} Updating config...`,
+  `${chalk.blue('🚀  [3/3]')} Pushing config...`,
+  `🎉  ${chalk.green('Success!')}\n`
 ]
 
 function getHbConfName(ciConfig) {
@@ -44,13 +44,13 @@ async function updateRemoteHbConf(hbConf) {
   }
 }
 
-async function getRepoName() {
+async function getRepoName(packageJson) {
   let repoName = ''
 
   try {
     repoName = await getGitRepoName()
   } catch (e) {
-    repoName = require(config.paths.packageJson).name
+    repoName = packageJson.name
   }
 
   return repoName
@@ -89,14 +89,15 @@ function logResult(hbMod) {
   console.log(`\n${chalk.bgYellow(' CONF ')} ${chalk.yellow(CONF_URL)}\n`)
 }
 
-module.exports = async function(entry, remotePath) {
+module.exports = async function(entry, remotePath, version) {
   console.log('----------- Hybrid Publish: Dev -----------\n')
   console.log(publishStep[0])
 
+  const packageJson = require(config.paths.packageJson)
   const hbConf = await getHbConf(CONF_URL)
-  const repoName = await getRepoName()
+  const repoName = await getRepoName(packageJson)
   const moduleName = `${repoName}/${entry}`
-  const localPkgPath = rootPath(`dist/${entry}/${entry}.php`)
+  const localPkgPath = rootPath(`${C.DIST_DIR}/${entry}/${entry}.php`)
   const moduleIdx = hbConf.data.modules.findIndex(
     item => item.name === moduleName
   )
@@ -115,8 +116,8 @@ module.exports = async function(entry, remotePath) {
 
   const hbMod = {
     name: moduleName,
-    version: process.env.npm_package_version,
-    pkg_url: `${remotePath + entry}.php`,
+    version: version || packageJson.version,
+    pkg_url: `${ensureSlash(remotePath) + entry}.php`,
     hybrid: true,
     md5: md5(fs.readFileSync(localPkgPath)),
     gkList: gkTestIds,

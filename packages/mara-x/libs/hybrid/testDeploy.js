@@ -239,16 +239,21 @@ async function showManualTip(repoUrl, type = 'token') {
   }
 }
 
-module.exports = async function testDeploy(entry, testMsg) {
+/**
+ * 部署测试环境
+ * @param  {string} entry    页面
+ * @param  {string} version  版本号
+ * @param  {string} message  部署信息
+ */
+module.exports = async function testDeploy(entry, version, message) {
   const path = require('path')
   const config = require('../../config')
   const { URL } = require('url')
-  const { version } = require(config.paths.packageJson)
 
   const tagPrefix = `tag__${entry}__`
   const verInfo = `${version}-${Date.now()}`
   const tagName = tagPrefix + verInfo
-  const tagMsg = testMsg || `test ${entry} v${verInfo}`
+  const tagMsg = message || `test ${entry} v${verInfo}`
 
   console.log('----------- Test Deploy -----------\n')
 

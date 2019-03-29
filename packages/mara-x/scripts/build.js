@@ -14,7 +14,7 @@ const path = require('path')
 const ora = require('ora')
 const webpack = require('webpack')
 const getEntry = require('../libs/entry')
-const { uploadDir } = require('../libs/ftp')
+const { bumpProjectVersion } = require('../libs/utils')
 const config = require('../config')
 const paths = config.paths
 const getWebpackConfig = require('../webpack/webpack.prod.conf')
@@ -27,6 +27,11 @@ const {
   getBuildSizeOfFileMap
 } = require('../libs/buildReporter')
 const prehandleConfig = require('../libs/prehandleConfig')
+const isHybridMode = config.hybrid && config.target === 'app'
+const { name: projectName, version: latestVersion } = require(config.paths
+  .packageJson)
+// 追踪当前最新版本，可能会被重新赋值
+let currentVersion = latestVersion
 
 // These sizes are pretty large. We'll warn for bundles exceeding them.
 const WARN_AFTER_BUNDLE_GZIP_SIZE = 512 * 1024
@@ -35,7 +40,11 @@ const WARN_AFTER_CHUNK_GZIP_SIZE = 1024 * 1024
 const spinner = ora('Building for production...')
 
 function build({ entryInput, preBuildSize, dist }) {
-  let webpackConfig = getWebpackConfig({ spinner, ...entryInput })
+  let webpackConfig = getWebpackConfig({
+    spinner,
+    version: currentVersion,
+    ...entryInput
+  })
 
   webpackConfig = prehandleConfig({
     command: 'build',
@@ -106,11 +115,9 @@ async function clean(entryInput) {
   const dist = path.join(paths.dist, entryInput.entry)
   const preBuildSize = await getLastBuildSize(dist)
 
-  return fs.emptyDir(dist).then(() => ({
-    entryInput,
-    preBuildSize,
-    dist
-  }))
+  await fs.emptyDir(dist)
+
+  return { entryInput, preBuildSize, dist }
 }
 
 function success({
@@ -184,15 +191,12 @@ function success({
 }
 
 async function deploy({ entry, entryArgs, remotePath }) {
-  // @TODO config.hybrid 是否有必要？
-  const isHybridMode = config.hybrid && config.target === 'app'
-
   // hybrid deplpy 需提供 hybrid 配置
   // 并且为 app 模式
   if (isHybridMode && config.ftp.hybridPublish && remotePath) {
-    await hybridDevPublish(entry, remotePath)
+    await hybridDevPublish(entry, remotePath, currentVersion)
   } else if (entryArgs.test !== null) {
-    await testDeploy(entry, entryArgs.test)
+    await testDeploy(entry, currentVersion, entryArgs.test)
   }
 }
 
@@ -201,29 +205,43 @@ function error(err) {
   // 这里确保 spinner 被及时关闭
   spinner.stop()
 
+  if (currentVersion !== latestVersion) {
+    // 回滚自动设置的版本号
+    bumpProjectVersion(latestVersion)
+  }
+
   console.log(chalk.red('\n🕳   Failed to compile.\n'))
   printBuildError(err)
   process.exit(1)
 }
 
-function ftp({ entry, entryArgs, ftpBranch }) {
-  if (ftpBranch === null)
-    return {
-      entry,
-      entryArgs,
-      ftpBranch
-    }
+async function ftp(entryInput) {
+  if (entryInput.ftpBranch === null) return entryInput
 
-  return uploadDir(entry, ftpBranch, config.target).then(remotePath => ({
-    entry,
-    ftpBranch,
-    entryArgs,
-    remotePath
-  }))
+  const remotePath = await require('../libs/ftp').uploadDir({
+    project: projectName,
+    view: entryInput.entry,
+    namespace: entryInput.ftpBranch,
+    target: config.target
+  })
+
+  return { ...entryInput, remotePath }
 }
 
 function setup(entryInput) {
   spinner.start()
+
+  const shouldAutoBumpVersion =
+    isHybridMode && config.ftp.hybridPublish && entryInput.ftpBranch !== null
+
+  // hybrid dev 发布模式下版本号自动递增
+  if (shouldAutoBumpVersion) {
+    // v1.2.3-1
+    const { stdout } = bumpProjectVersion('prerelease')
+
+    // 记录最新版本
+    currentVersion = stdout.replace(/^v/, '')
+  }
 
   // Make sure to force cancel
   ;['SIGINT', 'SIGTERM'].forEach(sig => {

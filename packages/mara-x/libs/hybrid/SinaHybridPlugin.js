@@ -3,6 +3,7 @@
 const fs = require('fs')
 const devalue = require('devalue')
 const chalk = require('chalk')
+const semver = require('semver')
 const ConcatSource = require('webpack-sources/lib/ConcatSource')
 const { rootPath } = require('../../libs/utils')
 const ManifestPlugin = require('./ManifestPlugin')
@@ -14,20 +15,13 @@ const ManifestPlugin = require('./ManifestPlugin')
 class SinaHybridPlugin {
   constructor(options) {
     this.options = options
-    // @FIXME
-    // use semver check
-    this.version = process.env.npm_package_version
+    this.version = require(rootPath('package.json')).version
     this.rewriteField = genRewriteFn(
       ManifestPlugin.getManifestPath(this.options.entry)
     )
-    const pkgVersion = require(rootPath('package.json')).version
 
-    if (pkgVersion !== this.version) {
-      throw new Error(
-        chalk.red(
-          `package.json 版本号不合法，期望值：${chalk.yellow(this.version)}`
-        )
-      )
+    if (!semver.valid(this.version)) {
+      throw new Error(chalk.red(`package.json version 格式错误`))
     }
   }
 

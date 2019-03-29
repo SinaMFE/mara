@@ -181,12 +181,7 @@
         },
         "remotePath": {
           "additionalProperties": true,
-          "type": "object",
-          "properties": {
-            "version": {
-              "type": "boolean"
-            }
-          }
+          "type": "object"
         },
         "hybridPublish": {
           "description": "Release the hybrid package to the dev environment.",

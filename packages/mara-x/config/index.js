@@ -58,7 +58,7 @@ function getBuildTarget(globalEnv) {
 
 function getServedPath(publicUrl) {
   // 强制以 / 结尾，为了兼容 publicPath: '.'
-  return publicUrl ? ensureSlash(publicUrl, true) : '/'
+  return publicUrl ? ensureSlash(publicUrl) : '/'
 }
 
 function getCLIBooleanOptions(field, defVal = false) {
