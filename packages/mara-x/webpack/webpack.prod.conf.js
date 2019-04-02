@@ -225,6 +225,7 @@ module.exports = function({
       new BuildJsonPlugin({
         debug: config.debug,
         target: config.target,
+        env: config.deployEnv,
         version: buildVersion,
         marax: require(config.paths.maraxPackageJson).version
       }),

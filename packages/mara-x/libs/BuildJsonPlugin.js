@@ -7,6 +7,7 @@ class BuildJsonPlugin {
       version: '',
       debug: false,
       marax: '',
+      env: 'online',
       publicPath: null,
       basePath: '',
       zenJs: false
@@ -41,10 +42,17 @@ class BuildJsonPlugin {
   getBuildJson(manifest = {}) {
     const source = JSON.stringify(
       {
+        // build target
         target: this.options.target,
+        // project version
         version: this.options.version,
+        // deploy env
+        env: this.options.env,
+        // debug mode
         debug: this.options.debug,
+        // marax version
         marax: this.options.marax,
+        // assets manifest
         manifest: manifest
       },
       null,
