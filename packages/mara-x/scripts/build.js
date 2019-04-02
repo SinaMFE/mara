@@ -31,7 +31,8 @@ const prehandleConfig = require('../libs/prehandleConfig')
 const isHybridMode = config.hybrid && config.target === TARGET.APP
 const { name: projectName, version: latestVersion } = require(config.paths
   .packageJson)
-// 追踪当前最新版本，可能会被重新赋值
+// hybrid 模式下 ftp 发布将自动更新 package version
+// 此变量记录更新后的版本号
 let currentVersion = latestVersion
 
 // These sizes are pretty large. We'll warn for bundles exceeding them.
@@ -237,7 +238,7 @@ function setup(entryInput) {
 
   // hybrid dev 发布模式下版本号自动递增
   if (shouldAutoBumpVersion) {
-    // v1.2.3-1
+    // e.g. v1.2.3-1
     const { stdout } = bumpProjectVersion('prerelease')
 
     // 记录最新版本

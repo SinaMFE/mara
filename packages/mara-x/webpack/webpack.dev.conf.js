@@ -20,7 +20,7 @@ function parseEntryPoint(view) {
   return { [view]: files }
 }
 
-module.exports = function({ entry, spinner }) {
+module.exports = function({ entry, spinner, publicPath = '/' }) {
   const baseWebpackConfig = require('./webpack.base.conf')(entry)
   const entryPoint = parseEntryPoint(entry)
   const hasHtml = fs.existsSync(`${config.paths.views}/${entry}/index.html`)
@@ -34,7 +34,7 @@ module.exports = function({ entry, spinner }) {
     output: {
       // Add /* filename */ comments to generated require()s in the output.
       pathinfo: true,
-      publicPath: config.assetsPublicPath,
+      publicPath: publicPath,
       // Point sourcemap entries to original disk location (format as URL on Windows)
       devtoolModuleFilenameTemplate: info =>
         path.resolve(info.absoluteResourcePath).replace(/\\/g, '/')
@@ -72,7 +72,8 @@ module.exports = function({ entry, spinner }) {
       // 替换 html 内的环境变量
       // %PUBLIC% 转换为具体路径
       // 在 dev 环境下为空字符串
-      hasHtml && new InterpolateHtmlPlugin(HtmlWebpackPlugin, config.env.raw),
+      hasHtml &&
+        new InterpolateHtmlPlugin(HtmlWebpackPlugin, config.buildEnv.raw),
       // https://github.com/glenjamin/webpack-hot-middleware#installation--usage
       new webpack.HotModuleReplacementPlugin(),
       // 等待稳定

@@ -87,7 +87,7 @@ module.exports = function() {
       ]
     },
     plugins: [
-      new webpack.DefinePlugin(config.env.stringified),
+      new webpack.DefinePlugin(config.buildEnv.stringified),
       new webpack.DllPlugin({
         path: `${config.paths.dll}/${namespace}manifest.json`,
         // This must match the output.library option above

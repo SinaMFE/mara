@@ -8,9 +8,10 @@ module.exports = {
   globalEnv: {},
   // 预渲染页面，直出首屏模板，依赖 Puppeteer
   prerender: false,
-  // 相对路径更加常用
-  publicPath: './',
-  publicDevPath: '/',
+  publicPath: {
+    // 考虑到 hybrid 离线包，默认使用相对路径
+    default: './'
+  },
   sourceMap: false,
   tsImportLibs: [],
   // 编译配置

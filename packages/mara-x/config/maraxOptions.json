@@ -33,11 +33,28 @@
     },
     "publicPath": {
       "description": "Project deployment base path.",
-      "type": "string"
-    },
-    "publicDevPath": {
-      "description": "Project development base path.",
-      "type": "string"
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "default": {
+              "type": "string"
+            },
+            "dev": {
+              "type": "string"
+            },
+            "test": {
+              "type": "string"
+            },
+            "online": {
+              "type": "string"
+            }
+          }
+        }
+      ]
     },
     "library": {
       "description": "Library global name.",

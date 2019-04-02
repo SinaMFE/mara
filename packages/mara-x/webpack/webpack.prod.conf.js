@@ -40,7 +40,13 @@ const shouldUseSourceMap = !!config.build.sourceMap
  * @param  {String} options.cmd   当前命令
  * @return {Object}               webpack 配置对象
  */
-module.exports = function({ entry, cmd, spinner, version }) {
+module.exports = function({
+  entry,
+  cmd,
+  spinner,
+  version,
+  publicPath = config.assetsPublicPath
+}) {
   const distPageDir = `${config.paths.dist}/${entry}`
   const baseWebpackConfig = require('./webpack.base.conf')(entry)
   const hasHtml = fs.existsSync(`${config.paths.views}/${entry}/index.html`)
@@ -61,7 +67,7 @@ module.exports = function({ entry, cmd, spinner, version }) {
     entry: entryPoints,
     output: {
       path: distPageDir,
-      publicPath: config.assetsPublicPath,
+      publicPath,
       // 保持传统，非 debug 的 main js 添加 min 后缀
       filename: config.hash.main
         ? `static/js/[name].[contenthash:8]${debugLabel}.js`
@@ -190,7 +196,8 @@ module.exports = function({ entry, cmd, spinner, version }) {
       hasHtml && shouldUseZenJs && new ZenJsPlugin(HtmlWebpackPlugin),
       hasHtml &&
         new InlineChunkHtmlPlugin(HtmlWebpackPlugin, [/runtime~.+[.]js/]),
-      hasHtml && new InterpolateHtmlPlugin(HtmlWebpackPlugin, config.env.raw),
+      hasHtml &&
+        new InterpolateHtmlPlugin(HtmlWebpackPlugin, config.buildEnv.raw),
       new MiniCssExtractPlugin({
         // 保持传统，非 debug 的 main css 添加 min 后缀
         filename: config.hash.main

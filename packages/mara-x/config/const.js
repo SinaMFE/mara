@@ -1,8 +1,7 @@
 module.exports = {
-  ENV: {
+  DEPLOY_ENV: {
     DEV: 'dev',
     TEST: 'test',
-    ALPHA: 'alpha',
     ONLINE: 'online'
   },
   TARGET: {
@@ -12,5 +11,7 @@ module.exports = {
   LIB_DIR: 'lib',
   DIST_DIR: 'dist',
   VIEWS_DIR: 'src/views',
-  DLL_DIR: 'dll'
+  DLL_DIR: 'dll',
+  PUBLIC_PATH: './',
+  DEV_PUBLIC_PATH: '/'
 }

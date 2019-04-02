@@ -8,9 +8,9 @@ process.on('unhandledRejection', err => {
 })
 
 const ora = require('ora')
-const fs = require('fs-extra')
 const webpack = require('webpack')
 const config = require('../config')
+const { DEV_PUBLIC_PATH } = require('../config/const')
 const getEntry = require('../libs/entry')
 const { getFreePort } = require('../libs/utils')
 const getWebpackConfig = require('../webpack/webpack.dev.conf')
@@ -47,7 +47,8 @@ function createDevServer(webpackConf, opts) {
   const serverConf = createDevServerConfig({
     entry: opts.entry,
     proxy: proxyConfig,
-    protocol: PROTOCOL
+    protocol: PROTOCOL,
+    publicPath: DEV_PUBLIC_PATH
   })
   const compiler = getCompiler(webpackConf)
 
@@ -61,7 +62,6 @@ function createDevServer(webpackConf, opts) {
     protocol: PROTOCOL,
     root: config.paths.app,
     host: serverConf.host,
-    publicPath: config.assetsPublicPath,
     openBrowser: config.devServer.open,
     useTypeScript: config.useTypeScript,
     onTsError(severity, errors) {
@@ -77,7 +77,11 @@ function createDevServer(webpackConf, opts) {
 async function server(entryInput) {
   spinner.start()
 
-  let webpackConfig = getWebpackConfig({ spinner, ...entryInput })
+  let webpackConfig = getWebpackConfig({
+    spinner,
+    publicPath: DEV_PUBLIC_PATH,
+    ...entryInput
+  })
 
   webpackConfig = prehandleConfig({
     command: 'dev',

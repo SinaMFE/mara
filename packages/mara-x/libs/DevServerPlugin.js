@@ -5,7 +5,6 @@ const clearConsole = require('react-dev-utils/clearConsole')
 const tsFormatter = require('react-dev-utils/typescriptFormatter')
 
 const FriendlyErrorsPlugin = require('./friendly-errors')
-const { transformer, formatter } = require('./resolveLoaderError')
 const isInteractive = process.stdout.isTTY
 const tsErrorFormat = msg => `${msg.file}\n${tsFormatter(msg, true)}`
 const noop = () => {}

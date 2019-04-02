@@ -7,18 +7,36 @@ const maraxOptionsSchema = require('./maraxOptions')
 const paths = require('./paths')
 const getEnv = require('./env')
 const argv = require('./argv')
-const { ensureSlash, isObject } = require('../libs/utils')
+const { isObject } = require('../libs/utils')
+const resolvePublicPath = require('../libs/resolvePublicPath')
 const defConf = require('./defaultOptions')
-const { TARGET } = require('./const')
-const maraxVer = require(paths.maraxPackageJson).version
-const isProd = process.env.NODE_ENV === 'production'
+const { TARGET, DEPLOY_ENV, PUBLIC_PATH } = require('./const')
+const maraxVersion = require(paths.maraxPackageJson).version
 
 const maraConf = getMaraConf()
 const target = getBuildTarget()
 const useTypeScript = fs.existsSync(paths.tsConfig)
 const useYarn = fs.existsSync(paths.yarnLock)
-const publicPath = isProd ? maraConf.publicPath : maraConf.publicDevPath
-const env = getEnv(publicPath.slice(0, -1), maraConf.globalEnv, target)
+// deployEnv: dev 开发环境 | test 测试环境 | online 线上环境
+// 默认 online
+const deployEnv = getDeployEnv(argv.env)
+let publicPath = ''
+
+// hybrid 模式强制默认路径
+if (target === TARGET.APP) {
+  publicPath = PUBLIC_PATH
+} else {
+  publicPath = resolvePublicPath(maraConf.publicPath, deployEnv, {
+    version: require(paths.packageJson).version
+  })
+}
+
+const buildEnv = getEnv({
+  argv,
+  deployEnv,
+  publicPath,
+  globalEnv: maraConf.globalEnv
+})
 
 function getMaraConf() {
   let maraConf = defConf
@@ -28,6 +46,7 @@ function getMaraConf() {
 
     try {
       if (validateOptions(maraxOptionsSchema, userOptions, 'mararc', 'Marax')) {
+        // use deep merge
         maraConf = merge({}, defConf, userOptions)
       }
     } catch (e) {
@@ -37,6 +56,19 @@ function getMaraConf() {
   }
 
   return maraConf
+}
+
+function getDeployEnv(env) {
+  switch (env) {
+    case 'dev':
+      return DEPLOY_ENV.DEV
+    case 'test':
+      return DEPLOY_ENV.TEST
+    case 'online':
+      return DEPLOY_ENV.ONLINE
+    default:
+      return DEPLOY_ENV.ONLINE
+  }
 }
 
 function getBuildTarget(globalEnv) {
@@ -51,11 +83,6 @@ function getBuildTarget(globalEnv) {
       // 其他 target 视为无效值
       return null
   }
-}
-
-function getServedPath(publicUrl) {
-  // 强制以 / 结尾，为了兼容 publicPath: '.'
-  return publicUrl ? ensureSlash(publicUrl) : '/'
 }
 
 function getCLIBooleanOptions(field, defVal = false) {
@@ -82,10 +109,11 @@ const maraContext = {
   // 为了防止不同文件夹下的同名资源文件冲突
   // 资源文件不提供 hash 修改权限
   hash: getHashConf(maraConf.hash),
-  env: env,
+  buildEnv,
+  deployEnv,
   // 优先读取 target，其次以 jsbridgeBuildType 回退
-  target: target || env.raw.jsbridgeBuildType,
-  version: maraxVer,
+  target: target || buildEnv.raw.jsbridgeBuildType,
+  version: maraxVersion,
   debug: argv.debug,
   library: maraConf.library,
   parallel: false,
@@ -99,7 +127,7 @@ const maraContext = {
   // 打包 dll
   vendor: maraConf.vendor,
   paths: paths,
-  assetsPublicPath: getServedPath(publicPath),
+  assetsPublicPath: publicPath,
   prerender: maraConf.prerender,
   build: {
     sourceMap: maraConf.sourceMap,

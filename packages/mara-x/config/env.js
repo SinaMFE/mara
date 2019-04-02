@@ -3,6 +3,7 @@
 const fs = require('fs')
 const paths = require('./paths')
 const { TARGET } = require('./const')
+const { ensureSlash } = require('../libs/utils')
 
 const NODE_ENV = process.env.NODE_ENV
 
@@ -73,23 +74,28 @@ function getMaraEnv(baseEnv) {
   )
 }
 
-loadDotEnv()
+function stringify(raw) {
+  return Object.keys(raw).reduce((env, key) => {
+    env[key] = JSON.stringify(raw[key])
 
-// browserslist 供 babel-preset-env，postcss-env 使用
-loadBrowserslist()
+    return env
+  }, {})
+}
 
-module.exports = function getEnv(publicUrl, globalEnv = {}, target) {
+function getEnv({ target, publicPath, deployEnv, globalEnv = {} }) {
   // NODE_ENV，PUBLIC_URL 放在 assign 尾部
   // 防止被用户覆盖
   const baseEnv = Object.assign({}, globalEnv, {
     // 标识开发与生产环境
     // React 内部依赖此变量
     NODE_ENV: process.env.NODE_ENV || 'development',
-    // 方便使用公共资源路径
+    // 命令行获取的 env 具有最高优先级
+    DEPLOY_ENV: deployEnv,
+    // 公共资源路径，去除尾 /
     // 在 js 内，以 process.env.PUBLIC_URL 变量存在
     // html 中可使用 %PUBLIC_URL% 占位符
     // 例：<img src="%PUBLIC_URL%/img/logo.png">
-    PUBLIC_URL: publicUrl
+    PUBLIC_URL: ensureSlash(publicPath, false)
   })
 
   if (target) {
@@ -102,13 +108,16 @@ module.exports = function getEnv(publicUrl, globalEnv = {}, target) {
 
   // DefinePlugin 需要传入序列化参数值
   const stringified = {
-    'process.env': Object.keys(raw).reduce((env, key) => {
-      env[key] = JSON.stringify(raw[key])
-
-      return env
-    }, {})
+    'process.env': stringify(raw)
   }
 
   // raw 给 InterpolateHtmlPlugin 插件使用
   return { raw, stringified }
 }
+
+loadDotEnv()
+
+// browserslist 供 babel-preset-env，postcss-env 使用
+loadBrowserslist()
+
+module.exports = getEnv

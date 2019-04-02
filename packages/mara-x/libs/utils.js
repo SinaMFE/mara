@@ -146,20 +146,16 @@ function isObject(obj) {
   return Object.prototype.toString.call(obj) === '[object Object]'
 }
 
-function ensureSlash(path, needsSlash = true) {
-  const hasSlash = path.endsWith('/')
+function ensureSlash(pathStr, needsSlash = true) {
+  const hasSlash = pathStr.endsWith('/')
 
   if (hasSlash && !needsSlash) {
-    return path.substr(path, path.length - 1)
+    return pathStr.substr(pathStr, pathStr.length - 1)
   } else if (!hasSlash && needsSlash) {
-    return `${path}/`
+    return `${pathStr}/`
   } else {
-    return path
+    return pathStr
   }
-}
-
-function camelName(name) {
-  return name
 }
 
 // https://stackoverflow.com/questions/20270973/nodejs-spawn-stdout-string-format
@@ -242,7 +238,6 @@ module.exports = {
   isNotEmptyArray,
   ensureSlash,
   sortObject,
-  camelName,
   buffer2String,
   random,
   readJson,

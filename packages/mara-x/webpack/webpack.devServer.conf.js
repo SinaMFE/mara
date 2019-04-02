@@ -6,10 +6,9 @@ const evalSourceMapMiddleware = require('react-dev-utils/evalSourceMapMiddleware
 const noopServiceWorkerMiddleware = require('react-dev-utils/noopServiceWorkerMiddleware')
 const ignoredFiles = require('react-dev-utils/ignoredFiles')
 const { localIp, rootPath } = require('../libs/utils')
-const config = require('../config')
-const paths = config.paths
+const paths = require('../config/paths')
 
-module.exports = function({ entry, proxy, protocol }) {
+module.exports = function({ entry, proxy, protocol, publicPath = '/' }) {
   const localPublicDir = rootPath(`${paths.views}/${entry}/public`)
 
   return {
@@ -41,10 +40,12 @@ module.exports = function({ entry, proxy, protocol }) {
     // <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
     // 在 js 内，可使用 process.env.PUBLIC_URL 获取路径
     contentBase: [
+      // 全局 public
       paths.public,
+      // 页面级 public
       localPublicDir
       // @FIXME 监听 html 文件变化，临时措施
-      // `${config.paths.views}/${entry}/*.html`
+      // `${paths.views}/${entry}/*.html`
     ],
     // By default files from `contentBase` will not trigger a page reload.
     watchContentBase: true,
@@ -56,7 +57,7 @@ module.exports = function({ entry, proxy, protocol }) {
     hot: true,
     // It is important to tell WebpackDevServer to use the same "root" path
     // as we specified in the config. In development, we always serve from /.
-    publicPath: config.assetsPublicPath,
+    publicPath: publicPath,
     // WebpackDevServer is noisy by default so we emit custom message instead
     // by listening to the compiler events with `compiler.hooks[...].tap` calls above.
     quiet: true,
