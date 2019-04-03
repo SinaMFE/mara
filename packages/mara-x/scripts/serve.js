@@ -10,7 +10,7 @@ process.on('unhandledRejection', err => {
 const ora = require('ora')
 const webpack = require('webpack')
 const config = require('../config')
-const { DEV_PUBLIC_PATH } = require('../config/const')
+const getContext = require('../config/context')
 const getEntry = require('../libs/entry')
 const { getFreePort } = require('../libs/utils')
 const getWebpackConfig = require('../webpack/webpack.dev.conf')
@@ -48,7 +48,7 @@ function createDevServer(webpackConf, opts) {
     entry: opts.entry,
     proxy: proxyConfig,
     protocol: PROTOCOL,
-    publicPath: DEV_PUBLIC_PATH
+    publicPath: opts.publicPath
   })
   const compiler = getCompiler(webpackConf)
 
@@ -74,25 +74,31 @@ function createDevServer(webpackConf, opts) {
   return devServer
 }
 
-async function server(entryInput) {
+async function setup(entryInput) {
+  const context = await getContext({
+    version: require(config.paths.packageJson).version,
+    view: entryInput.entry
+  })
+
+  return { context, ...entryInput }
+}
+
+async function server({ context, entry }) {
   spinner.start()
 
-  let webpackConfig = getWebpackConfig({
-    spinner,
-    publicPath: DEV_PUBLIC_PATH,
-    ...entryInput
-  })
+  let webpackConfig = getWebpackConfig(context, spinner)
 
   webpackConfig = prehandleConfig({
     command: 'dev',
     webpackConfig,
-    entry: entryInput.entry
+    entry: entry
   })
 
   const port = await getFreePort(DEFAULT_PORT)
   const devServer = createDevServer(webpackConfig, {
-    entry: entryInput.entry,
-    port
+    entry,
+    port,
+    publicPath: context.publicPath
   })
 
   // Ctrl + C 触发
@@ -110,5 +116,7 @@ async function server(entryInput) {
 }
 
 module.exports = function runServe(argv) {
-  return getEntry(argv).then(server)
+  return getEntry(argv)
+    .then(setup)
+    .then(server)
 }

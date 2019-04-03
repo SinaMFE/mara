@@ -222,6 +222,16 @@ function bumpProjectVersion(version = 'prerelease') {
   return execa.sync('npm', ['--no-git-tag-version', 'version', version])
 }
 
+async function getGitRepoName() {
+  const { stdout: remoteUrl } = await execa('git', [
+    'config',
+    '--get',
+    'remote.origin.url'
+  ])
+
+  return path.basename(remoteUrl, '.git')
+}
+
 module.exports = {
   assetsPath,
   bumpProjectVersion,
@@ -231,6 +241,7 @@ module.exports = {
   getFreePort,
   getEntries,
   getEntryPoints,
+  getGitRepoName,
   rootPath,
   parseDate,
   pubDate,

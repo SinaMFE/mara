@@ -4,13 +4,11 @@ const fs = require('fs')
 const Vinyl = require('vinyl')
 const chalk = require('chalk')
 const axios = require('axios')
-const path = require('path')
-const execa = require('execa')
 const config = require('../../config')
 const C = require('../../config/const')
 const { uploadVinylFile } = require('../ftp')
 const ManifestPlugin = require('./ManifestPlugin')
-const { rootPath, md5, ensureSlash } = require('../utils')
+const { rootPath, md5, ensureSlash, getGitRepoName } = require('../utils')
 const CONF_DIR = '/wap_front/hybrid/config/'
 const CONF_NAME = getHbConfName(config.ciConfig)
 const CONF_URL = `http://wap_front.dev.sina.cn/hybrid/config/${CONF_NAME}`
@@ -44,7 +42,7 @@ async function updateRemoteHbConf(hbConf) {
   }
 }
 
-async function getRepoName(packageJson) {
+async function getRepoOrProjectName(packageJson) {
   let repoName = ''
 
   try {
@@ -54,16 +52,6 @@ async function getRepoName(packageJson) {
   }
 
   return repoName
-}
-
-async function getGitRepoName() {
-  const { stdout: remoteUrl } = await execa('git', [
-    'config',
-    '--get',
-    'remote.origin.url'
-  ])
-
-  return path.basename(remoteUrl, '.git')
 }
 
 async function getHbConf(confPath) {
@@ -95,7 +83,7 @@ module.exports = async function(entry, remotePath, version) {
 
   const packageJson = require(config.paths.packageJson)
   const hbConf = await getHbConf(CONF_URL)
-  const repoName = await getRepoName(packageJson)
+  const repoName = await getRepoOrProjectName(packageJson)
   const moduleName = `${repoName}/${entry}`
   const localPkgPath = rootPath(`${C.DIST_DIR}/${entry}/${entry}.php`)
   const moduleIdx = hbConf.data.modules.findIndex(

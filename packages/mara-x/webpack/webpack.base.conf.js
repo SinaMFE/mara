@@ -29,7 +29,7 @@ const {
 const { getEntries, rootPath } = require('../libs/utils')
 const paths = config.paths
 
-module.exports = function(entry) {
+module.exports = function({ entry, buildEnv, publicPath }) {
   const isDev = process.env.NODE_ENV === 'development'
   const isProd = process.env.NODE_ENV === 'production'
 
@@ -121,7 +121,8 @@ module.exports = function(entry) {
           test: /\.css$/,
           exclude: /\.module\.css$/,
           oneOf: getStyleLoaders({
-            importLoaders: 1
+            importLoaders: 1,
+            cssPublicPath: publicPath
           })
         },
         {
@@ -129,6 +130,7 @@ module.exports = function(entry) {
           oneOf: getStyleLoaders({
             importLoaders: 1,
             modules: true,
+            cssPublicPath: publicPath,
             getLocalIdent: getCSSModuleLocalIdent
           })
         },
@@ -136,7 +138,8 @@ module.exports = function(entry) {
           test: /\.less$/,
           oneOf: getStyleLoaders(
             {
-              importLoaders: 2
+              importLoaders: 2,
+              cssPublicPath: publicPath
             },
             'less-loader'
           )
@@ -145,7 +148,8 @@ module.exports = function(entry) {
           test: /\.(scss|sass)$/,
           oneOf: getStyleLoaders(
             {
-              importLoaders: 2
+              importLoaders: 2,
+              cssPublicPath: publicPath
             },
             'sass-loader'
           )
@@ -264,7 +268,7 @@ module.exports = function(entry) {
       // https://github.com/jmblog/how-to-optimize-momentjs-with-webpack
       // You can remove this if you don't use Moment.js:
       new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-      !isLib && new webpack.DefinePlugin(config.buildEnv.stringified),
+      !isLib && new webpack.DefinePlugin(buildEnv.stringified),
       new VueLoaderPlugin(),
       // @FIXME
       // 等待 moduleDependency webpack4 适配就绪后

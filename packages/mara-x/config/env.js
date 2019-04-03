@@ -2,7 +2,6 @@
 
 const fs = require('fs')
 const paths = require('./paths')
-const { TARGET } = require('./const')
 const { ensureSlash } = require('../libs/utils')
 
 const NODE_ENV = process.env.NODE_ENV
@@ -82,7 +81,7 @@ function stringify(raw) {
   }, {})
 }
 
-function getEnv({ target, publicPath, deployEnv, globalEnv = {} }) {
+function getEnv({ publicPath, deployEnv, globalEnv = {} }) {
   // NODE_ENV，PUBLIC_URL 放在 assign 尾部
   // 防止被用户覆盖
   const baseEnv = Object.assign({}, globalEnv, {
@@ -97,12 +96,6 @@ function getEnv({ target, publicPath, deployEnv, globalEnv = {} }) {
     // 例：<img src="%PUBLIC_URL%/img/logo.png">
     PUBLIC_URL: ensureSlash(publicPath, false)
   })
-
-  if (target) {
-    baseEnv.jsbridgeBuildType = target
-  } else if (baseEnv.jsbridgeBuildType !== TARGET.APP) {
-    baseEnv.jsbridgeBuildType = TARGET.WEB
-  }
 
   const raw = getMaraEnv(baseEnv)
 

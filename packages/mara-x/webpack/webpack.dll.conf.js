@@ -3,7 +3,6 @@
 const webpack = require('webpack')
 const config = require('../config')
 const { isObject } = require('../libs/utils')
-const webpackBaseConf = require('./webpack.base.conf')()
 const TerserPlugin = require('terser-webpack-plugin')
 const { babelLoader } = require('./loaders/babel-loader')
 const library = '[name]_lib'
@@ -15,7 +14,9 @@ const vendor = isObject(config.vendor) ? config.vendor.libs : config.vendor
 // 为多页面准备，生成 xxx_vender 文件夹
 const namespace = config.vendor.name ? `${config.vendor.name}_` : ''
 
-module.exports = function() {
+module.exports = function buildDll(context) {
+  const webpackBaseConf = require('./webpack.base.conf')(context)
+
   return {
     mode: 'production',
     entry: {
@@ -87,7 +88,7 @@ module.exports = function() {
       ]
     },
     plugins: [
-      new webpack.DefinePlugin(config.buildEnv.stringified),
+      new webpack.DefinePlugin(context.buildEnv.stringified),
       new webpack.DllPlugin({
         path: `${config.paths.dll}/${namespace}manifest.json`,
         // This must match the output.library option above

@@ -15,8 +15,10 @@ const ora = require('ora')
 const webpack = require('webpack')
 const getEntry = require('../libs/entry')
 const { bumpProjectVersion } = require('../libs/utils')
+const chalkBadge = require('../libs/chalkBadge')
 const config = require('../config')
-const { TARGET } = require('../config/const')
+const getContext = require('../config/context')
+const { TARGET, DEPLOY_ENV } = require('../config/const')
 const paths = config.paths
 const getWebpackConfig = require('../webpack/webpack.prod.conf')
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages')
@@ -29,6 +31,7 @@ const {
 } = require('../libs/buildReporter')
 const prehandleConfig = require('../libs/prehandleConfig')
 const isHybridMode = config.hybrid && config.target === TARGET.APP
+
 const { name: projectName, version: latestVersion } = require(config.paths
   .packageJson)
 // hybrid 模式下 ftp 发布将自动更新 package version
@@ -41,17 +44,53 @@ const WARN_AFTER_CHUNK_GZIP_SIZE = 1024 * 1024
 
 const spinner = ora('Building for production...')
 
-function build({ entryInput, preBuildSize, dist }) {
-  let webpackConfig = getWebpackConfig({
-    spinner,
+// entryInput: {entry, ftpBranch, entryArgs}
+async function setup(entryInput) {
+  spinner.start()
+
+  const shouldAutoBumpVersion =
+    isHybridMode && config.ftp.hybridPublish && entryInput.ftpBranch !== null
+
+  // hybrid dev 发布模式下版本号自动递增
+  if (shouldAutoBumpVersion) {
+    // e.g. v1.2.3-1
+    const { stdout } = bumpProjectVersion('prerelease')
+
+    // 记录最新版本
+    currentVersion = stdout.replace(/^v/, '')
+  }
+
+  const context = await getContext({
     version: currentVersion,
-    ...entryInput
+    view: entryInput.entry
   })
+
+  // Make sure to force cancel
+  ;['SIGINT', 'SIGTERM'].forEach(sig => {
+    process.on(sig, () => {
+      process.exit()
+    })
+  })
+
+  return { context, ...entryInput }
+}
+
+async function clean(options) {
+  const dist = path.join(paths.dist, options.entry)
+  const preBuildSize = await getLastBuildSize(dist)
+
+  await fs.emptyDir(dist)
+
+  return { options, preBuildSize, dist }
+}
+
+function build({ options, preBuildSize, dist }) {
+  let webpackConfig = getWebpackConfig(options.context, spinner)
 
   webpackConfig = prehandleConfig({
     command: 'build',
     webpackConfig,
-    entry: entryInput.entry
+    entry: options.entry
   })
 
   const compiler = webpack(webpackConfig)
@@ -103,7 +142,7 @@ function build({ entryInput, preBuildSize, dist }) {
 
       return resolve({
         stats,
-        entryInput,
+        options,
         preBuildSize,
         publicPath: webpackConfig.output.publicPath,
         outputPath: webpackConfig.output.path,
@@ -113,18 +152,9 @@ function build({ entryInput, preBuildSize, dist }) {
   })
 }
 
-async function clean(entryInput) {
-  const dist = path.join(paths.dist, entryInput.entry)
-  const preBuildSize = await getLastBuildSize(dist)
-
-  await fs.emptyDir(dist)
-
-  return { entryInput, preBuildSize, dist }
-}
-
 function success({
   stats,
-  entryInput,
+  options,
   preBuildSize,
   publicPath,
   outputPath,
@@ -165,10 +195,20 @@ function success({
     WARN_AFTER_CHUNK_GZIP_SIZE
   )
 
+  // just new line
+  console.log()
+  const targetBadge = chalkBadge('target', config.target)
+  const envBadge = chalkBadge(
+    'env',
+    config.deployEnv,
+    config.deployEnv === DEPLOY_ENV.ONLINE ? 'info' : 'warning'
+  )
+  console.log(`${targetBadge} ${envBadge}`)
+
   console.log()
   console.log(
     `The ${chalk.cyan(
-      'dist/' + entryInput.entry
+      'dist/' + options.entry
     )} folder is ready to be deployed.\n`
   )
 
@@ -189,7 +229,20 @@ function success({
     )
   }
 
-  return entryInput
+  return options
+}
+
+async function ftp(options) {
+  if (options.ftpBranch === null) return options
+
+  const remotePath = await require('../libs/ftp').uploadDir({
+    project: projectName,
+    view: options.entry,
+    namespace: options.ftpBranch,
+    target: config.target
+  })
+
+  return { ...options, remotePath }
 }
 
 async function deploy({ entry, entryArgs, remotePath }) {
@@ -199,6 +252,18 @@ async function deploy({ entry, entryArgs, remotePath }) {
     await hybridDevPublish(entry, remotePath, currentVersion)
   } else if (entryArgs.test !== null) {
     await testDeploy(entry, currentVersion, entryArgs.test)
+  }
+}
+
+// finally fn
+function done() {
+  const date = new Date()
+  const hour = date.getHours()
+
+  if (config.marax.inspire || hour >= 21) {
+    const quote = require('../libs/inspire').random()
+
+    console.log(chalk.magenta('☕️ ' + quote))
   }
 }
 
@@ -215,56 +280,6 @@ function error(err) {
   console.log(chalk.red('\n🕳   Failed to compile.\n'))
   printBuildError(err)
   process.exit(1)
-}
-
-async function ftp(entryInput) {
-  if (entryInput.ftpBranch === null) return entryInput
-
-  const remotePath = await require('../libs/ftp').uploadDir({
-    project: projectName,
-    view: entryInput.entry,
-    namespace: entryInput.ftpBranch,
-    target: config.target
-  })
-
-  return { ...entryInput, remotePath }
-}
-
-function setup(entryInput) {
-  spinner.start()
-
-  const shouldAutoBumpVersion =
-    isHybridMode && config.ftp.hybridPublish && entryInput.ftpBranch !== null
-
-  // hybrid dev 发布模式下版本号自动递增
-  if (shouldAutoBumpVersion) {
-    // e.g. v1.2.3-1
-    const { stdout } = bumpProjectVersion('prerelease')
-
-    // 记录最新版本
-    currentVersion = stdout.replace(/^v/, '')
-  }
-
-  // Make sure to force cancel
-  ;['SIGINT', 'SIGTERM'].forEach(sig => {
-    process.on(sig, () => {
-      process.exit()
-    })
-  })
-
-  return entryInput
-}
-
-// finally fn
-function done() {
-  const date = new Date()
-  const hour = date.getHours()
-
-  if (config.marax.inspire || hour >= 21) {
-    const quote = require('../libs/inspire').random()
-
-    console.log(chalk.magenta('☕️ ' + quote))
-  }
 }
 
 module.exports = function runBuild(argv) {

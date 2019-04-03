@@ -4,7 +4,6 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const config = require('../../config')
 const isProd = process.env.NODE_ENV === 'production'
 const isDev = process.env.NODE_ENV === 'development'
-const shouldUseRelativeAssetPaths = config.assetsPublicPath === './'
 const shouldExtract = isProd && config.compiler.cssExtract !== false
 const shouldUseSourceMap = isProd ? config.build.sourceMap : isDev
 
@@ -42,7 +41,7 @@ function getPostCSSPlugins(useSourceMap, needInlineMinification, preProcessor) {
     : plugins
 }
 
-function createCSSRule(cssOptions = {}, preProcessor) {
+function createCSSRule(cssOptions, preProcessor) {
   return [
     {
       resourceQuery: /\?vue/, // foo.css?inline
@@ -62,7 +61,13 @@ function createCSSRule(cssOptions = {}, preProcessor) {
 
 function getStyleLoaders(cssOptions = {}, preProcessor) {
   const needInlineMinification = isProd && !shouldExtract
-  const cssPublicPath = cssOptions.library ? './' : '../../'
+  const shouldUseRelativeAssetPaths = cssOptions.cssPublicPath === './'
+
+  // 移除自定义配置项 cssPublicPath，
+  // 防止 css-loader 参数校验报错
+  delete cssOptions.cssPublicPath
+
+  const relativePublicPath = cssOptions.library ? './' : '../../'
   const loaders = [
     shouldExtract
       ? {
@@ -70,7 +75,7 @@ function getStyleLoaders(cssOptions = {}, preProcessor) {
           options: Object.assign(
             {},
             shouldUseRelativeAssetPaths
-              ? { publicPath: cssPublicPath }
+              ? { publicPath: relativePublicPath }
               : undefined
           )
         }

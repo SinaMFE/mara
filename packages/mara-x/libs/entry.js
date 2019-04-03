@@ -77,7 +77,7 @@ function result(entry = '', argv) {
     getEntryArgs(argv, 'test')
   )
 
-  return Promise.resolve({ entry, ftpBranch, entryArgs, argv })
+  return Promise.resolve({ entry, ftpBranch, entryArgs })
 }
 
 function chooseOne(argv) {

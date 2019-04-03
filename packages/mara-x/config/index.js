@@ -5,38 +5,39 @@ const merge = require('webpack-merge')
 const validateOptions = require('@mara/schema-utils')
 const maraxOptionsSchema = require('./maraxOptions')
 const paths = require('./paths')
-const getEnv = require('./env')
 const argv = require('./argv')
 const { isObject } = require('../libs/utils')
-const resolvePublicPath = require('../libs/resolvePublicPath')
 const defConf = require('./defaultOptions')
-const { TARGET, DEPLOY_ENV, PUBLIC_PATH } = require('./const')
+const { DEPLOY_ENV, TARGET } = require('./const')
 const maraxVersion = require(paths.maraxPackageJson).version
 
 const maraConf = getMaraConf()
-const target = getBuildTarget()
 const useTypeScript = fs.existsSync(paths.tsConfig)
 const useYarn = fs.existsSync(paths.yarnLock)
 // deployEnv: dev 开发环境 | test 测试环境 | online 线上环境
 // 默认 online
 const deployEnv = getDeployEnv(argv.env)
-let publicPath = ''
+const target = getBuildTarget(maraConf.globalEnv)
 
-// hybrid 模式强制默认路径
-if (target === TARGET.APP) {
-  publicPath = PUBLIC_PATH
-} else {
-  publicPath = resolvePublicPath(maraConf.publicPath, deployEnv, {
-    version: require(paths.packageJson).version
-  })
+function getBuildTarget(globalEnv) {
+  const targetMap = {
+    web: TARGET.WEB,
+    wap: TARGET.WEB,
+    app: TARGET.APP
+  }
+  // 未解析时指定 null
+  const target = targetMap[argv.target]
+
+  if (target) {
+    // 覆盖 globalEnv 配置
+    globalEnv.jsbridgeBuildType = target
+  } else if (globalEnv.jsbridgeBuildType !== TARGET.APP) {
+    globalEnv.jsbridgeBuildType = TARGET.WEB
+  }
+
+  // 优先获取 CLI 传递的 target，其次以 jsbridgeBuildType 回退
+  return target || globalEnv.jsbridgeBuildType
 }
-
-const buildEnv = getEnv({
-  argv,
-  deployEnv,
-  publicPath,
-  globalEnv: maraConf.globalEnv
-})
 
 function getMaraConf() {
   let maraConf = defConf
@@ -71,20 +72,6 @@ function getDeployEnv(env) {
   }
 }
 
-function getBuildTarget(globalEnv) {
-  switch (argv.target) {
-    case 'web':
-    case 'wap':
-      // 兼容 wap 值, wap -> web
-      return TARGET.WEB
-    case 'app':
-      return TARGET.APP
-    default:
-      // 其他 target 视为无效值
-      return null
-  }
-}
-
 function getCLIBooleanOptions(field, defVal = false) {
   const val = argv[field] || process.env[`npm_config_${field}`]
 
@@ -105,14 +92,12 @@ function getHashConf(hash) {
 }
 
 const maraContext = {
-  argv: argv,
+  argv,
+  target,
   // 为了防止不同文件夹下的同名资源文件冲突
   // 资源文件不提供 hash 修改权限
   hash: getHashConf(maraConf.hash),
-  buildEnv,
   deployEnv,
-  // 优先读取 target，其次以 jsbridgeBuildType 回退
-  target: target || buildEnv.raw.jsbridgeBuildType,
   version: maraxVersion,
   debug: argv.debug,
   library: maraConf.library,
@@ -127,7 +112,7 @@ const maraContext = {
   // 打包 dll
   vendor: maraConf.vendor,
   paths: paths,
-  assetsPublicPath: publicPath,
+  publicPath: maraConf.publicPath,
   prerender: maraConf.prerender,
   build: {
     sourceMap: maraConf.sourceMap,
