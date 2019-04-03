@@ -67,7 +67,7 @@ module.exports = class ManifestPlugin {
       // generate: false
     }
 
-    this.options = Object.assign(defOpt, options)
+    options = Object.assign({}, defOpt, options)
 
     // https://developer.mozilla.org/zh-CN/docs/Web/Manifest
     this.pwaField = [
@@ -86,7 +86,7 @@ module.exports = class ManifestPlugin {
       'related_applications',
       'prefer_related_applications'
     ]
-    this.entry = this.options.entry
+    this.entry = options.entry
     this.rootFilePath = rootPath(
       `${VIEWS_DIR}/${this.entry}/${MANIFEST_FILE_NAME}`
     )
@@ -95,8 +95,8 @@ module.exports = class ManifestPlugin {
     )
     this.hasRootFile = fs.existsSync(this.rootFilePath)
     this.hasPublicFile = fs.existsSync(this.publicFilePath)
-    this.isHybrid = this.options.target === TARGET.APP
-    this.version = require(rootPath('package.json')).version
+    this.isHybrid = options.target === TARGET.APP
+    this.version = options.version || require(rootPath('package.json')).version
 
     this.manifestPath = ManifestPlugin.getManifestPath(this.entry)
   }

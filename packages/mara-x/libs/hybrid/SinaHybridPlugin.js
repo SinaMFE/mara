@@ -14,11 +14,9 @@ const ManifestPlugin = require('./ManifestPlugin')
  */
 class SinaHybridPlugin {
   constructor(options) {
-    this.options = options
-    this.version = require(rootPath('package.json')).version
-    this.rewriteField = genRewriteFn(
-      ManifestPlugin.getManifestPath(this.options.entry)
-    )
+    this.entry = options.entry
+    this.version = options.version || require(rootPath('package.json')).version
+    this.rewriteField = genRewriteFn(ManifestPlugin.getManifestPath(this.entry))
 
     if (!semver.valid(this.version)) {
       throw new Error(chalk.red(`package.json version 格式错误`))

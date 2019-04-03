@@ -208,7 +208,7 @@ module.exports = function(context, spinner) {
       // new HybridCommonPlugin(),
 
       // 确保在 copy Files 之前
-      isHybridMode && new SinaHybridPlugin({ entry }),
+      isHybridMode && new SinaHybridPlugin({ entry, version: buildVersion }),
       // 【争议】：lib 模式禁用依赖分析?
       // moduleDependency 适配 webpack4 后启用
       // new moduleDependency({
@@ -227,6 +227,7 @@ module.exports = function(context, spinner) {
       }),
       new ManifestPlugin({
         entry,
+        version: context.version,
         target: context.target
       }),
       ...copyPublicFiles(entry, distPageDir)

@@ -40,9 +40,10 @@ module.exports = async function getContext({ version, view }) {
 
   return {
     entry: view,
-    publicPath: publicPath,
-    buildEnv: buildEnv,
+    version,
+    publicPath,
+    buildEnv,
     // 优先读取 target，其次以 jsbridgeBuildType 回退
-    target: target
+    target
   }
 }
