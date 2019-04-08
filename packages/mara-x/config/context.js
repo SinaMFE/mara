@@ -1,6 +1,6 @@
 const config = require('./index')
 const getEnv = require('./env')
-const { TARGET, PUBLIC_PATH, DEV_PUBLIC_PATH } = require('./const')
+const { TARGET, HYBRID_PUBLIC_PATH, DEV_PUBLIC_PATH } = require('./const')
 const resolvePublicPath = require('../libs/resolvePublicPath')
 const { getGitRepoName } = require('../libs/utils')
 const { deployEnv, globalEnv, paths, target } = config
@@ -9,9 +9,9 @@ const isDev = process.env.NODE_ENV === 'development'
 async function getPublicPath(view, version) {
   if (isDev) return DEV_PUBLIC_PATH
 
-  // hybrid 模式强制默认路径
+  // hybrid 使用相对路径引用本地资源
   if (target === TARGET.APP) {
-    return PUBLIC_PATH
+    return HYBRID_PUBLIC_PATH
   } else {
     let repoName = ''
     const pkgName = require(paths.packageJson).name
