@@ -22,13 +22,19 @@ function getLibName(name) {
   return camelCaseByDot(str)
 }
 
-module.exports = function(options) {
-  const baseWebpackConfig = require('./webpack.base.conf')('__LIB__')
+/**
+ * 生成生产配置
+ * @param  {String} options   lib 打包配置
+ * @param  {String} context   构建上下文
+ * @return {Object}           webpack 配置对象
+ */
+module.exports = function(options, context) {
+  const baseWebpackConfig = require('./webpack.base.conf')(context)
   const { name: pkgName, version: pkgVersion } = require(config.paths
     .packageJson)
 
   // 优先取外部注入的 version
-  const buildVersion = options.version || pkgVersion
+  const buildVersion = context.version || pkgVersion
 
   const webpackConfig = merge(baseWebpackConfig, {
     mode: options.mode || 'production',

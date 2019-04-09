@@ -14,6 +14,11 @@ const vendor = isObject(config.vendor) ? config.vendor.libs : config.vendor
 // 为多页面准备，生成 xxx_vender 文件夹
 const namespace = config.vendor.name ? `${config.vendor.name}_` : ''
 
+/**
+ * dll 配置
+ * @param  {String} context   构建上下文
+ * @return {Object}           webpack 配置对象
+ */
 module.exports = function buildDll(context) {
   const webpackBaseConf = require('./webpack.base.conf')(context)
 

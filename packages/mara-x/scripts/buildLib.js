@@ -16,6 +16,7 @@ const glob = require('glob')
 const webpack = require('webpack')
 const { getViews } = require('../libs/utils')
 const config = require('../config')
+const getContext = require('../config/context')
 const paths = config.paths
 const getWebpackProdConf = require('../webpack/webpack.prod.conf')
 const getWebpackLibConf = require('../webpack/webpack.lib.conf')
@@ -52,22 +53,27 @@ const libs = [
   }
 ]
 
-function build(dists) {
+async function build(options) {
   // @TODO 多配置应用 prehandleConfig
   // const webpackConfig = prehandleConfig('lib', webpackConfig);
   const ticker = new Stopwatch()
   const demos = shouldBuildDemos ? getViews(config.paths.entryGlob) : []
+
+  const baseCtx = await getContext({
+    version: require(config.paths.packageJson).version
+  })
+
   const webpackConfs = libs.concat(demos).map(target => {
     return typeof target === 'object'
-      ? getWebpackLibConf(target)
-      : getWebpackProdConf({ entry: target, cmd: 'lib' })
+      ? getWebpackLibConf(target, { ...baseCtx, entry: '__LIB__' })
+      : getWebpackProdConf({ ...baseCtx, entry: target })
   })
   const compiler = webpack(webpackConfs)
 
   return new Promise((resolve, reject) => {
     ticker.start()
     compiler.run((err, stats) => {
-      const time = ticker.check()
+      const buildTime = ticker.check()
       let messages
       spinner.stop()
 
@@ -93,15 +99,15 @@ function build(dists) {
       }
 
       const tinifyOriginSizes = getBuildSizeOfFileMap(compiler._tinifySourceMap)
-      dists.preBuildSize.sizes = Object.assign(
-        dists.preBuildSize.sizes,
+      options.preBuildSize.sizes = Object.assign(
+        options.preBuildSize.sizes,
         tinifyOriginSizes
       )
 
       return resolve({
         stats,
-        dists,
-        time,
+        options,
+        buildTime,
         demos,
         warnings: messages.warnings
       })
@@ -109,19 +115,17 @@ function build(dists) {
   })
 }
 
-function clean(dists) {
-  const distArr = [dists.distDir, dists.libDir]
+function clean(options) {
+  const distArr = [options.distDir, options.libDir]
 
-  return Promise.all(distArr.map(dir => fs.emptyDir(dir))).then(() => dists)
+  return Promise.all(distArr.map(dir => fs.emptyDir(dir))).then(() => options)
 }
 
-function success(output) {
-  if (output.warnings.length) {
+function success({ warnings, buildTime, stats, demos, options }) {
+  if (warnings.length) {
     console.log(chalk.yellow('Compiled with warnings:\n'))
-    console.log(output.warnings.join('\n\n'))
+    console.log(warnings.join('\n\n'))
   }
-
-  let buildTime = output.time
 
   if (buildTime < 1000) {
     buildTime += 'ms'
@@ -132,7 +136,7 @@ function success(output) {
   console.log(chalk.green(`Compiled successfully in ${buildTime}\n`))
   console.log('File sizes after gzip:\n')
 
-  const { children } = output.stats.toJson({
+  const { children } = stats.toJson({
     hash: false,
     chunks: false,
     modules: false,
@@ -153,11 +157,11 @@ function success(output) {
 
   compAssets.demos = compAssets.demos.map((stats, i) => {
     // 拼接完整路径
-    stats.assets['__dist'] = path.join(paths.dist, output.demos[i])
+    stats.assets['__dist'] = path.join(paths.dist, demos[i])
     return stats.assets
   })
 
-  printBuildResult(compAssets, output.dists.preBuildSize)
+  printBuildResult(compAssets, options.preBuildSize)
 
   console.log()
   console.log(`The ${chalk.cyan('lib')} folder is ready to be published.\n`)
@@ -186,17 +190,18 @@ async function setup(distDir, libDir) {
 
   const preBuildSize = await getLastBuildSize(libDir)
 
-  return clean({
+  return {
     distDir,
     preBuildSize,
     libDir
-  })
+  }
 }
 
 module.exports = args => {
   shouldBuildDemos = args.all
 
   return setup(paths.dist, paths.lib)
+    .then(clean)
     .then(build)
     .then(success)
     .catch(error)

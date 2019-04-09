@@ -36,9 +36,9 @@ const shouldUseSourceMap = !!config.build.sourceMap
 
 /**
  * 生成生产配置
- * @param  {String} options.entry 页面名称
- * @param  {String} options.cmd   当前命令
- * @return {Object}               webpack 配置对象
+ * @param  {String} context   构建上下文
+ * @param  {String} spinner   loading
+ * @return {Object}           webpack 配置对象
  */
 module.exports = function(context, spinner) {
   const entry = context.entry
