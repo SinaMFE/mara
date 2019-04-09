@@ -3,7 +3,7 @@
 const fs = require('fs')
 const Vinyl = require('vinyl')
 const chalk = require('chalk')
-const axios = require('axios')
+const fetch = require('../fetch')
 const config = require('../../config')
 const C = require('../../config/const')
 const { uploadVinylFile } = require('../ftp')
@@ -54,9 +54,9 @@ async function getRepoOrProjectName(packageJson) {
   return repoName
 }
 
-async function getHbConf(confPath) {
+async function getHbConf(confUrl) {
   try {
-    const hbConf = await axios(confPath)
+    const hbConf = await fetch.get(confUrl)
     const initConf = {
       status: 0,
       reqTime: Date.now(),
@@ -65,7 +65,7 @@ async function getHbConf(confPath) {
       }
     }
 
-    return hbConf.data || initConf
+    return hbConf || initConf
   } catch (e) {
     console.log(`请检查网络或联系管理员`)
     throw new Error(e)
