@@ -1,0 +1,38 @@
+{
+  "name": "@mara/plugin-extract-comp-meta",
+  "version": "0.1.0",
+  "description": "This plugin extract component meta data from decorators",
+  "keywords": [
+    "marauder",
+    "mara plugin"
+  ],
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "files": [
+    "README.md",
+    "index.js",
+    "command",
+    "lib"
+  ],
+  "author": "Vincent Lee <vv314@foxmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SinaMFE/marauder"
+  },
+  "bugs": "https://github.com/SinaMFE/marauder/issues",
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "fs-extra": "^7.0.1",
+    "node-fetch": "^2.3.0",
+    "sina-meta-serialize": "^0.2.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  }
+}
