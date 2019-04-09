@@ -27,7 +27,8 @@ const cmdMap = {
   test: 'test',
   build: 'build',
   lib: 'buildLib',
-  dll: 'dll'
+  dll: 'dll',
+  hook: 'hook'
 }
 const cmd = cmdMap[argv._[0]]
 

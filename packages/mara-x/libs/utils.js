@@ -232,6 +232,15 @@ async function getGitRepoName() {
   return path.basename(remoteUrl, '.git')
 }
 
+function isInstalled(name) {
+  try {
+    require.resolve(name)
+    return true
+  } catch (e) {
+    return false
+  }
+}
+
 module.exports = {
   assetsPath,
   bumpProjectVersion,
@@ -247,6 +256,7 @@ module.exports = {
   pubDate,
   banner,
   isNotEmptyArray,
+  isInstalled,
   ensureSlash,
   sortObject,
   buffer2String,

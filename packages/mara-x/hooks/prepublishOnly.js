@@ -1,3 +1,8 @@
-const extractCompMetaData = require('../libs/extractCompMetaData')
+const config = require('../config')
+const { isInstalled } = require('../libs/utils')
 
-extractCompMetaData()
+if (isInstalled('@mara/plugin-extract-comp-meta')) {
+  const plugin = require('@mara/plugin-extract-comp-meta')
+
+  plugin({ config })
+}
