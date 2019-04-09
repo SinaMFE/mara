@@ -17,26 +17,34 @@ const useYarn = fs.existsSync(paths.yarnLock)
 // deployEnv: dev 开发环境 | test 测试环境 | online 线上环境
 // 默认 online
 const deployEnv = getDeployEnv(argv.env)
+// app | web
 const target = getBuildTarget(maraConf.globalEnv)
 
 function getBuildTarget(globalEnv) {
   const targetMap = {
     web: TARGET.WEB,
+    // wap 映射为 web
     wap: TARGET.WEB,
     app: TARGET.APP
   }
-  // 未解析时指定 null
-  const target = targetMap[argv.target]
+  let target = targetMap[argv.target]
 
   if (target) {
     // 覆盖 globalEnv 配置
-    globalEnv.jsbridgeBuildType = target
-  } else if (globalEnv.jsbridgeBuildType !== TARGET.APP) {
-    globalEnv.jsbridgeBuildType = TARGET.WEB
+    // jsbridgeBuildType 为 hybrid 两端统一依赖变量
+    // jsbridgeBuildType 可选值为 wap | app，当 target 为 web 时强制为 wap
+    globalEnv.jsbridgeBuildType = target === TARGET.WEB ? TARGET.WAP : target
+  } else if (globalEnv.jsbridgeBuildType === TARGET.APP) {
+    target = globalEnv.jsbridgeBuildType
+  } else {
+    // 当 target 缺省且 jsbridgeBuildType 缺省或值为非 app 时，
+    // jsbridgeBuildType 默认回退为 wap
+    globalEnv.jsbridgeBuildType = TARGET.WAP
+    // target 强制指定为 web
+    target = TARGET.WEB
   }
 
-  // 优先获取 CLI 传递的 target，其次以 jsbridgeBuildType 回退
-  return target || globalEnv.jsbridgeBuildType
+  return target
 }
 
 function getMaraConf() {

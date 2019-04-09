@@ -6,6 +6,7 @@ module.exports = {
   },
   TARGET: {
     WEB: 'web',
+    WAP: 'wap',
     APP: 'app'
   },
   LIB_DIR: 'lib',
