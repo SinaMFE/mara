@@ -96,7 +96,7 @@ module.exports.uploadDir = async function(options) {
     const errMsg =
       `🌚  ${err}\n` +
       '    1) 请检查网络和 VPN 连接\n' +
-      '    2) 请检查 ftp 配置'
+      '    2) 请检查 marauder.config ftp 配置'
 
     throw new Error(chalk.red(errMsg))
   }
