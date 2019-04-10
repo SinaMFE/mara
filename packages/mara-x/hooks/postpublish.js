@@ -1,23 +1,19 @@
 'use strict'
 
+const ora = require('ora')
 const path = require('path')
 const fs = require('fs')
-const cwd = process.cwd()
-const paths = '../config/paths'
+const glob = require('glob')
+const chalk = require('chalk')
+const fetch = require('../libs/fetch')
+const paths = require('../config/paths')
 
 const { name: pkgName, version: pkgVer } = require(paths.packageJson)
-
-const glob = require('glob')
 const files = glob.sync(paths.lib + '/**')
-// const fileslib = glob.sync(paths.lib+"/**");
-const http = require('http')
-const chalk = require('chalk')
-const ora = require('ora')
-
 const spinner = ora('开始上线 umd 资源到 mjs...')
 
 // marauder.config.js
-//   //用于描述 组件 工程化相关属性
+// 用于描述 组件 工程化相关属性
 // pkgConfig:{
 //   noticeAfterPublish:true,//false
 //   noticeLevel:"",//patch minor major  分别对应 发小版本，中版本，大版本 以及以上才发，比如 prepatch ，preminor 都不进行触发。
@@ -25,8 +21,8 @@ const spinner = ora('开始上线 umd 资源到 mjs...')
 let noticeAfterPublish = false
 let noticeLevel = 'minor'
 
-if (fs.existsSync(path.resolve(cwd, 'marauder.config.js'))) {
-  const maraConf = require(path.resolve(cwd, 'marauder.config.js'))
+if (fs.existsSync(paths.marauder)) {
+  const maraConf = require(paths.marauder)
 
   if (
     maraConf &&
@@ -40,24 +36,29 @@ if (fs.existsSync(path.resolve(cwd, 'marauder.config.js'))) {
 
 spinner.start()
 
-let url =
-  'http://exp.smfe.sina.cn/componentUmd?name=' + pkgName + '&version=' + pkgVer
+const url = 'http://exp.smfe.sina.cn/componentUmd'
+const data = { name: pkgName, version: pkgVer }
 
 if (noticeAfterPublish) {
-  url += '&noticeAfterPublish=1&noticeLevel=' + noticeLevel
+  data.noticeAfterPublish = 1
+  data.noticeLevel = noticeLevel
 }
 
-http
-  .get(url, function(res) {
+fetch
+  .get(url, data)
+  .then(rep => {
     spinner.stop()
-    console.log(chalk.cyan('静态资源 CDN 上线成功\n,线上相对路径为：'))
-    for (var i = 0; i < files.length; i++) {
+
+    console.log('静态资源 CDN 上线成功，线上路径为:\n')
+
+    files.forEach(f => {
       if (
-        path.relative(paths.lib, files[i]) == null ||
-        path.relative(paths.lib, files[i]) == ''
+        path.relative(paths.lib, f) == null ||
+        path.relative(paths.lib, f) == ''
       ) {
-        continue
+        return
       }
+
       console.log(
         chalk.cyan(
           path.join(
@@ -66,14 +67,17 @@ http
             '/',
             pkgVer,
             '/',
-            path.relative(paths.lib, files[i])
+            path.relative(paths.lib, f)
           )
         )
       )
-    }
+    })
   })
-  .on('error', function(e) {
+  .catch(e => {
     spinner.stop()
+
     console.log(e)
-    console.log(chalk.red('静态资源 CDN 上线失败\n请手动重试如下链接：' + url))
+    console.log(
+      chalk.red('静态资源 CDN 上线失败\n请访问此链接手动发布：' + url)
+    )
   })
