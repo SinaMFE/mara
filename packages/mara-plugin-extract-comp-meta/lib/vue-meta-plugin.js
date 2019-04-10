@@ -11,6 +11,8 @@ function getMetaData(files) {
     const meta = components[stag]
 
     Object.keys(meta.props).forEach(p => {
+      meta.props[p].returnType = meta.props[p].design.dataType
+
       delete meta.props[p].design
     })
   })
