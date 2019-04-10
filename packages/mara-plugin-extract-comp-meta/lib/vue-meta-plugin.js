@@ -42,14 +42,26 @@ class VueMetaPlugin {
   injectMetaData(compiler) {
     compiler.hooks.emit.tap('VueMetaPlugin', compilation => {
       const components = getMetaData(this.vueDeps)
-      const mainJs = `static/js/${this.entry}.min.js`
-      let code = compilation.assets[mainJs]._value
+
+      const entry = compilation.chunks.filter(
+        c => c.isOnlyInitial() && c.name
+      )[0]
+      const entryName = entry.files.filter(f => /\.js$/.test(f))[0]
+      const assets = compilation.assets[entryName]
+      const asset = assets.children ? assets.children[0] : assets
+      let code = asset._value
 
       code = `window["${globalName}"] = ${JSON.stringify(components)};\n` + code
 
-      compilation.assets[mainJs] = {
+      const newRawSource = {
         source: () => code,
         size: () => code.length
+      }
+
+      if (assets.children) {
+        compilation.assets[entryName].children[0] = newRawSource
+      } else {
+        compilation.assets[entryName] = newRawSource
       }
     })
   }
