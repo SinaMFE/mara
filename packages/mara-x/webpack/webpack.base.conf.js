@@ -26,7 +26,7 @@ const {
   vueLoaderOptions,
   vueLoaderCacheConfig
 } = require('./loaders/vue-loader.conf')
-const { getEntries, rootPath } = require('../libs/utils')
+const { getEntries, rootPath, isInstalled } = require('../libs/utils')
 const paths = config.paths
 
 module.exports = function({ entry, buildEnv, publicPath }) {
@@ -62,7 +62,7 @@ module.exports = function({ entry, buildEnv, publicPath }) {
     }
   }
 
-  return {
+  const baseConfig = {
     // dev, build 环境依赖 base.entry，务必提供
     entry: getEntries(entryGlob, require.resolve('./polyfills')),
     output: {
@@ -164,6 +164,7 @@ module.exports = function({ entry, buildEnv, publicPath }) {
         },
         {
           test: /\.vue$/,
+          // loader 总是从右到左地被调用
           use: [
             {
               loader: require.resolve('cache-loader'),
@@ -331,4 +332,11 @@ module.exports = function({ entry, buildEnv, publicPath }) {
       hints: false
     }
   }
+
+  if (!isLib && isInstalled('@mara/plugin-extract-comp-meta')) {
+    const VueMetaPlugin = require('@mara/plugin-extract-comp-meta/lib/vue-meta-plugin')
+    baseConfig.plugins.push(new VueMetaPlugin({ entry }))
+  }
+
+  return baseConfig
 }
