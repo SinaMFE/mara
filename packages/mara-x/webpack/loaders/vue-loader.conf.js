@@ -14,7 +14,6 @@ const vueLoaderCacheConfig = {
 
 const vueLoaderOptions = Object.assign(
   {
-    preloaders: {},
     compilerOptions: {
       preserveWhitespace: false
     },
