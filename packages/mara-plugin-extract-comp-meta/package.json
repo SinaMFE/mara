@@ -1,6 +1,6 @@
 {
   "name": "@mara/plugin-extract-comp-meta",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "This plugin extract component meta data from decorators",
   "keywords": [
     "marauder",
