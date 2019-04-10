@@ -3,7 +3,7 @@
     "target": "esnext",
     "lib": ["dom", "dom.iterable", "esnext", "scripthost"],
     "allowJs": true,
-    "types": ["webpack-env", "jest"],
+    "types": ["webpack-env", "jest", "node"],
     "importHelpers": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
