@@ -12631,10 +12631,10 @@ simple-swizzle@^0.2.2:
   dependencies:
     is-arrayish "^0.3.1"
 
-sina-meta-serialize@^0.2.3:
-  version "0.2.3"
-  resolved "http://registry.npm.taobao.org/sina-meta-serialize/download/sina-meta-serialize-0.2.3.tgz#4d7c87fb72a5fe868f8e9d5572c9486a4bc25632"
-  integrity sha1-TXyH+3Kl/oaPjp1VcslIakvCVjI=
+sina-meta-serialize@^1.0.0:
+  version "1.0.0"
+  resolved "http://r.cnpmjs.org/sina-meta-serialize/download/sina-meta-serialize-1.0.0.tgz#29076ffced9925c9399bde6856b051ffa3981ee3"
+  integrity sha1-KQdv/O2ZJck5m95oVrBR/6OYHuM=
   dependencies:
     "@types/glob" "^7.1.1"
     "@types/node" "^11.13.0"
