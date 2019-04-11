@@ -17,6 +17,7 @@ const ManifestPlugin = require('../libs/hybrid/ManifestPlugin')
 const BuildProgressPlugin = require('../libs/BuildProgressPlugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const safePostCssParser = require('postcss-safe-parser')
+const DuplicatePackageCheckerPlugin = require('duplicate-package-checker-webpack-plugin')
 const moduleDependency = require('sinamfe-webpack-module_dependency')
 // const { HybridCommonPlugin } = require('../libs/hybrid')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
@@ -230,6 +231,20 @@ module.exports = function(context, spinner) {
         version: context.version,
         target: context.target
       }),
+      // @FIXME
+      // 等待 moduleDependency webpack4 适配就绪后
+      // 设置 checkDuplicatePackage: false 禁用
+      config.compiler.checkDuplicatePackage &&
+        new DuplicatePackageCheckerPlugin({
+          showHelp: false,
+          // show warning
+          // dev 模式使用 warning
+          emitError:
+            config.compiler.checkDuplicatePackage === true ||
+            config.compiler.checkDuplicatePackage === 'error',
+          // check major version
+          strict: true
+        }),
       ...copyPublicFiles(entry, distPageDir)
     ].filter(Boolean)
   })

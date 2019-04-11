@@ -11,7 +11,6 @@ const resolve = require('resolve')
 const getCSSModuleLocalIdent = require('react-dev-utils/getCSSModuleLocalIdent')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const tsImportPluginFactory = require('ts-import-plugin')
-const DuplicatePackageCheckerPlugin = require('duplicate-package-checker-webpack-plugin')
 
 const getStyleLoaders = require('./loaders/style-loader')
 const getCacheIdentifier = require('../libs/getCacheIdentifier')
@@ -271,21 +270,7 @@ module.exports = function({ entry, buildEnv, publicPath }) {
       new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
       !isLib && new webpack.DefinePlugin(buildEnv.stringified),
       new VueLoaderPlugin(),
-      // @FIXME
-      // 等待 moduleDependency webpack4 适配就绪后
-      // 设置 checkDuplicatePackage: false 禁用
-      config.compiler.checkDuplicatePackage &&
-        new DuplicatePackageCheckerPlugin({
-          showHelp: false,
-          // show warning
-          // dev 模式使用 warning
-          emitError:
-            isProd &&
-            (config.compiler.checkDuplicatePackage === true ||
-              config.compiler.checkDuplicatePackage === 'error'),
-          // check major version
-          strict: true
-        }),
+
       // TypeScript type checking
       useTypeScript &&
         new ForkTsCheckerWebpackPlugin({
