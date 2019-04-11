@@ -2,7 +2,7 @@
 
 const fs = require('fs')
 const chalk = require('chalk')
-const { prompt } = require('inquirer')
+const prompts = require('prompts')
 const config = require('../config')
 const { getViews, rootPath } = require('./utils')
 const skeleton = require('./skeleton')
@@ -84,7 +84,7 @@ function chooseOne(argv) {
   const entry = argv._[1]
 
   if (entry && !validEntry(entry)) {
-    return chooseEntry('您输入的页面有误, 请选择:', argv)
+    return chooseEntry('Incorrect view, please re-pick', argv)
   } else {
     // 无输入时返回默认页
     return result(views[0], argv)
@@ -96,7 +96,7 @@ function chooseMany(argv) {
 
   if (validEntry(entry)) return result(entry, argv)
 
-  return chooseEntry(entry && '您输入的页面有误, 请选择:', argv)
+  return chooseEntry(entry && 'Incorrect view, please re-pick', argv)
 }
 
 function validEntry(entry) {
@@ -105,16 +105,19 @@ function validEntry(entry) {
 
 async function chooseEntry(msg, argv) {
   const list = [...views]
-  // const list = [...views, new Separator(), { name: 'exit', value: '' }]
+  const initial = list.indexOf('index')
+
   const question = {
-    type: 'list',
+    type: 'autocomplete',
     name: 'entry',
-    choices: list,
-    default: list.indexOf('index'),
+    style: 'emoji',
+    choices: list.map(view => ({ title: view, value: view })),
+    initial: initial < 0 ? 0 : initial,
     // message 不可为空串
-    message: msg || '请选择目标页面:'
+    message: msg || 'Pick target view'
   }
-  const { entry } = await prompt(question)
+
+  const { entry } = await prompts(question)
 
   if (!entry) process.exit(0)
   console.log()
