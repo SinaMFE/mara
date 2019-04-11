@@ -301,7 +301,8 @@ module.exports = function({ entry, buildEnv, publicPath }) {
           tsconfig: paths.tsConfig,
           compilerOptions: tsCompilerOptions,
           reportFiles: [
-            '**',
+            // 检查范围缩小到 src，屏蔽第三方模块的错误
+            'src/**',
             '!**/*.json',
             '!**/__tests__/**',
             '!**/?(*.)(spec|test).*',
