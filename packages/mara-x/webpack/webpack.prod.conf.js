@@ -17,7 +17,6 @@ const ManifestPlugin = require('../libs/hybrid/ManifestPlugin')
 const BuildProgressPlugin = require('../libs/BuildProgressPlugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const safePostCssParser = require('postcss-safe-parser')
-const DuplicatePackageCheckerPlugin = require('duplicate-package-checker-webpack-plugin')
 const moduleDependency = require('sinamfe-webpack-module_dependency')
 // const { HybridCommonPlugin } = require('../libs/hybrid')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
@@ -211,10 +210,9 @@ module.exports = function(context, spinner) {
       // 确保在 copy Files 之前
       isHybridMode && new SinaHybridPlugin({ entry, version: buildVersion }),
       // 【争议】：lib 模式禁用依赖分析?
-      // moduleDependency 适配 webpack4 后启用
-      // new moduleDependency({
-      //   emitError: config.compiler.checkDuplicatePackage
-      // }),
+      new moduleDependency({
+        emitError: config.compiler.checkDuplicatePackage
+      }),
       new webpack.BannerPlugin({
         banner: banner(buildVersion, context.target), // 其值为字符串，将作为注释存在
         entryOnly: false // 如果值为 true，将只在入口 chunks 文件中添加
@@ -231,20 +229,6 @@ module.exports = function(context, spinner) {
         version: context.version,
         target: context.target
       }),
-      // @FIXME
-      // 等待 moduleDependency webpack4 适配就绪后
-      // 设置 checkDuplicatePackage: false 禁用
-      config.compiler.checkDuplicatePackage &&
-        new DuplicatePackageCheckerPlugin({
-          showHelp: false,
-          // show warning
-          // dev 模式使用 warning
-          emitError:
-            config.compiler.checkDuplicatePackage === true ||
-            config.compiler.checkDuplicatePackage === 'error',
-          // check major version
-          strict: true
-        }),
       ...copyPublicFiles(entry, distPageDir)
     ].filter(Boolean)
   })
