@@ -110,7 +110,6 @@ async function chooseEntry(msg, argv) {
   const question = {
     type: 'autocomplete',
     name: 'entry',
-    style: 'emoji',
     choices: list.map(view => ({ title: view, value: view })),
     initial: initial < 0 ? 0 : initial,
     // message 不可为空串
