@@ -117,10 +117,14 @@ module.exports = class ManifestPlugin {
   // views/<view>/manifest.json
   // views/<view>/public/manifest.json
   resolveManifest() {
-    let manifest = readJsonFile(this.manifestPath)
+    let manifest
 
-    // 未设置 manifest 时，设置缺省配置
-    manifest = manifest || {}
+    try {
+      manifest = this.manifestPath ? readJsonFile(this.manifestPath) : {}
+    } catch (e) {
+      // 未设置 manifest 时，设置缺省配置
+      manifest = {}
+    }
 
     if (validator(maraManifestSchema, manifest, MANIFEST_FILE_NAME)) {
       return manifest
