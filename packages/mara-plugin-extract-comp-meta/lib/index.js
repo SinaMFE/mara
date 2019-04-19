@@ -2,7 +2,7 @@ const fetch = require('./fetch')
 const chalk = require('chalk')
 const fs = require('fs-extra')
 const { customSerializeVueByDirectory } = require('sina-meta-serialize')
-const { options, reportApi } = require('./config')
+const { extractOptions, reportApi } = require('./config')
 
 const steps = [
   `${chalk.blue('🔍  [1/3]')} 提取组件元信息...`,
@@ -45,29 +45,32 @@ module.exports = function extractCompMeta({ config, commend, context }) {
     })
   }
 
-  return customSerializeVueByDirectory(paths.src, options).then(result => {
-    console.log(steps[1])
+  return customSerializeVueByDirectory(paths.src, extractOptions).then(
+    result => {
+      console.log(steps[1])
 
-    fs.writeJson(`${paths.lib}/meta.json`, result)
-      .then(() => {
-        console.log(steps[2])
+      return fs
+        .outputJson(`${paths.lib}/meta.json`, result)
+        .then(() => {
+          console.log(steps[2])
 
-        return postMetaData({
-          dataTypes: result.dataTypes,
-          metaData: result.components
-        }).then(rep => rep.data)
-      })
-      .then(rep => {
-        if (rep.registPackageMeta.errorCode != '0') {
-          throw new Error(rep.registPackageMeta.errorMessage)
-        }
+          return postMetaData({
+            dataTypes: result.dataTypes,
+            metaData: result.components
+          }).then(rep => rep.data)
+        })
+        .then(rep => {
+          if (rep.registPackageMeta.errorCode != '0') {
+            throw new Error(rep.registPackageMeta.errorMessage)
+          }
 
-        console.log(steps[3])
-      })
-      .catch(err => {
-        console.error(steps[4])
+          console.log(steps[3])
+        })
+        .catch(err => {
+          console.error(steps[4])
 
-        console.log(chalk.red(err))
-      })
-  })
+          console.log(chalk.red(err))
+        })
+    }
+  )
 }
