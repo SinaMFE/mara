@@ -9,16 +9,16 @@ class InlineUmdHtmlPlugin {
       .map(tag => ({
         tagName: 'script',
         attributes: { src: tag.onlineUrl },
-        closeTag: true,
+        closeTag: true
       }))
   }
 
   apply(compiler) {
-    const { injectLink } = compiler.options
+    compiler.hooks.afterCompile.tap(this.constructor.name, compilation => {
+      const { injectLink } = compiler.options
 
-    if (!injectLink || !injectLink.length) return
+      if (!injectLink || !injectLink.length) return
 
-    compiler.hooks.shouldEmit.tap(this.constructor.name, compilation => {
       const headTags = this.getInlinedTag('head', injectLink)
       const bodyTags = this.getInlinedTag('body', injectLink)
 
