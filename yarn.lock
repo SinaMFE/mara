@@ -1927,6 +1927,11 @@
   resolved "http://registry.npm.taobao.org/@types/istanbul-lib-coverage/download/@types/istanbul-lib-coverage-1.1.0.tgz#2cc2ca41051498382b43157c8227fea60363f94a"
   integrity sha1-LMLKQQUUmDgrQxV8gif+pgNj+Uo=
 
+"@types/lodash@^4.14.123":
+  version "4.14.123"
+  resolved "http://registry.npm.taobao.org/@types/lodash/download/@types/lodash-4.14.123.tgz#39be5d211478c8dd3bdae98ee75bb7efe4abfe4d"
+  integrity sha1-Ob5dIRR4yN072umO51u37+Sr/k0=
+
 "@types/minimatch@*":
   version "3.0.3"
   resolved "http://registry.npm.taobao.org/@types/minimatch/download/@types/minimatch-3.0.3.tgz#3dca0e3f33b200fc7d1139c0cd96c1268cadfd9d"
@@ -12624,16 +12629,17 @@ simple-swizzle@^0.2.2:
   dependencies:
     is-arrayish "^0.3.1"
 
-sina-meta-serialize@^1.0.0:
-  version "1.0.0"
-  resolved "http://r.cnpmjs.org/sina-meta-serialize/download/sina-meta-serialize-1.0.0.tgz#29076ffced9925c9399bde6856b051ffa3981ee3"
-  integrity sha1-KQdv/O2ZJck5m95oVrBR/6OYHuM=
+sina-meta-serialize@^1.2.1:
+  version "1.2.1"
+  resolved "http://registry.npm.taobao.org/sina-meta-serialize/download/sina-meta-serialize-1.2.1.tgz#3947a937d5886ff88ef23a54af57eb58c61ad4d6"
+  integrity sha1-OUepN9WIb/iO8jpUr1frWMYa1NY=
   dependencies:
     "@types/glob" "^7.1.1"
+    "@types/lodash" "^4.14.123"
     "@types/node" "^11.13.0"
     glob "^7.1.3"
     lodash "^4.17.11"
-    ts-meta-extract "^0.5.0"
+    ts-meta-extract "^0.6.0"
 
 sinamfe-webpack-module_dependency@^2.0.0:
   version "2.0.0"
@@ -13628,10 +13634,10 @@ ts-loader@^5.3.3:
     micromatch "^3.1.4"
     semver "^5.0.1"
 
-ts-meta-extract@^0.5.0:
-  version "0.5.0"
-  resolved "http://registry.npm.taobao.org/ts-meta-extract/download/ts-meta-extract-0.5.0.tgz#3d77a00ad936cbe33aff6b07b7ea788afe5d7983"
-  integrity sha1-PXegCtk2y+M6/2sHt+p4iv5deYM=
+ts-meta-extract@^0.6.0:
+  version "0.6.0"
+  resolved "http://registry.npm.taobao.org/ts-meta-extract/download/ts-meta-extract-0.6.0.tgz#acf4432b6efbeb90b7d9bf130369dc05855fa237"
+  integrity sha1-rPRDK27765C32b8TA2ncBYVfojc=
   dependencies:
     lodash "^4.17.11"
 

@@ -20,12 +20,12 @@ module.exports = function extractCompMeta({ config, commend, context }) {
 
   function postMetaData({ metaData, dataTypes }) {
     const query = `
-      mutation ($version:String,$name:String,$metaData:JSON,$dataType:JSON){
+      mutation ($version:String,$name:String,$metaData:JSON,$dataTypes:JSON){
         registPackageMeta(packageMetaInput:{
           version:$version,
           name:$name,
           metaData:$metaData,
-          dataTypes:$dataType
+          dataTypes:$dataTypes
         }){
           errorCode,
           errorMessage

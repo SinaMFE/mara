@@ -1,12 +1,14 @@
 const { customSerailizeVueFilesWithSinaFormat } = require('sina-meta-serialize')
-const { options } = require('./config')
+const { extractOptions, vueFiles } = require('./config')
 
 const isVue = mod => /\.vue$/.test(mod.resource)
 const globalName = '__CMOP_META'
 
 function getMetaData(files) {
-  const { components } = customSerailizeVueFilesWithSinaFormat(files, options)
+  const { components = {} } =
+    customSerailizeVueFilesWithSinaFormat(files, extractOptions) || {}
 
+  // drop design field
   Object.keys(components).forEach(stag => {
     const meta = components[stag]
 
@@ -27,8 +29,25 @@ class VueMetaPlugin {
   }
 
   apply(compiler) {
+    this.injectVueMetaLoader(compiler)
+    // 由于缓存优化，某些情况不经过 loader，因此静态收集
     this.collectVueComps(compiler)
-    this.injectMetaData(compiler)
+    this.genMetaData(compiler)
+  }
+
+  injectVueMetaLoader(compiler) {
+    compiler.options.module.rules
+      .filter(r => {
+        // vue-loader/lib/plugin.js
+        return r.use && r.use.some(i => i.ident === 'vue-loader-options')
+      })
+      .forEach(r => {
+        r.use.push({
+          ident: 'vue-scomp-meta-loader',
+          loader: require.resolve('./vue-meta-loader.js'),
+          options: {}
+        })
+      })
   }
 
   collectVueComps(compiler) {
@@ -41,10 +60,9 @@ class VueMetaPlugin {
     })
   }
 
-  injectMetaData(compiler) {
+  genMetaData(compiler) {
     compiler.hooks.emit.tap('VueMetaPlugin', compilation => {
       const components = getMetaData(this.vueDeps)
-
       const entry = compilation.chunks.filter(
         c => c.isOnlyInitial() && c.name
       )[0]
