@@ -9,6 +9,7 @@ const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin')
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin')
 const perfInstallModulePlugin = require('../libs/perfInstallModulePlugin')
 const BuildProgressPlugin = require('../libs/BuildProgressPlugin')
+const InlineUmdHtmlPlugin = require('../libs/InlineUmdHtmlPlugin')
 const { getEntryPoints } = require('../libs/utils')
 const config = require('../config')
 const C = require('../config/const')
@@ -70,6 +71,7 @@ module.exports = function(context, spinner) {
           // 每个html引用的js模块，也可以在这里加上vendor等公用模块
           chunks: [entry]
         }),
+      hasHtml && new InlineUmdHtmlPlugin(HtmlWebpackPlugin),
       // 替换 html 内的环境变量
       // %PUBLIC% 转换为具体路径
       // 在 dev 环境下为空字符串
