@@ -74,7 +74,7 @@ async function getHbConf(confUrl) {
 
 function logResult(hbMod) {
   console.log(hbMod)
-  console.log(`\n${chalk.bgYellow(' CONF ')} ${chalk.yellow(CONF_URL)}\n`)
+  console.log(`\n${chalk.yellow.inverse(' CONF ')} ${chalk.yellow(CONF_URL)}\n`)
 }
 
 module.exports = async function(entry, remotePath, version) {

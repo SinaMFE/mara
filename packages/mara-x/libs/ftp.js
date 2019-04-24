@@ -87,7 +87,7 @@ module.exports.uploadDir = async function(options) {
     console.log(uploadStep[2])
 
     const url = HOST + remotePath.replace('/wap_front', '')
-    console.log(`${chalk.bgYellow(' URL ')} ${chalk.yellow(url)}\n`)
+    console.log(`${chalk.yellow.inverse(' URL ')} ${chalk.yellow(url)}\n`)
 
     ftpConf.openBrowser && isInteractive && openBrowser(url)
 
