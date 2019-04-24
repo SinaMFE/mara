@@ -15,7 +15,7 @@ const ora = require('ora')
 const webpack = require('webpack')
 const getEntry = require('../libs/entry')
 const { bumpProjectVersion } = require('../libs/utils')
-const chalkBadge = require('../libs/chalkBadge')
+const { cliBadge } = require('@mara/devkit')
 const config = require('../config')
 const getContext = require('../config/context')
 const { TARGET, DEPLOY_ENV } = require('../config/const')
@@ -197,8 +197,8 @@ function success({
 
   // just new line
   console.log()
-  const targetBadge = chalkBadge('target', config.target)
-  const envBadge = chalkBadge(
+  const targetBadge = cliBadge('target', config.target)
+  const envBadge = cliBadge(
     'env',
     config.deployEnv,
     config.deployEnv === DEPLOY_ENV.ONLINE ? 'info' : 'warning'
@@ -261,7 +261,8 @@ function done() {
   const hour = date.getHours()
 
   if (config.marax.inspire || hour >= 21) {
-    const quote = require('../libs/inspire').random()
+    const { inspire } = require('@mara/devkit')
+    const quote = inspire.random()
 
     console.log(chalk.magenta('☕️ ' + quote))
   }

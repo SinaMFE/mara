@@ -29,7 +29,7 @@ const {
   getBuildSizeOfFileMap
 } = require('../libs/buildReporter')
 const prehandleConfig = require('../libs/prehandleConfig')
-const Stopwatch = require('../libs/Stopwatch')
+const { Stopwatch } = require('@mara/devkit')
 let shouldBuildDemos = false
 
 const spinner = ora()

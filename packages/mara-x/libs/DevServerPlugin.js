@@ -4,7 +4,7 @@ const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 const clearConsole = require('react-dev-utils/clearConsole')
 const tsFormatter = require('react-dev-utils/typescriptFormatter')
 
-const FriendlyErrorsPlugin = require('./friendly-errors')
+const FriendlyErrorsPlugin = require('@mara/friendly-errors-webpack-plugin')
 const isInteractive = process.stdout.isTTY
 const tsErrorFormat = msg => `${msg.file}\n${tsFormatter(msg, true)}`
 const noop = () => {}

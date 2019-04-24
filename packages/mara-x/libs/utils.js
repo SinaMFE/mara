@@ -3,10 +3,7 @@
 const fs = require('fs-extra')
 const path = require('path')
 const glob = require('glob')
-const execa = require('execa')
-const devIp = require('dev-ip')
-const portscanner = require('portscanner')
-const { createHash } = require('crypto')
+const { execa } = require('@mara/devkit')
 const C = require('../config/const')
 
 // 【注意】utils.js 为纯工具库，请不要依赖 config/index.js
@@ -27,27 +24,6 @@ function rootPath(relativePath) {
 function getViews(entryGlob) {
   const entries = getEntries(`${process.cwd()}/${entryGlob}`)
   return Object.keys(entries)
-}
-
-/**
- * 获取本机局域网 ip
- * @return {String} ip
- */
-function localIp() {
-  const ip = devIp()
-  // vpn 下 ip 为数组，第一个元素为本机局域网 ip
-  // 第二个元素为 vpn 远程局域网 ip
-  return ip ? (Array.isArray(ip) ? ip[0] : ip) : '0.0.0.0'
-}
-
-/**
- * 获取空闲端口号，范围 [start, start + 20]
- * @return {Number} 端口号
- */
-async function getFreePort(defPort) {
-  const ceiling = Number(defPort + 20)
-
-  return portscanner.findAPortNotInUse(defPort, ceiling, localIp())
 }
 
 /**
@@ -146,23 +122,6 @@ function isObject(obj) {
   return Object.prototype.toString.call(obj) === '[object Object]'
 }
 
-function ensureSlash(pathStr, needsSlash = true) {
-  const hasSlash = pathStr.endsWith('/')
-
-  if (hasSlash && !needsSlash) {
-    return pathStr.substr(pathStr, pathStr.length - 1)
-  } else if (!hasSlash && needsSlash) {
-    return `${pathStr}/`
-  } else {
-    return pathStr
-  }
-}
-
-// https://stackoverflow.com/questions/20270973/nodejs-spawn-stdout-string-format
-function buffer2String(data) {
-  return data.toString().replace(/[\n\r]/g, '')
-}
-
 function assetsPath(_path) {
   return path.posix.join('static', _path)
 }
@@ -192,44 +151,12 @@ function sortObject(obj, keyOrder, dontSortByUnicode) {
   return res
 }
 
-function md5(data) {
-  const hash = createHash('md5')
-
-  if (isObject(data)) {
-    data = JSON.stringify(data)
-  }
-
-  return hash.update(data).digest('hex')
-}
-
-/**
- * 返回指定精度的整随机数
- *
- * @param  {Number} min 左边距
- * @param  {Number} max 右边距
- * @return {Number}   指定范围随机数
- * random(1, 3)  // 1 | 2 | 3
- */
-function random(max = 1, min = 0) {
-  return Math.floor(Math.random() * (max - min + 1) + min)
-}
-
 function relativePath(filePath) {
   return '.' + path.sep + path.relative(appDirectory, filePath)
 }
 
 function bumpProjectVersion(version = 'prerelease') {
   return execa.sync('npm', ['--no-git-tag-version', 'version', version])
-}
-
-async function getGitRepoName() {
-  const { stdout: remoteUrl } = await execa('git', [
-    'config',
-    '--get',
-    'remote.origin.url'
-  ])
-
-  return path.basename(remoteUrl, '.git')
 }
 
 function isInstalled(name) {
@@ -246,22 +173,15 @@ module.exports = {
   bumpProjectVersion,
   isObject,
   getViews,
-  localIp,
-  getFreePort,
   getEntries,
   getEntryPoints,
-  getGitRepoName,
   rootPath,
   parseDate,
   pubDate,
   banner,
   isNotEmptyArray,
   isInstalled,
-  ensureSlash,
   sortObject,
-  buffer2String,
-  random,
   readJson,
-  relativePath,
-  md5
+  relativePath
 }

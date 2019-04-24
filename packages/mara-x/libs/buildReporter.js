@@ -3,7 +3,7 @@ const path = require('path')
 const filesize = require('filesize')
 const chalk = require('chalk')
 const recursive = require('recursive-readdir')
-const stripAnsi = require('strip-ansi')
+const { stripAnsi } = require('@mara/devkit')
 const gzipSize = require('gzip-size').sync
 const { groupBy } = require('lodash')
 

@@ -1,0 +1,44 @@
+{
+  "name": "@mara/friendly-errors-webpack-plugin",
+  "version": "1.0.0",
+  "description": "Recognizes certain classes of webpack errors and cleans, aggregates and prioritizes them to provide a better Developer Experience",
+  "main": "lib/index.js",
+  "keywords": [
+    "marauder",
+    "friendly",
+    "errors",
+    "webpack",
+    "plugin"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "files": [
+    "README.md",
+    "lib"
+  ],
+  "author": "Vincent Lee <vv314@foxmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SinaMFE/marauder"
+  },
+  "bugs": "https://github.com/SinaMFE/marauder/issues",
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "error-stack-parser": "^2.0.2",
+    "react-dev-utils": "^8.0.0",
+    "string-width": "^4.1.0",
+    "strip-ansi": "^5.2.0"
+  },
+  "peerDependencies": {
+    "fork-ts-checker-webpack-plugin": "^1.0.0",
+    "webpack": "^4.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  }
+}

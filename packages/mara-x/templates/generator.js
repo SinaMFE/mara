@@ -11,7 +11,7 @@ const fs = require('fs-extra')
 const path = require('path')
 const chalk = require('chalk')
 const execSync = require('child_process').execSync
-const execa = require('execa')
+const { execa } = require('@mara/devkit')
 const os = require('os')
 const { sortObject } = require('../libs/utils')
 // const verifyTypeScriptSetup = require('./utils/verifyTypeScriptSetup')
@@ -166,10 +166,8 @@ function fillProjectContent({ tmplType, preset, useTs, ownPath, appPath }) {
   }
 
   // 通用共享资源
-  copyRootFiles(
-    rootConfigPath,
-    appPath,
-    src => (useTs ? true : !src.includes('tsconfig.json'))
+  copyRootFiles(rootConfigPath, appPath, src =>
+    useTs ? true : !src.includes('tsconfig.json')
   )
 
   // 项目共享资源

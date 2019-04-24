@@ -18,7 +18,7 @@ globbedFiles.forEach(file => {
     const errorObj = {
       err,
       stack: err.stack,
-      file,
+      file
     }
     errArray.push(errorObj)
   }

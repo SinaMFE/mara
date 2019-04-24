@@ -1,5 +1,5 @@
 const { DEPLOY_ENV, PUBLIC_PATH } = require('../config/const')
-const { ensureSlash } = require('./utils')
+const { ensureSlash } = require('@mara/devkit')
 
 // ('a{{b}}c', {b: 1}) => a1c
 function template(str, replaceMap) {

@@ -1,4 +1,14 @@
-const { random } = require('./utils')
+/**
+ * 返回指定精度的整随机数
+ *
+ * @param  {Number} min 左边距
+ * @param  {Number} max 右边距
+ * @return {Number}   指定范围随机数
+ * random(1, 3)  // 1 | 2 | 3
+ */
+function random(max = 1, min = 0) {
+  return Math.floor(Math.random() * (max - min + 1) + min)
+}
 
 const quotes = [
   'First make it work, then make it right, and, finally, make it fast. - Kent Beck',

@@ -3,12 +3,12 @@
 const fs = require('fs')
 const Vinyl = require('vinyl')
 const chalk = require('chalk')
-const fetch = require('../fetch')
+const { fetch, md5, ensureSlash, getGitRepoName } = require('@mara/devkit')
 const config = require('../../config')
 const C = require('../../config/const')
 const { uploadVinylFile } = require('../ftp')
 const ManifestPlugin = require('./ManifestPlugin')
-const { rootPath, md5, ensureSlash, getGitRepoName } = require('../utils')
+const { rootPath } = require('../utils')
 const CONF_DIR = '/wap_front/hybrid/config/'
 const CONF_NAME = getHbConfName(config.ciConfig)
 const CONF_URL = `http://wap_front.dev.sina.cn/hybrid/config/${CONF_NAME}`

@@ -1,0 +1,42 @@
+{
+  "name": "@mara/devkit",
+  "version": "1.0.0",
+  "description": "mara develop toolkit",
+  "main": "index.js",
+  "keywords": [
+    "marauder",
+    "toolkit"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "files": [
+    "README.md",
+    "index.js",
+    "lib"
+  ],
+  "author": "Vincent Lee <vv314@foxmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SinaMFE/marauder"
+  },
+  "bugs": "https://github.com/SinaMFE/marauder/issues",
+  "dependencies": {
+    "acorn": "^6.1.1",
+    "chalk": "^2.4.2",
+    "dev-ip": "^1.0.1",
+    "execa": "^1.0.0",
+    "glob": "^7.1.3",
+    "node-fetch": "^2.3.0",
+    "portscanner": "^2.2.0",
+    "resolve": "^1.10.0",
+    "strip-ansi": "^5.2.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  }
+}
