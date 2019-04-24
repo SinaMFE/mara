@@ -5,7 +5,7 @@ const path = require('path')
 const fs = require('fs')
 const glob = require('glob')
 const chalk = require('chalk')
-const fetch = require('../libs/fetch')
+const { fetch } = require('@mara/devkit')
 const paths = require('../config/paths')
 
 const { name: pkgName, version: pkgVer } = require(paths.packageJson)

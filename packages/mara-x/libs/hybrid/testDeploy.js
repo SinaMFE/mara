@@ -3,7 +3,7 @@
 const ora = require('ora')
 const axios = require('axios')
 const chalk = require('chalk')
-const execa = require('execa')
+const { execa } = require('@mara/devkit')
 
 const GITLAB_HOST = 'https://gitlab.weibo.cn'
 const fetch = axios.create({

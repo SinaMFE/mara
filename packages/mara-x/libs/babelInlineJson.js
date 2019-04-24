@@ -1,6 +1,6 @@
 const fs = require('fs')
 const nodePath = require('path')
-const resolve = require('resolve')
+const { resolve } = require('@mara/devkit')
 
 const readJSON = (filePath, state) => {
   const srcPath = nodePath.resolve(state.file.opts.filename)
@@ -12,7 +12,7 @@ const readJSON = (filePath, state) => {
   }
 
   const file = resolve.sync(filePath, {
-    basedir: nodePath.dirname(srcPath),
+    basedir: nodePath.dirname(srcPath)
   })
 
   if (fs.existsSync(file)) {
@@ -45,7 +45,7 @@ module.exports = function({ types: t }) {
 
   function createConstVarDeclaration(identifier, value) {
     return t.VariableDeclaration('const', [
-      t.VariableDeclarator(t.Identifier(identifier), t.valueToNode(value)),
+      t.VariableDeclarator(t.Identifier(identifier), t.valueToNode(value))
     ])
   }
 
@@ -104,7 +104,7 @@ module.exports = function({ types: t }) {
             replacePath(path, createExpression(json[node.property.name]))
           }
         }
-      },
-    },
+      }
+    }
   }
 }

@@ -9,10 +9,10 @@ process.on('unhandledRejection', err => {
 
 const ora = require('ora')
 const webpack = require('webpack')
+const { getFreePort } = require('@mara/devkit')
 const config = require('../config')
 const getContext = require('../config/context')
 const getEntry = require('../libs/entry')
-const { getFreePort } = require('../libs/utils')
 const getWebpackConfig = require('../webpack/webpack.dev.conf')
 const createDevServerConfig = require('../webpack/webpack.devServer.conf')
 const prehandleConfig = require('../libs/prehandleConfig')

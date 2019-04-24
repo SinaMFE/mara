@@ -1,7 +1,7 @@
 'use strict'
 
 const WebpackProgressPlugin = require('webpack/lib/ProgressPlugin')
-const ProgressBar = require('./ProgressBar')
+const { ProgressBar } = require('@mara/devkit')
 const readline = require('readline')
 
 class ProcessDetails {

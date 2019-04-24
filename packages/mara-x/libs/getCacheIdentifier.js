@@ -1,5 +1,6 @@
+const { md5 } = require('@mara/devkit')
 const config = require('../config')
-const { readJson, md5 } = require('./utils')
+const { readJson } = require('./utils')
 const tsConfig = readJson(config.paths.tsConfig)
 
 module.exports = function getCacheIdentifier(packages = []) {

@@ -1,8 +1,8 @@
 'use strict'
 
 const fs = require('fs')
+const { ensureSlash } = require('@mara/devkit')
 const paths = require('./paths')
-const { ensureSlash } = require('../libs/utils')
 
 const NODE_ENV = process.env.NODE_ENV
 

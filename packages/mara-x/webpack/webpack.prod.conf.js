@@ -5,32 +5,27 @@ const path = require('path')
 const webpack = require('webpack')
 const merge = require('webpack-merge')
 const chalk = require('chalk')
-const CopyWebpackPlugin = require('copy-webpack-plugin')
+const { localIp, isObject } = require('@mara/devkit')
 const TerserPlugin = require('terser-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const safePostCssParser = require('postcss-safe-parser')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const moduleDependency = require('sinamfe-webpack-module_dependency')
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const InlineChunkHtmlPlugin = require('react-dev-utils/InlineChunkHtmlPlugin')
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const InlineUmdHtmlPlugin = require('../libs/InlineUmdHtmlPlugin')
-const ZenJsPlugin = require('../libs/ZenJsPlugin')
-const BuildJsonPlugin = require('../libs/BuildJsonPlugin')
-const ManifestPlugin = require('../libs/hybrid/ManifestPlugin')
-const BuildProgressPlugin = require('../libs/BuildProgressPlugin')
-const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const safePostCssParser = require('postcss-safe-parser')
-const moduleDependency = require('sinamfe-webpack-module_dependency')
-// const { HybridCommonPlugin } = require('../libs/hybrid')
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
-const { SinaHybridPlugin } = require('../libs/hybrid')
 
-const config = require('../config')
+// const { HybridCommonPlugin } = require('../libs/hybrid')
+const { banner, rootPath, getEntryPoints } = require('../libs/utils')
+const BuildProgressPlugin = require('../libs/BuildProgressPlugin')
+const InlineUmdHtmlPlugin = require('../libs/InlineUmdHtmlPlugin')
 const { VIEWS_DIR, DLL_DIR, TARGET } = require('../config/const')
-const {
-  banner,
-  rootPath,
-  getEntryPoints,
-  isObject,
-  localIp
-} = require('../libs/utils')
+const ManifestPlugin = require('../libs/hybrid/ManifestPlugin')
+const BuildJsonPlugin = require('../libs/BuildJsonPlugin')
+const { SinaHybridPlugin } = require('../libs/hybrid')
+const ZenJsPlugin = require('../libs/ZenJsPlugin')
+const config = require('../config')
 
 const shouldUseSourceMap = !!config.build.sourceMap
 
