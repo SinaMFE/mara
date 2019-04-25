@@ -13,8 +13,8 @@ function printInstructions(appName, urls, useYarn) {
   console.log(`App views/${chalk.bold(appName)} running at:`)
   console.log()
 
-  console.log(`  ${chalk.bold('Local:')}            ${urls.localUrl}`)
-  console.log(`  ${chalk.bold('On Your Network:')}  ${urls.lanUrl}`)
+  console.log(`  ${chalk.bold('Local:')}    ${urls.localUrl}`)
+  console.log(`  ${chalk.bold('Network:')}  ${urls.lanUrl}`)
 
   console.log()
   console.log('Note that the development build is not optimized.')
