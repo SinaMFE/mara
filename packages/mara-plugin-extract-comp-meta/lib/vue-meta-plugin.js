@@ -1,5 +1,5 @@
 const { customSerailizeVueFilesWithSinaFormat } = require('sina-meta-serialize')
-const { extractOptions, vueFiles } = require('./config')
+const { extractOptions } = require('./config')
 
 const isVue = mod => /\.vue$/.test(mod.resource)
 const globalName = '__CMOP_META'
@@ -62,7 +62,19 @@ class VueMetaPlugin {
 
   genMetaData(compiler) {
     compiler.hooks.emit.tap('VueMetaPlugin', compilation => {
-      const components = getMetaData(this.vueDeps)
+      // 避免掩盖原始错误
+      if (compilation.errors.length) return
+
+      let components = {}
+
+      try {
+        components = getMetaData(this.vueDeps)
+      } catch (e) {
+        compilation.errors.push(e)
+
+        return
+      }
+
       const entry = compilation.chunks.filter(
         c => c.isOnlyInitial() && c.name
       )[0]
