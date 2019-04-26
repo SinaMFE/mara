@@ -8,4 +8,3 @@ glob(`${__dirname}/lib/*.js`).forEach(m => {
 exports.chalk = require('chalk')
 exports.execa = require('execa')
 exports.resolve = require('resolve')
-exports.stripAnsi = require('strip-ansi')
