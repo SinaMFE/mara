@@ -24,21 +24,26 @@ const spinner = ora('Starting development server...')
 function getCompiler(webpackConf) {
   const compiler = webpack(webpackConf)
 
-  // 为每一个入口文件添加 webpack-dev-server 客户端
-  Object.values(webpackConf.entry).forEach(addHotDevClient)
+  addDevClientToEntry(webpackConf, [
+    // 使用 CRA 提供的 client，展示更友好的错误信息
+    require.resolve('../libs/hotDevClient')
+  ])
 
   return compiler
 }
 
-function addHotDevClient(entry) {
-  // client 在业务模块之前引入，以捕获初始化错误
-  ;[].unshift.apply(entry, [
-    // 使用 CRA 提供的 client，展示更友好的错误信息
-    require.resolve('react-dev-utils/webpackHotDevClient')
-    // 以下为官方 dev server client
-    // require.resolve('webpack-dev-server/client') + '?/',
-    // require.resolve('webpack/hot/dev-server')
-  ])
+function addDevClientToEntry(config, devClient) {
+  const { entry } = config
+
+  if (typeof entry === 'object' && !Array.isArray(entry)) {
+    Object.keys(entry).forEach(key => {
+      entry[key] = devClient.concat(entry[key])
+    })
+  } else if (typeof entry === 'function') {
+    config.entry = entry(devClient)
+  } else {
+    config.entry = devClient.concat(entry)
+  }
 }
 
 function createDevServer(webpackConf, opts) {

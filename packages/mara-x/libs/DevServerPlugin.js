@@ -54,8 +54,6 @@ module.exports = class MaraDevServerPlugin {
     const friendErrors = new FriendlyErrorsPlugin({
       showFirstError: true,
       useYarn: this.options.useYarn
-      // additionalTransformers: [transformer],
-      // additionalFormatters: [formatter]
     })
 
     if (this.options.clearConsole) {
