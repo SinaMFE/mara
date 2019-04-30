@@ -62,7 +62,7 @@ fetch
       console.log(
         chalk.cyan(
           path.join(
-            'http://mjs.sinaimg.cn/umd/',
+            'https://mjs.sinaimg.cn/umd/',
             pkgName.replace('@mfelibs/', ''),
             '/',
             pkgVer,
