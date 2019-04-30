@@ -33,13 +33,21 @@ class BuildJsonPlugin {
     })
 
     compiler.hooks.emit.tap(pluginOptions, compilation => {
-      const manifest = this.getAssetsManifest(compilation)
+      const publicPath =
+        this.options.publicPath != null
+          ? this.options.publicPath
+          : compilation.options.output.publicPath
 
-      compilation.assets[this.fileName] = this.getBuildJson(manifest)
+      const manifest = this.getAssetsManifest(compilation, publicPath)
+
+      compilation.assets[this.fileName] = this.getBuildJson(
+        manifest,
+        publicPath
+      )
     })
   }
 
-  getBuildJson(manifest = {}) {
+  getBuildJson(manifest = {}, publicPath) {
     const source = JSON.stringify(
       {
         // build target
@@ -52,6 +60,7 @@ class BuildJsonPlugin {
         debug: this.options.debug,
         // marax version
         marax: this.options.marax,
+        publicPath: publicPath,
         // assets manifest
         manifest: manifest
       },
@@ -86,11 +95,7 @@ class BuildJsonPlugin {
     }
   }
 
-  getAssetsManifest(compilation) {
-    const publicPath =
-      this.options.publicPath != null
-        ? this.options.publicPath
-        : compilation.options.output.publicPath
+  getAssetsManifest(compilation, publicPath) {
     const stats = compilation.getStats().toJson()
 
     const getFileType = str => {
