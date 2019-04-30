@@ -20,7 +20,7 @@
     "type": "git",
     "url": "https://github.com/SinaMFE/marauder.git"
   },
-  "types": "types/react-app.d.ts",
+  "types": "types/mara-app.d.ts",
   "bugs": "https://github.com/SinaMFE/marauder/issues",
   "bin": {
     "marax": "./bin/marax.js"
@@ -88,7 +88,7 @@
     "promise": "^8.0.3",
     "prompts": "^2.0.4",
     "raf": "^3.4.1",
-    "react-dev-utils": "^8.0.0",
+    "react-dev-utils": "^9.0.0",
     "react-error-overlay": "^5.1.5",
     "semver": "^5.6.0",
     "sinamfe-webpack-module_dependency": "^2.0.0",
