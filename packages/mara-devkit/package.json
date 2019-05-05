@@ -19,9 +19,9 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/SinaMFE/marauder"
+    "url": "https://github.com/SinaMFE/mara"
   },
-  "bugs": "https://github.com/SinaMFE/marauder/issues",
+  "bugs": "https://github.com/SinaMFE/mara/issues",
   "dependencies": {
     "acorn": "^6.1.1",
     "chalk": "^2.4.2",

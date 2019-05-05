@@ -41,7 +41,7 @@ if (argv.v) {
 
   console.log('\nUnknown script "' + rawArgv + '".')
   console.log('Perhaps you need to update @mara/x?')
-  console.log('See: https://github.com/SinaMFE/marauder/blob/master/README.md')
+  console.log('See: https://github.com/SinaMFE/mara/blob/master/README.md')
   process.exit(0)
 } else {
   require(`../scripts/${cmd}`)(argv)

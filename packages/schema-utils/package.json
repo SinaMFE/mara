@@ -30,10 +30,10 @@
     "access": "public"
   },
   "author": "Vincent Lee <vv314@foxmail.com>",
-  "bugs": "https://github.com/SinaMFE/marauder/issues",
+  "bugs": "https://github.com/SinaMFE/mara/issues",
   "repository": {
     "type": "git",
-    "url": "https://github.com/SinaMFE/marauder.git"
+    "url": "https://github.com/SinaMFE/mara.git"
   },
   "license": "MIT"
 }
