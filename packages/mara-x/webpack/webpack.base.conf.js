@@ -61,6 +61,10 @@ module.exports = function({ entry, buildEnv, publicPath }) {
     }
   }
 
+  // 统一设置 loaders 配置
+  getStyleLoaders.publicPath = publicPath
+  getStyleLoaders.isLib = isLib
+
   const baseConfig = {
     // dev, build 环境依赖 base.entry，务必提供
     entry: getEntries(entryGlob, require.resolve('./polyfills')),
@@ -119,38 +123,30 @@ module.exports = function({ entry, buildEnv, publicPath }) {
         {
           test: /\.css$/,
           exclude: /\.module\.css$/,
-          oneOf: getStyleLoaders({
-            importLoaders: 1,
-            cssPublicPath: publicPath
-          })
+          oneOf: getStyleLoaders()
         },
         {
           test: /\.module\.css$/,
           oneOf: getStyleLoaders({
-            importLoaders: 1,
             modules: true,
-            cssPublicPath: publicPath,
             getLocalIdent: getCSSModuleLocalIdent
           })
         },
         {
           test: /\.less$/,
-          oneOf: getStyleLoaders(
-            {
-              importLoaders: 2,
-              cssPublicPath: publicPath
-            },
-            'less-loader'
-          )
+          oneOf: getStyleLoaders('less-loader')
         },
         {
           test: /\.(scss|sass)$/,
+          oneOf: getStyleLoaders('sass-loader')
+        },
+        {
+          test: /\.styl(us)?$/,
           oneOf: getStyleLoaders(
             {
-              importLoaders: 2,
-              cssPublicPath: publicPath
+              preferPathResolver: 'webpack'
             },
-            'sass-loader'
+            'stylus-loader'
           )
         },
         {

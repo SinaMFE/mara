@@ -7,7 +7,11 @@ const isDev = process.env.NODE_ENV === 'development'
 const shouldExtract = isProd && config.compiler.cssExtract !== false
 const shouldUseSourceMap = isProd ? config.build.sourceMap : isDev
 
-function getPostCSSPlugins(useSourceMap, needInlineMinification, preProcessor) {
+function getPostCSSPlugins(
+  useSourceMap,
+  needInlineMinification,
+  usePreProcessor
+) {
   const basic = [
     require('postcss-flexbugs-fixes'),
     require('postcss-preset-env')(config.postcss)
@@ -21,7 +25,7 @@ function getPostCSSPlugins(useSourceMap, needInlineMinification, preProcessor) {
     require('postcss-url')()
   ]
 
-  const plugins = preProcessor ? basic : basic.concat(advanced)
+  const plugins = usePreProcessor ? basic : basic.concat(advanced)
   const cssnanoOptions = {
     preset: [
       'default',
@@ -41,8 +45,22 @@ function getPostCSSPlugins(useSourceMap, needInlineMinification, preProcessor) {
     : plugins
 }
 
-function createCSSRule(cssOptions, preProcessor) {
+function createCSSRule(cssOptions = {}, preProcessor) {
+  if (typeof cssOptions === 'string') {
+    preProcessor = cssOptions
+    cssOptions = {}
+  }
+
+  cssOptions.cssPublicPath = createCSSRule.publicPath || './'
+  cssOptions.isLib = createCSSRule.isLib
+
   return [
+    {
+      // rules for <style lang="module">
+      resourceQuery: /module/,
+      loader: getStyleLoaders(cssOptions, preProcessor),
+      sideEffects: isProd
+    },
     {
       resourceQuery: /\?vue/, // foo.css?inline
       loader: getStyleLoaders(cssOptions, preProcessor),
@@ -63,38 +81,37 @@ function getStyleLoaders(cssOptions = {}, preProcessor) {
   const needInlineMinification = isProd && !shouldExtract
   const shouldUseRelativeAssetPaths = cssOptions.cssPublicPath === './'
 
-  // 移除自定义配置项 cssPublicPath，
+  const extractLoader = {
+    loader: MiniCssExtractPlugin.loader,
+    options: Object.assign(
+      {},
+      shouldUseRelativeAssetPaths
+        ? { publicPath: cssOptions.isLib ? './' : '../../' }
+        : undefined
+    )
+  }
+  const vueStyleLoader = {
+    loader: require.resolve('vue-style-loader'),
+    options: {
+      sourceMap: shouldUseSourceMap
+    }
+  }
+
+  // 移除自定义配置项
   // 防止 css-loader 参数校验报错
   delete cssOptions.cssPublicPath
+  delete cssOptions.isLib
 
-  const relativePublicPath = cssOptions.library ? './' : '../../'
   const loaders = [
-    shouldExtract
-      ? {
-          loader: MiniCssExtractPlugin.loader,
-          options: Object.assign(
-            {},
-            shouldUseRelativeAssetPaths
-              ? { publicPath: relativePublicPath }
-              : undefined
-          )
-        }
-      : {
-          loader: require.resolve('vue-style-loader'),
-          options: Object.assign(
-            {
-              sourceMap: shouldUseSourceMap
-            },
-            cssOptions
-          )
-        },
+    shouldExtract ? extractLoader : vueStyleLoader,
     {
       loader: require.resolve('css-loader'),
       options: Object.assign(
         {
-          sourceMap: shouldUseSourceMap
+          sourceMap: shouldUseSourceMap,
+          importLoaders: 2 + (preProcessor ? 1 : 0)
         },
-        cssOptions
+        preProcessor ? undefined : cssOptions
       )
     },
     {
@@ -109,7 +126,7 @@ function getStyleLoaders(cssOptions = {}, preProcessor) {
         plugins: getPostCSSPlugins(
           shouldUseSourceMap,
           needInlineMinification,
-          preProcessor
+          !!preProcessor
         ),
         sourceMap: shouldUseSourceMap
       }
