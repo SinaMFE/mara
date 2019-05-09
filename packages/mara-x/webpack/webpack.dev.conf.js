@@ -12,10 +12,12 @@ const BuildProgressPlugin = require('../libs/BuildProgressPlugin')
 const InlineUmdHtmlPlugin = require('../libs/InlineUmdHtmlPlugin')
 const { getEntryPoints } = require('../libs/utils')
 const config = require('../config')
-const C = require('../config/const')
+const { GLOB, VIEWS_DIR } = require('../config/const')
 
-function parseEntryPoint(view) {
-  const entryPoints = getEntryPoints(`${C.VIEWS_DIR}/${view}/index.*.js`)
+function parseServantEntry(view) {
+  const entryPoints = getEntryPoints(
+    `${VIEWS_DIR}/${view}/${GLOB.SERVANT_ENTRY}`
+  )
   const files = [].concat(...Object.values(entryPoints))
 
   return { [view]: files }
@@ -24,7 +26,7 @@ function parseEntryPoint(view) {
 module.exports = function(context, spinner) {
   const entry = context.entry
   const baseWebpackConfig = require('./webpack.base.conf')(context)
-  const entryPoint = parseEntryPoint(entry)
+  const servantEntry = parseServantEntry(entry)
   const hasHtml = fs.existsSync(`${config.paths.views}/${entry}/index.html`)
 
   // https://github.com/survivejs/webpack-merge
@@ -32,7 +34,7 @@ module.exports = function(context, spinner) {
   const webpackConfig = merge(baseWebpackConfig, {
     mode: 'development',
     devtool: 'cheap-module-source-map',
-    entry: entryPoint,
+    entry: servantEntry,
     output: {
       // Add /* filename */ comments to generated require()s in the output.
       pathinfo: true,

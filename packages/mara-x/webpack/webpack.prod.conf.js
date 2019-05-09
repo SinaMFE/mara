@@ -20,7 +20,7 @@ const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin')
 const { banner, rootPath, getEntryPoints } = require('../libs/utils')
 const BuildProgressPlugin = require('../libs/BuildProgressPlugin')
 const InlineUmdHtmlPlugin = require('../libs/InlineUmdHtmlPlugin')
-const { VIEWS_DIR, DLL_DIR, TARGET } = require('../config/const')
+const { GLOB, VIEWS_DIR, DLL_DIR, TARGET } = require('../config/const')
 const ManifestPlugin = require('../libs/hybrid/ManifestPlugin')
 const BuildJsonPlugin = require('../libs/BuildJsonPlugin')
 const { SinaHybridPlugin } = require('../libs/hybrid')
@@ -40,7 +40,9 @@ module.exports = function(context, spinner) {
   const distPageDir = `${config.paths.dist}/${entry}`
   const baseWebpackConfig = require('./webpack.base.conf')(context)
   const hasHtml = fs.existsSync(`${config.paths.views}/${entry}/index.html`)
-  const entryPoints = getEntryPoints(`${VIEWS_DIR}/${entry}/index.*.js`)
+  const servantEntry = getEntryPoints(
+    `${VIEWS_DIR}/${entry}/${GLOB.SERVANT_ENTRY}`
+  )
   const debugLabel = config.debug ? '.debug' : ''
   const isHybridMode = context.target === TARGET.APP
   const shouldUseZenJs = config.compiler.zenJs && context.target != TARGET.APP
@@ -55,7 +57,8 @@ module.exports = function(context, spinner) {
     // 在第一个错误出错时抛出，而不是无视错误
     bail: true,
     devtool: shouldUseSourceMap ? 'source-map' : false,
-    entry: entryPoints,
+    // merge base.config entry
+    entry: servantEntry,
     output: {
       path: distPageDir,
       publicPath: context.publicPath,
@@ -167,7 +170,7 @@ module.exports = function(context, spinner) {
           inject: true,
           // 模块排序: entry > servant
           chunksSortMode(a, b) {
-            const chunkNames = Object.keys(entryPoints).sort()
+            const chunkNames = Object.keys(servantEntry).sort()
             const order = [entry].concat(chunkNames)
 
             return order.indexOf(a.names[0]) - order.indexOf(b.names[0])

@@ -8,6 +8,7 @@ const safePostCssParser = require('postcss-safe-parser')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 
 const config = require('../config')
+const { GLOB } = require('../config/const')
 const { banner, getEntries } = require('../libs/utils')
 const shouldUseSourceMap = config.build.sourceMap
 
@@ -40,7 +41,7 @@ module.exports = function(options, context) {
     mode: options.mode || 'production',
     // 在第一个错误出错时抛出，而不是无视错误
     bail: true,
-    entry: getEntries(config.paths.libEntry),
+    entry: getEntries(GLOB.LIB_ENTRY),
     devtool: shouldUseSourceMap ? 'source-map' : false,
     output: {
       path: config.paths.lib,

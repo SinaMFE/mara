@@ -10,7 +10,6 @@ module.exports = {
   app: rootPath('.'),
   dotenv: rootPath('.env'),
   entryGlob: `${C.VIEWS_DIR}/*/index.@(ts|tsx|js|jsx)`,
-  libEntry: 'src/index.@(ts|js)',
   setupProxy: rootPath(`src/setupProxy.js`),
   src: rootPath('src'),
   views: rootPath(C.VIEWS_DIR),

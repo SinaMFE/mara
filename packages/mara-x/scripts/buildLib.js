@@ -16,6 +16,7 @@ const glob = require('glob')
 const webpack = require('webpack')
 const { getViews } = require('../libs/utils')
 const config = require('../config')
+const { GLOB } = require('../config/const')
 const getContext = require('../config/context')
 const paths = config.paths
 const getWebpackProdConf = require('../webpack/webpack.prod.conf')
@@ -176,7 +177,7 @@ function error(err) {
 }
 
 async function setup(distDir, libDir) {
-  if (!glob.sync(paths.libEntry).length) {
+  if (!glob.sync(GLOB.LIB_ENTRY).length) {
     console.log(chalk.red('请按如下结构创建入口文件'))
     console.log(skeleton.library, '\n')
     process.exit(0)

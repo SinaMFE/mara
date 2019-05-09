@@ -15,7 +15,7 @@ const tsImportPluginFactory = require('ts-import-plugin')
 const getStyleLoaders = require('./loaders/style-loader')
 const getCacheIdentifier = require('../libs/getCacheIdentifier')
 const config = require('../config')
-const C = require('../config/const')
+const { GLOB, VIEWS_DIR } = require('../config/const')
 const {
   babelLoader,
   babelForTs,
@@ -34,7 +34,7 @@ module.exports = function({ entry, buildEnv, publicPath }) {
 
   const isLib = entry === '__LIB__'
   const assetsDir = isLib ? '' : 'static/'
-  const entryGlob = `${C.VIEWS_DIR}/${entry}/index.@(ts|tsx|js|jsx)`
+  const entryGlob = `${VIEWS_DIR}/${entry}/${GLOB.MAIN_ENTRY}`
   const useTypeScript = config.useTypeScript
   const { vueRuntimeOnly } = config.compiler
   const tsCompilerOptions = {

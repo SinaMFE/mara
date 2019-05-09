@@ -1,14 +1,25 @@
+const GLOB = {
+  MAIN_ENTRY: 'index.@(ts|tsx|js|jsx)',
+  SERVANT_ENTRY: 'index.*.@(ts|tsx|js|jsx)',
+  LIB_ENTRY: 'src/index.@(ts|js)'
+}
+
+const TARGET = {
+  WEB: 'web',
+  WAP: 'wap',
+  APP: 'app'
+}
+
+const DEPLOY_ENV = {
+  DEV: 'dev',
+  TEST: 'test',
+  ONLINE: 'online'
+}
+
 module.exports = {
-  DEPLOY_ENV: {
-    DEV: 'dev',
-    TEST: 'test',
-    ONLINE: 'online'
-  },
-  TARGET: {
-    WEB: 'web',
-    WAP: 'wap',
-    APP: 'app'
-  },
+  GLOB,
+  TARGET,
+  DEPLOY_ENV,
   LIB_DIR: 'lib',
   DIST_DIR: 'dist',
   VIEWS_DIR: 'src/views',
