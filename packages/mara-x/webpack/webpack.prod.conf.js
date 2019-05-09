@@ -39,7 +39,8 @@ module.exports = function(context, spinner) {
   const entry = context.entry
   const distPageDir = `${config.paths.dist}/${entry}`
   const baseWebpackConfig = require('./webpack.base.conf')(context)
-  const hasHtml = fs.existsSync(`${config.paths.views}/${entry}/index.html`)
+  const htmlTemplatePath = `${config.paths.views}/${entry}/index.html`
+  const hasHtml = fs.existsSync(htmlTemplatePath)
   const servantEntry = getEntryPoints(
     `${VIEWS_DIR}/${entry}/${GLOB.SERVANT_ENTRY}`
   )
@@ -75,6 +76,7 @@ module.exports = function(context, spinner) {
           .relative(config.paths.src, info.absoluteResourcePath)
           .replace(/\\/g, '/')
     },
+    // 放在单独的 prod.conf 中，保持 base.conf 通用性
     optimization: {
       minimize: config.debug !== true,
       minimizer: [
@@ -141,7 +143,12 @@ module.exports = function(context, spinner) {
       // https://twitter.com/wSokra/status/969633336732905474
       // https://medium.com/webpack/webpack-4-code-splitting-chunk-graph-and-the-splitchunks-optimization-be739a861366
       splitChunks: {
-        chunks: config.compiler.splitChunks ? 'all' : 'async',
+        chunks(chunk) {
+          // servant entry 仅输出 async 包
+          if (/\.servant/.test(chunk.name)) return false
+
+          return !!config.compiler.splitChunks
+        },
         // 一些 CDN 不支持 `~`，因此指定为 `-``
         automaticNameDelimiter: '_',
         name: true
@@ -162,19 +169,12 @@ module.exports = function(context, spinner) {
         }),
       hasHtml &&
         new HtmlWebpackPlugin({
-          // 生成出来的html文件名
-          filename: rootPath(`dist/${entry}/index.html`),
+          // prod 模式以 index.html 命名输出
+          filename: 'index.html',
           // 每个html的模版，这里多个页面使用同一个模版
-          template: `${config.paths.views}/${entry}/index.html`,
+          template: htmlTemplatePath,
           // 自动将引用插入html
           inject: true,
-          // 模块排序: entry > servant
-          chunksSortMode(a, b) {
-            const chunkNames = Object.keys(servantEntry).sort()
-            const order = [entry].concat(chunkNames)
-
-            return order.indexOf(a.names[0]) - order.indexOf(b.names[0])
-          },
           minify: {
             removeRedundantAttributes: true,
             useShortDoctype: true,

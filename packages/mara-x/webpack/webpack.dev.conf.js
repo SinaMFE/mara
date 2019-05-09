@@ -14,20 +14,14 @@ const { getEntryPoints } = require('../libs/utils')
 const config = require('../config')
 const { GLOB, VIEWS_DIR } = require('../config/const')
 
-function parseServantEntry(view) {
-  const entryPoints = getEntryPoints(
-    `${VIEWS_DIR}/${view}/${GLOB.SERVANT_ENTRY}`
-  )
-  const files = [].concat(...Object.values(entryPoints))
-
-  return { [view]: files }
-}
-
 module.exports = function(context, spinner) {
   const entry = context.entry
   const baseWebpackConfig = require('./webpack.base.conf')(context)
-  const servantEntry = parseServantEntry(entry)
-  const hasHtml = fs.existsSync(`${config.paths.views}/${entry}/index.html`)
+  const servantEntry = getEntryPoints(
+    `${VIEWS_DIR}/${entry}/${GLOB.SERVANT_ENTRY}`
+  )
+  const htmlTemplatePath = `${config.paths.views}/${entry}/index.html`
+  const hasHtml = fs.existsSync(htmlTemplatePath)
 
   // https://github.com/survivejs/webpack-merge
   // 当 entry 为数组时，webpack-merge 默认执行 append
@@ -43,13 +37,21 @@ module.exports = function(context, spinner) {
       devtoolModuleFilenameTemplate: info =>
         path.resolve(info.absoluteResourcePath).replace(/\\/g, '/')
     },
+    // 放在单独的 dev.conf 中，保持 base.conf 通用性
     optimization: {
       // Automatically split vendor and commons
       // https://twitter.com/wSokra/status/969633336732905474
       // https://medium.com/webpack/webpack-4-code-splitting-chunk-graph-and-the-splitchunks-optimization-be739a861366
       splitChunks: {
-        chunks: config.compiler.splitChunks ? 'all' : 'async',
-        name: false
+        chunks(chunk) {
+          // servant entry 仅输出 async 包
+          if (/\.servant/.test(chunk.name)) return false
+
+          return !!config.compiler.splitChunks
+        },
+        // 一些 CDN 不支持 `~`，因此指定为 `-``
+        automaticNameDelimiter: '_',
+        name: true
       },
       // Keep the runtime chunk seperated to enable long term caching
       // https://twitter.com/wSokra/status/969679223278505985
@@ -65,13 +67,11 @@ module.exports = function(context, spinner) {
       }),
       hasHtml &&
         new HtmlWebpackPlugin({
-          // 以页面文件夹名作为模板名称
+          // dev 模式以页面文件夹名作为模板名称
           filename: `${entry}.html`,
           // 生成各自的 html 模板
-          template: `${config.paths.views}/${entry}/index.html`,
-          inject: true,
-          // 每个html引用的js模块，也可以在这里加上vendor等公用模块
-          chunks: [entry]
+          template: htmlTemplatePath,
+          inject: true
         }),
       hasHtml && new InlineUmdHtmlPlugin(HtmlWebpackPlugin),
       // 替换 html 内的环境变量
