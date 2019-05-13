@@ -4,7 +4,7 @@ const os = require('os')
 const chalk = require('chalk')
 const fs = require('fs-extra')
 const path = require('path')
-const inquirer = require('inquirer')
+const prompts = require('prompts')
 const validateProjectName = require('validate-npm-package-name')
 const getNpmLatestVersion = require('../../lib/getNpmLatestVersion')
 const generate = require('./generate')
@@ -115,13 +115,12 @@ module.exports = async function(options) {
     fs.existsSync(appDirectory) &&
     !isSafeToCreateProjectIn(root, appDirectory)
   ) {
-    const { yes } = await inquirer.prompt([
-      {
-        name: 'yes',
-        type: 'confirm',
-        message: chalk.red('Do you want to overwrite them?')
-      }
-    ])
+    const { yes } = await prompts({
+      name: 'yes',
+      type: 'confirm',
+      message: chalk.bold('Do you want to overwrite them?'),
+      initial: true
+    })
 
     if (!yes) return
 

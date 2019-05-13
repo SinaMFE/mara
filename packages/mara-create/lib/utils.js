@@ -398,7 +398,7 @@ function isSafeToCreateProjectIn(root, name) {
     )
     console.log()
     for (const file of conflicts) {
-      console.log(chalk.yellow(`  ${file}`))
+      console.log(chalk.red(`  ${file}`))
     }
     console.log()
 
