@@ -1,7 +1,8 @@
 'use strict'
 
-const concat = require('../utils').concat
 const chalk = require('chalk')
+const { TYPE } = require('../core/const')
+const concat = require('../utils').concat
 
 const infos = [
   'You may use special comments to disable some warnings.',
@@ -18,7 +19,7 @@ function displayError(error) {
 }
 
 function format(errors) {
-  const lintErrors = errors.filter(e => e.type === 'lint-error')
+  const lintErrors = errors.filter(e => e.type === TYPE.LINT_ERROR)
   if (lintErrors.length > 0) {
     const flatten = (accum, curr) => accum.concat(curr)
     return concat(

@@ -1,5 +1,7 @@
 'use strict'
 
+const { TYPE } = require('../core/const')
+
 function isEslintError(e) {
   return e.originalStack.some(
     stackframe =>
@@ -11,7 +13,7 @@ function transform(error) {
   if (isEslintError(error)) {
     return Object.assign({}, error, {
       name: 'Lint error',
-      type: 'lint-error'
+      type: TYPE.LINT_ERROR
     })
   }
 

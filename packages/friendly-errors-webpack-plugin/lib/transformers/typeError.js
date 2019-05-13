@@ -3,6 +3,7 @@
 const {
   NormalizedMessage
 } = require('fork-ts-checker-webpack-plugin/lib/NormalizedMessage')
+const { TYPE } = require('../core/const')
 
 function isTypeError(webpackError) {
   return webpackError.type === 'diagnostic'
@@ -18,7 +19,7 @@ function transform(error) {
   if (isTypeError(webpackError)) {
     return Object.assign({}, error, {
       message: webpackError.content,
-      type: 'ts-type-error',
+      type: TYPE.TS_TYPE_ERROR,
       severity: 950,
       name: 'Type error'
     })
@@ -26,7 +27,7 @@ function transform(error) {
     return Object.assign({}, error, {
       message: webpackError.message.content,
       webpackError: new NormalizedMessage(webpackError.message),
-      type: 'ts-syntax-error',
+      type: TYPE.TS_SYNTAX_ERROR,
       severity: 950,
       name: 'Syntax error'
     })

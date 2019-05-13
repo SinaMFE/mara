@@ -74,11 +74,11 @@ module.exports = async function({
 
   return new Promise((resolve, reject) => {
     const child = execa(command, args, {
-      stdio: ['inherit', 'inherit', command === 'yarn' ? 'pipe' : 'inherit']
+      stdio: ['inherit', 'inherit', command === 'yarnpkg' ? 'pipe' : 'inherit']
     })
 
     // filter out unwanted yarn output
-    if (command === 'yarn') {
+    if (command === 'yarnpkg') {
       child.stderr.on('data', buf => {
         const str = buf.toString()
         if (/warning/.test(str)) {

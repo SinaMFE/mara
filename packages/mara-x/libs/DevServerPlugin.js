@@ -1,10 +1,11 @@
 const chalk = require('chalk')
+const prompts = require('prompts')
 const openBrowser = require('react-dev-utils/openBrowser')
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 const clearConsole = require('react-dev-utils/clearConsole')
 const tsFormatter = require('react-dev-utils/typescriptFormatter')
-
 const FriendlyErrorsPlugin = require('@mara/friendly-errors-webpack-plugin')
+
 const isInteractive = process.stdout.isTTY
 const tsErrorFormat = msg => `${msg.file}\n${tsFormatter(msg, true)}`
 const noop = () => {}
@@ -48,12 +49,23 @@ module.exports = class MaraDevServerPlugin {
 
   apply(compiler) {
     const pluginName = this.constructor.name
+    const useYarn = this.options.useYarn
     let isFirstCompile = true
     // friendly error plugin displays very confusing errors when webpack
     // fails to resolve a loader, so we provide custom handlers to improve it
     const friendErrors = new FriendlyErrorsPlugin({
       showFirstError: true,
-      useYarn: this.options.useYarn
+      useYarn: useYarn,
+      onErrors(severity, topErrors) {
+        const hasLoaderError = topErrors.some(
+          e => e.type === FriendlyErrorsPlugin.TYPE.CANT_RESOVLE_LOADER
+        )
+
+        // loader 错误中断进程
+        if (hasLoaderError) {
+          process.kill(process.pid, 'SIGINT')
+        }
+      }
     })
 
     if (this.options.clearConsole) {

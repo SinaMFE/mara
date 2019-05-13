@@ -2,6 +2,7 @@
 
 const transformErrors = require('./core/transformErrors')
 const formatErrors = require('./core/formatErrors')
+const { TYPE } = require('./core/const')
 const output = require('./output')
 const utils = require('./utils')
 
@@ -11,11 +12,13 @@ const uniqueBy = utils.uniqueBy
 const defaultTransformers = [
   require('./transformers/babelSyntax'),
   require('./transformers/typeError'),
+  require('./transformers/resolveLoaderError'),
   require('./transformers/moduleNotFound'),
   require('./transformers/esLintError')
 ]
 
 const defaultFormatters = [
+  require('./formatters/resolveLoaderError'),
   require('./formatters/moduleNotFound'),
   require('./formatters/typeError'),
   require('./formatters/eslintError'),
@@ -51,6 +54,7 @@ class FriendlyErrorsWebpackPlugin {
 
     if (hasErrors) {
       this.displayErrors(extractErrorsFromStats(stats, 'errors'), 'error')
+      // 错误优先
       return
     }
 
@@ -113,14 +117,15 @@ class FriendlyErrorsWebpackPlugin {
 
     output.title(severity, severity.toUpperCase(), subtitle)
 
-    if (this.onErrors) {
-      this.onErrors(severity, topErrors)
-    }
-
     formatErrors(topErrors, this.formatters, severity, {
       showFirst: this.showFirstError,
       useYarn: this.useYarn
     }).forEach(chunk => output.log(chunk))
+
+    // 在所有错误打印之后执行
+    if (this.onErrors) {
+      this.onErrors(severity, topErrors)
+    }
   }
 }
 
@@ -163,5 +168,7 @@ function getMaxInt(collection, propertyName) {
     return curr[propertyName] > res ? curr[propertyName] : res
   }, 0)
 }
+
+FriendlyErrorsWebpackPlugin.TYPE = TYPE
 
 module.exports = FriendlyErrorsWebpackPlugin

@@ -1,5 +1,6 @@
 'use strict'
 
+const { TYPE } = require('../core/const')
 const concat = require('../utils').concat
 
 function isRelative(module) {
@@ -110,7 +111,7 @@ function formatErrors(errors, useYarn) {
 function format(errors, severity, { useYarn = false }) {
   // 所有错误聚合展示
   return formatErrors(
-    errors.filter(e => e.type === 'module-not-found'),
+    errors.filter(e => e.type === TYPE.MODULE_NOT_FOUND),
     useYarn
   )
 }

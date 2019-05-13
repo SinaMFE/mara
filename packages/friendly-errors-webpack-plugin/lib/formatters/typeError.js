@@ -1,6 +1,7 @@
 const path = require('path')
 const tsFormatter = require('react-dev-utils/typescriptFormatter')
 const concat = require('../utils').concat
+const { TYPE } = require('../core/const')
 const formatTitle = require('../utils/colors').formatTitle
 
 function displayError(severity, error, type) {
@@ -16,11 +17,11 @@ function isTsError(error) {
 }
 
 function isTypeError(error) {
-  return error.type === 'ts-type-error'
+  return error.type === TYPE.TS_TYPE_ERROR
 }
 
 function isSyntaxError(error) {
-  return error.type === 'ts-syntax-error'
+  return error.type === TYPE.TS_SYNTAX_ERROR
 }
 
 function removeVueTsSuffix(error) {

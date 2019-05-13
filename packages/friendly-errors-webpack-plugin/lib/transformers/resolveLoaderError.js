@@ -1,4 +1,5 @@
-const TYPE = 'cant-resolve-loader'
+const loaderMap = require('../fix/loaderMap')
+const { TYPE } = require('../core/const')
 const errorRE = /Can't resolve '(.*loader)'/
 
 function isResolveLoaderError(webpackError) {
@@ -12,9 +13,13 @@ function transform(error) {
     const match = webpackError.message.match(errorRE)
 
     if (match) {
+      const loader = match[1]
+
       return Object.assign({}, error, {
-        type: TYPE,
-        loader: match[1]
+        type: TYPE.CANT_RESOVLE_LOADER,
+        fix: loaderMap[loader],
+        file: error.file,
+        loader: loader
       })
     }
   }

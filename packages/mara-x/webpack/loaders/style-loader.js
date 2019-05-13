@@ -83,12 +83,9 @@ function getStyleLoaders(cssOptions = {}, preProcessor) {
 
   const extractLoader = {
     loader: MiniCssExtractPlugin.loader,
-    options: Object.assign(
-      {},
-      shouldUseRelativeAssetPaths
-        ? { publicPath: cssOptions.isLib ? './' : '../../' }
-        : undefined
-    )
+    options: shouldUseRelativeAssetPaths
+      ? { publicPath: cssOptions.isLib ? './' : '../../' }
+      : {}
   }
   const vueStyleLoader = {
     loader: require.resolve('vue-style-loader'),
