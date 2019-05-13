@@ -15,7 +15,7 @@ const vueLoaderCacheConfig = {
 const vueLoaderOptions = Object.assign(
   {
     compilerOptions: {
-      preserveWhitespace: false
+      whitespace: 'condense'
     },
     transformAssetUrls: {
       video: ['src', 'poster'],
