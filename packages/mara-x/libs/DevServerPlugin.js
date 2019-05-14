@@ -1,3 +1,4 @@
+const url = require('url')
 const chalk = require('chalk')
 const prompts = require('prompts')
 const openBrowser = require('react-dev-utils/openBrowser')
@@ -11,16 +12,16 @@ const tsErrorFormat = msg => `${msg.file}\n${tsFormatter(msg, true)}`
 const noop = () => {}
 
 function printInstructions(appName, urls, useYarn) {
-  console.log(`App views/${chalk.bold(appName)} running at:`)
+  console.log(`  App ${chalk.bold(appName)} running at:`)
   console.log()
 
-  console.log(`  ${chalk.bold('Local:')}    ${urls.localUrl}`)
-  console.log(`  ${chalk.bold('Network:')}  ${urls.lanUrl}`)
+  console.log(`  - ${chalk.bold('Local:')}    ${urls.localUrlForTerminal}`)
+  console.log(`  - ${chalk.bold('Network:')}  ${urls.lanUrlForTerminal}`)
 
   console.log()
-  console.log('Note that the development build is not optimized.')
+  console.log('  Note that the development build is not optimized.')
   console.log(
-    `To create a production build, use ` +
+    `  To create a production build, use ` +
       `${chalk.cyan(`${useYarn ? 'yarn' : 'npm run'} build`)}.`
   )
   console.log()
@@ -155,25 +156,42 @@ module.exports = class MaraDevServerPlugin {
   }
 
   getServerURL() {
-    const hostUri = this.getServerHostUri()
+    const { protocol, host, port, entry } = this.options
     let publicDevPath = this.options.publicPath
 
     // 以绝对路径 / 开头时，加入 url 中在浏览器打开
     // 以非 / 开头时，回退为 /，避免浏览器路径错乱
     publicDevPath = publicDevPath.startsWith('/') ? publicDevPath : '/'
 
-    return {
-      localUrl: `${hostUri.local + publicDevPath + this.options.entry}.html`,
-      lanUrl: `${hostUri.lan + publicDevPath + this.options.entry}.html`
-    }
-  }
+    const prepareUrls = hostname => ({
+      plain: url.format({
+        protocol,
+        hostname,
+        port,
+        // 始终携带 view html
+        pathname: publicDevPath + `${entry}.html`
+      }),
+      pretty: chalk.cyan(
+        url.format({
+          protocol,
+          hostname,
+          port,
+          // 终端信息中省略 index.html
+          pathname:
+            publicDevPath +
+            (entry === 'index' ? '' : chalk.bold(`${entry}.html`))
+        })
+      )
+    })
 
-  getServerHostUri() {
-    const { protocol, host, port } = this.options
+    const localUrl = prepareUrls('localhost')
+    const lanUrl = prepareUrls(host || 'localhost')
 
     return {
-      local: `${protocol}://localhost:${port}`,
-      lan: `${protocol}://${host || 'localhost'}:${port}`
+      localUrl: localUrl.plain,
+      lanUrl: lanUrl.plain,
+      localUrlForTerminal: localUrl.pretty,
+      lanUrlForTerminal: lanUrl.pretty
     }
   }
 }

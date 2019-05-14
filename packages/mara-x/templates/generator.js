@@ -257,8 +257,8 @@ module.exports = function({
   const runScript = useYarn ? 'yarn' : 'npm run'
 
   console.log()
-  console.log(`Successfully created project ${chalk.green(appName)}.`)
-  console.log('Inside that directory, you can run several commands:\n')
+  console.log(`🎉  Successfully created project ${chalk.yellow(appName)}.`)
+  console.log('👉  Inside that directory, you can run several commands:\n')
 
   console.log(chalk.cyan(`  ${runScript} dev`))
   console.log('    Starts the development server.\n')
@@ -269,11 +269,10 @@ module.exports = function({
   console.log(chalk.cyan(`  ${runScript} test`))
   console.log('    Starts the test runner.\n')
 
-  console.log('Get started with the following commands:\n')
+  console.log('👉  Get started with the following commands:\n')
 
   console.log(
-    chalk.cyan('  cd'),
-    chalk.green(getCdPath(appName, appPath, originalDirectory))
+    chalk.cyan(`  cd ${getCdPath(appName, appPath, originalDirectory)}`)
   )
   console.log(`  ${chalk.cyan(`${runScript} dev`)}\n`)
 
@@ -285,5 +284,5 @@ module.exports = function({
     )
   }
 
-  console.log('Happy hacking!')
+  console.log('😎  Happy hacking!')
 }
