@@ -54,20 +54,6 @@ module.exports = async function({
   originalDirectory,
   template
 }) {
-  // just for dev
-  // const marax = 'file:/Users/fish/github_pro/marauder/packages/mara-x'
-  const marax = '@mara/x'
-  const packages = [marax]
-
-  if (useTs) {
-    // TODO: @types/node get user's node version instead of installing latest
-    packages.push('@types/node', '@types/jest')
-
-    if (preset == 'react') {
-      packages.push('@types/react', '@types/react-dom')
-    }
-  }
-
   console.log('Installing packages. This might take a couple of minutes.\n')
 
   try {
@@ -77,8 +63,6 @@ module.exports = async function({
       targetDir: root,
       useYarn,
       usePnp,
-      saveDev: true,
-      packages,
       isOnline
     })
 

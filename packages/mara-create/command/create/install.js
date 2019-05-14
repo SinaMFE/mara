@@ -81,9 +81,8 @@ module.exports = async function({
     if (command === 'yarnpkg') {
       child.stderr.on('data', buf => {
         const str = buf.toString()
-        if (/warning/.test(str)) {
-          return
-        }
+
+        if (/warning/.test(str)) return
 
         // progress bar
         const progressBarMatch = str.match(/\[.*\] (\d+)\/(\d+)/)

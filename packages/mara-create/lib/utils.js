@@ -394,7 +394,7 @@ function isSafeToCreateProjectIn(root, name) {
 
   if (conflicts.length > 0) {
     console.log(
-      `The directory ${chalk.green(name)} contains files that could conflict:`
+      `The directory ${chalk.cyan(name)} contains files that could conflict:`
     )
     console.log()
     for (const file of conflicts) {

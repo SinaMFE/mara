@@ -53,7 +53,9 @@ function upperCaseFirstLetter(str) {
   return str.replace(/^[a-z]/, toUpperCase)
 }
 
-async function setBaseDependencies(preset, packageJson, useTs) {
+async function setPresetDependencies(preset, packageJson, useTs) {
+  await setAdditionalDependencies(preset, packageJson, useTs)
+
   if (!preset) return ''
 
   try {
@@ -65,16 +67,16 @@ async function setBaseDependencies(preset, packageJson, useTs) {
       packageJson.devDependencies['vue-template-compiler'] = `^${mainDep.vue}`
 
       if (useTs) {
-        const tsDep = await getNpmLatestVersion([
+        const vueTsDeps = await getNpmLatestVersion([
           'vue-class-component',
           'vue-property-decorator'
         ])
 
         packageJson.dependencies['vue-class-component'] = `^${
-          tsDep['vue-class-component']
+          vueTsDeps['vue-class-component']
         }`
         packageJson.dependencies['vue-property-decorator'] = `^${
-          tsDep['vue-property-decorator']
+          vueTsDeps['vue-property-decorator']
         }`
       }
     } else if (preset === 'react') {
@@ -94,6 +96,25 @@ async function setBaseDependencies(preset, packageJson, useTs) {
 
     process.exit(1)
   }
+}
+
+async function setAdditionalDependencies(preset, packageJson, useTs) {
+  const pkgs = ['@mara/x']
+
+  if (useTs) {
+    // TODO: @types/node get user's node version instead of installing latest
+    pkgs.push('@types/node', '@types/jest')
+
+    if (preset == 'react') {
+      pkgs.push('@types/react', '@types/react-dom')
+    }
+  }
+
+  const devDeps = await getNpmLatestVersion(pkgs)
+
+  Object.keys(devDeps).forEach(k => {
+    packageJson.devDependencies[k] = `^${devDeps[k]}`
+  })
 }
 
 module.exports = async function(options) {
@@ -141,21 +162,21 @@ module.exports = async function(options) {
     devDependencies: {}
   }
 
-  const depBadge = await setBaseDependencies(preset, packageJson, ts)
-  const tsBadge = ts ? 'Typescript' : ''
-  const badge = [depBadge, tsBadge].filter(Boolean).join(' + ')
+  const depBadge = await setPresetDependencies(preset, packageJson, ts)
+  const tsBadge = ts ? 'TypeScript' : ''
+  const badge = [depBadge, tsBadge].filter(Boolean).join(' × ')
 
   console.log(
-    `Creating ${badge ? `${chalk.green(badge)} ` : ''}project in ${chalk.cyan(
+    `Creating ${badge ? `${chalk.green(badge)} ` : ''}project in ${chalk.yellow(
       root
     )}.`
   )
   console.log()
 
-  fs.writeFileSync(
-    path.join(root, 'package.json'),
-    JSON.stringify(packageJson, null, 2) + os.EOL
-  )
+  fs.writeJson(path.join(root, 'package.json'), packageJson, {
+    spaces: 2,
+    EOL: os.EOL
+  })
 
   const useYarn = useNpm ? false : couldUseYarn()
 
@@ -185,6 +206,7 @@ module.exports = async function(options) {
   return generate({
     root,
     appName,
+    packageJson,
     useYarn,
     preset,
     usePnp,
