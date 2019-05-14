@@ -67,7 +67,7 @@ npx @mara/create my-app
 创建 React + Typescript 项目:
 
 ```
-npx @mara/create my-app --p react
+npx @mara/create my-app -p react
 ```
 
 #### Vanilla Js 模板
@@ -170,18 +170,6 @@ views
 运行生产模式打包资源，在 `dist` 目录下输出项目构建结果
 
 ## Roadmap
-
-### 一期目标
-
-- [x] **@mara/cli** 全新 CLI 工具
-- [x] **@mara/create** 全新项目结构生成工具
-- [x] **@mara/x** webpack-marauder2（基于 webpack4+）
-- [x] 活用 Lerna 管理，模块化拆分
-- [x] commit 风格约束，贡献指南
-- [x] 支持微前端构建
-- [x] 项目打包性能优化
-
-### 二期目标
 
 - [] ESLint 强约束
 - [] 建全测试用例
