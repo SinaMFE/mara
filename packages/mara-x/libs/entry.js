@@ -40,7 +40,7 @@ function getEntryArgs(argv, optField) {
 
   // npx marax build --ftp
   // yarn run build --ftp
-  if (argv[optField]) {
+  if (argv[optField] !== undefined) {
     val = argv[optField] === true ? '' : argv[optField]
     config.build[`arg_${optField}`] = true
   } else if (config.build[`arg_${optField}`]) {

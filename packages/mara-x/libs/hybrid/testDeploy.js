@@ -71,7 +71,7 @@ async function doCIJob(repoName, tagName) {
     throw new Error()
   }
 
-  spinner.text = `Running job #${job.id}...`
+  spinner.text = `Running job ${chalk.cyan('#' + job.id)}...`
 
   try {
     const assertReady = data => data.status != 'created'
@@ -281,8 +281,8 @@ module.exports = async function testDeploy(entry, version, message) {
 
   await pushBuildTag(tagName, tagMsg, repoUrl)
 
-  console.log(chalk.yellow('Tag: ' + tagName))
-  console.log(chalk.yellow('Msg: ' + tagMsg), '\n')
+  console.log(chalk.green('Tag: ' + tagName))
+  console.log(chalk.green('Msg: ' + tagMsg), '\n')
 
   if (!config.ciConfig || !config.ciConfig.privateToken) {
     return await showManualTip(repoUrl, 'token')
@@ -293,8 +293,9 @@ module.exports = async function testDeploy(entry, version, message) {
 
   try {
     const job = await doCIJob(fullRepoName, tagName)
+    const jobLink = `${repoUrl}/-/jobs/${job.id}`
 
-    console.log(chalk.bgGreen(' DONE '), `${repoUrl}/-/jobs/${job.id}`)
+    console.log(chalk.yellow.inverse(' DONE ') + ' ' + chalk.yellow(jobLink))
   } catch (e) {
     const { stdout: lastCommit } = await execa('git', ['rev-parse', 'HEAD'])
 
