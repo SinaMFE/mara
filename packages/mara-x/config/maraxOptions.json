@@ -199,6 +199,10 @@
         "hybridPublish": {
           "description": "Release the hybrid package to the dev environment.",
           "type": "boolean"
+        },
+        "hybridAutoVersion": {
+          "description": "Automatic bump package version.",
+          "type": "boolean"
         }
       }
     },

@@ -48,11 +48,13 @@ const spinner = ora('Building for production...')
 async function setup(entryInput) {
   spinner.start()
 
-  const shouldAutoBumpVersion =
-    isHybridMode && config.ftp.hybridPublish && entryInput.ftpBranch !== null
+  const isHybridPublish =
+    config.ftp.hybridPublish && entryInput.ftpBranch !== null
+  const enableAutoVersion = config.ftp.hybridAutoVersion
+  const shouldBumpVersion = enableAutoVersion && isHybridMode && isHybridPublish
 
   // hybrid dev 发布模式下版本号自动递增
-  if (shouldAutoBumpVersion) {
+  if (shouldBumpVersion) {
     // e.g. v1.2.3-1
     const { stdout } = bumpProjectVersion('prerelease')
 
