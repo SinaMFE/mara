@@ -155,7 +155,7 @@ module.exports = function({ entry, buildEnv, publicPath }) {
         },
         {
           test: /\.art$/,
-          loader: require.resolve('art-template-loader')
+          loader: 'art-template-loader'
         },
         {
           test: /\.vue$/,
