@@ -1,11 +1,11 @@
 const request = require('node-fetch')
 
-function fetch({ url, method, data }) {
+function fetch({ url, method, data, headers = {} }) {
   method = typeof method === 'string' ? method.toUpperCase() : 'GET'
 
   const options = {
     method: method,
-    headers: { 'Content-Type': 'application/json' }
+    headers: Object.assign({}, { 'Content-Type': 'application/json' }, headers)
   }
 
   if (method === 'GET') {
