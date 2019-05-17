@@ -41,7 +41,7 @@ function format(errors, severity) {
 
     filepath = path.join(process.cwd(), filepath)
 
-    return `${filepath}\n${e.message}`
+    return `${filepath}\n${e.message || e.webpackError}`
   })
 
   let messages = []
