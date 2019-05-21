@@ -6,7 +6,7 @@ const evalSourceMapMiddleware = require('react-dev-utils/evalSourceMapMiddleware
 const noopServiceWorkerMiddleware = require('react-dev-utils/noopServiceWorkerMiddleware')
 const ignoredFiles = require('react-dev-utils/ignoredFiles')
 const { localIp } = require('@mara/devkit')
-const { rootPath } = require('../libs/utils')
+const { rootPath } = require('../lib/utils')
 const paths = require('../config/paths')
 
 module.exports = function({ entry, proxy, protocol, publicPath = '/' }) {

@@ -11,7 +11,7 @@ module.exports = class HybridCommonPlugin {
     this.debug = options.debug
     this.mod = {
       style: [],
-      script: [],
+      script: []
     }
 
     try {

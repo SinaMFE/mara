@@ -1,4 +1,4 @@
-const { isInstalled } = require('../libs/utils')
+const { isInstalled } = require('../lib/utils')
 
 module.exports = function applyHook(argv) {
   const hookName = argv._[1]

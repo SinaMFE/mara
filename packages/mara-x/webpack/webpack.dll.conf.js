@@ -2,7 +2,7 @@
 
 const webpack = require('webpack')
 const config = require('../config')
-const { isObject } = require('../libs/utils')
+const { isObject } = require('@mara/devkit')
 const TerserPlugin = require('terser-webpack-plugin')
 const { babelLoader } = require('./loaders/babel-loader')
 const library = '[name]_lib'

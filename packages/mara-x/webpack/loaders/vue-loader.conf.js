@@ -1,7 +1,7 @@
 'use strict'
 
-const getCacheIdentifier = require('../../libs/getCacheIdentifier')
-const { rootPath } = require('../../libs/utils')
+const getCacheIdentifier = require('../../lib/getCacheIdentifier')
+const { rootPath } = require('../../lib/utils')
 
 const vueLoaderCacheConfig = {
   cacheDirectory: rootPath('node_modules/.cache/vue-loader'),

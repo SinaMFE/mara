@@ -14,7 +14,7 @@ const chalk = require('chalk')
 const ora = require('ora')
 const glob = require('glob')
 const webpack = require('webpack')
-const { getViews } = require('../libs/utils')
+const { getViews } = require('../lib/utils')
 const config = require('../config')
 const { GLOB } = require('../config/const')
 const getContext = require('../config/context')
@@ -22,14 +22,14 @@ const paths = config.paths
 const getWebpackProdConf = require('../webpack/webpack.prod.conf')
 const getWebpackLibConf = require('../webpack/webpack.lib.conf')
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages')
-const printBuildError = require('../libs/printBuildError')
-const skeleton = require('../libs/skeleton')
+const printBuildError = require('../lib/printBuildError')
+const skeleton = require('../lib/skeleton')
 const {
   getLastBuildSize,
   printBuildResult,
   getBuildSizeOfFileMap
-} = require('../libs/buildReporter')
-const prehandleConfig = require('../libs/prehandleConfig')
+} = require('../lib/buildReporter')
+const prehandleConfig = require('../lib/prehandleConfig')
 const { Stopwatch } = require('@mara/devkit')
 let shouldBuildDemos = false
 

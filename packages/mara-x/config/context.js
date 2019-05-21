@@ -2,7 +2,7 @@ const { getGitRepoName } = require('@mara/devkit')
 const config = require('./index')
 const getEnv = require('./env')
 const { TARGET, HYBRID_PUBLIC_PATH, DEV_PUBLIC_PATH } = require('./const')
-const resolvePublicPath = require('../libs/resolvePublicPath')
+const resolvePublicPath = require('../lib/resolvePublicPath')
 const { deployEnv, globalEnv, paths, target } = config
 const isDev = process.env.NODE_ENV === 'development'
 

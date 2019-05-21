@@ -2,7 +2,7 @@
 
 const path = require('path')
 const C = require('./const')
-const { rootPath } = require('../libs/utils')
+const { rootPath } = require('../lib/utils')
 
 const resolveOwn = relativePath => path.resolve(__dirname, '..', relativePath)
 

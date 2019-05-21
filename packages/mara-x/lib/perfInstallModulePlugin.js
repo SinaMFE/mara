@@ -2,26 +2,30 @@
 	MIT License http://www.opensource.org/licenses/mit-license.php
 	Author Tobias Koppers @sokra
 */
-"use strict";
-let path = require("path");
+'use strict'
+let path = require('path')
 module.exports = class perfInstallModulePlugin {
-	constructor(options) {
-        this.options = options || {};
-        this.PackageJSON= require(path.join(process.cwd(),"./package.json"));
-        this.options.url = this.options.url?this.options.url:"";
-	}
-	apply(compiler) {
-        let me =this;
-		compiler.plugin("compilation", (compilation, params) => {
-            compilation.mainTemplate.plugin("local-vars", function(source, chunk, hash){
-                return this.asString([
-                    source,
-                    "// The module cache",
-                    `let countTimeMap = {};`,
-                    `let RecordTime=[];
+  constructor(options) {
+    this.options = options || {}
+    this.PackageJSON = require(path.join(process.cwd(), './package.json'))
+    this.options.url = this.options.url ? this.options.url : ''
+  }
+  apply(compiler) {
+    let me = this
+    compiler.plugin('compilation', (compilation, params) => {
+      compilation.mainTemplate.plugin('local-vars', function(
+        source,
+        chunk,
+        hash
+      ) {
+        return this.asString([
+          source,
+          '// The module cache',
+          `let countTimeMap = {};`,
+          `let RecordTime=[];
                      let currentNode_COUNT=null;
                     `,
-                    `let countTimeArr = [];
+          `let countTimeArr = [];
                     let pageName='';
                     if(typeof window !=='undefined'){
                         pageName =window["location"].pathname.split(".")[0];
@@ -71,7 +75,7 @@ module.exports = class perfInstallModulePlugin {
                         return result
                       }
                     `,
-                    `setTimeout(function(){
+          `setTimeout(function(){
                         
                         let projectName = '${me.PackageJSON.name}';
                         let version = '${me.PackageJSON.version}';
@@ -122,23 +126,31 @@ module.exports = class perfInstallModulePlugin {
                         }
                         console.table(resultMap.slice(0,20));
                     },5000)`,
-                    "var installedModules = {};"
-                ]);
-            });
-            compilation.mainTemplate.plugin("require", function(source, chunk, hash){
-                return this.asString([
-                    "// Check if module is in cache",
-                    "if(installedModules[moduleId]) {",
-                    this.indent("return installedModules[moduleId].exports;"),
-                    "}",
-                    "// Create a new module (and put it into the cache)",
-                    "var module = installedModules[moduleId] = {",
-                    this.indent(this.applyPluginsWaterfall("module-obj", "", chunk, hash, "moduleId")),
-                    "};",
-                    "",
-                    this.asString( [
-                        "// Execute the module function",
-                        `
+          'var installedModules = {};'
+        ])
+      })
+      compilation.mainTemplate.plugin('require', function(source, chunk, hash) {
+        return this.asString([
+          '// Check if module is in cache',
+          'if(installedModules[moduleId]) {',
+          this.indent('return installedModules[moduleId].exports;'),
+          '}',
+          '// Create a new module (and put it into the cache)',
+          'var module = installedModules[moduleId] = {',
+          this.indent(
+            this.applyPluginsWaterfall(
+              'module-obj',
+              '',
+              chunk,
+              hash,
+              'moduleId'
+            )
+          ),
+          '};',
+          '',
+          this.asString([
+            '// Execute the module function',
+            `
                             let start = new Date();
                             RecordTime.push({
                                 moduleId:moduleId,
@@ -148,8 +160,12 @@ module.exports = class perfInstallModulePlugin {
                             countTimeMap[moduleId]={start:start};
                             currentNode_COUNT=moduleId;
                         `,
-                        `modules[moduleId].call(module.exports, module, module.exports, ${this.renderRequireFunctionForModule(hash, chunk, "moduleId")});`,
-                        `
+            `modules[moduleId].call(module.exports, module, module.exports, ${this.renderRequireFunctionForModule(
+              hash,
+              chunk,
+              'moduleId'
+            )});`,
+            `
                         let end =new Date();
                         countTimeMap[moduleId].end=end;
                         countTimeMap[moduleId].time=countTimeMap[moduleId].end-countTimeMap[moduleId].start;
@@ -164,15 +180,15 @@ module.exports = class perfInstallModulePlugin {
                             type:"end"
                         })
                         `
-                    ]),
-                    "",
-                    "// Flag the module as loaded",
-                    "module.l = true;",
-                    "",
-                    "// Return the exports of the module",
-                    "return module.exports;"
-                ]);
-            });
-		});
-	}
-};
+          ]),
+          '',
+          '// Flag the module as loaded',
+          'module.l = true;',
+          '',
+          '// Return the exports of the module',
+          'return module.exports;'
+        ])
+      })
+    })
+  }
+}

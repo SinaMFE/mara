@@ -13,7 +13,7 @@ const chalk = require('chalk')
 const execSync = require('child_process').execSync
 const { execa } = require('@mara/devkit')
 const os = require('os')
-const { sortObject } = require('../libs/utils')
+const { sortObject } = require('../lib/utils')
 // const verifyTypeScriptSetup = require('./utils/verifyTypeScriptSetup')
 
 const TMPL_VUE = 'project-vue'

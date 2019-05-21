@@ -13,8 +13,8 @@ const chalk = require('chalk')
 const path = require('path')
 const ora = require('ora')
 const webpack = require('webpack')
-const getEntry = require('../libs/entry')
-const { bumpProjectVersion } = require('../libs/utils')
+const getEntry = require('../lib/entry')
+const { bumpProjectVersion } = require('../lib/utils')
 const { cliBadge } = require('@mara/devkit')
 const config = require('../config')
 const getContext = require('../config/context')
@@ -22,14 +22,14 @@ const { TARGET, DEPLOY_ENV } = require('../config/const')
 const paths = config.paths
 const getWebpackConfig = require('../webpack/webpack.prod.conf')
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages')
-const { hybridDevPublish, testDeploy } = require('../libs/hybrid')
-const printBuildError = require('../libs/printBuildError')
+const { hybridDevPublish, testDeploy } = require('../lib/hybrid')
+const printBuildError = require('../lib/printBuildError')
 const {
   getLastBuildSize,
   printBuildResult,
   getBuildSizeOfFileMap
-} = require('../libs/buildReporter')
-const prehandleConfig = require('../libs/prehandleConfig')
+} = require('../lib/buildReporter')
+const prehandleConfig = require('../lib/prehandleConfig')
 const isHybridMode = config.hybrid && config.target === TARGET.APP
 
 const { name: projectName, version: latestVersion } = require(config.paths
@@ -237,7 +237,7 @@ function success({
 async function ftp(options) {
   if (options.ftpBranch === null) return options
 
-  const remotePath = await require('../libs/ftp').uploadDir({
+  const remotePath = await require('../lib/ftp').uploadDir({
     project: projectName,
     view: options.entry,
     namespace: options.ftpBranch,

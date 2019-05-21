@@ -10,7 +10,7 @@ process.on('unhandledRejection', err => {
 
 const chalk = require('chalk')
 const config = require('../config')
-const { isObject, isNotEmptyArray } = require('../libs/utils')
+const { isObject, isNotEmptyArray } = require('../lib/utils')
 const paths = config.paths
 const vendorConf = config.vendor || []
 
@@ -35,8 +35,8 @@ const fs = require('fs-extra')
 const ora = require('ora')
 const webpack = require('webpack')
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages')
-const printBuildError = require('../libs/printBuildError')
-const prehandleConfig = require('../libs/prehandleConfig')
+const printBuildError = require('../lib/printBuildError')
+const prehandleConfig = require('../lib/prehandleConfig')
 const input = config.argv._
 let webpackDllConfig = require('../webpack/webpack.dll.conf')()
 
@@ -86,7 +86,7 @@ function ftp() {
 
   const { name: projectName } = require(config.paths.packageJson)
 
-  require('../libs/ftp').uploadDir({
+  require('../lib/ftp').uploadDir({
     project: projectName,
     view: vendorDir,
     namespace: input[0]

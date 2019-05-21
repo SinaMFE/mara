@@ -16,15 +16,15 @@ const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const InlineChunkHtmlPlugin = require('react-dev-utils/InlineChunkHtmlPlugin')
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin')
 
-// const { HybridCommonPlugin } = require('../libs/hybrid')
-const { banner, rootPath, getEntryPoints } = require('../libs/utils')
-const BuildProgressPlugin = require('../libs/BuildProgressPlugin')
-const InlineUmdHtmlPlugin = require('../libs/InlineUmdHtmlPlugin')
+// const { HybridCommonPlugin } = require('../lib/hybrid')
+const { banner, rootPath, getEntryPoints } = require('../lib/utils')
+const BuildProgressPlugin = require('../lib/BuildProgressPlugin')
+const InlineUmdHtmlPlugin = require('../lib/InlineUmdHtmlPlugin')
 const { GLOB, VIEWS_DIR, DLL_DIR, TARGET } = require('../config/const')
-const ManifestPlugin = require('../libs/hybrid/ManifestPlugin')
-const BuildJsonPlugin = require('../libs/BuildJsonPlugin')
-const { SinaHybridPlugin } = require('../libs/hybrid')
-const ZenJsPlugin = require('../libs/ZenJsPlugin')
+const ManifestPlugin = require('../lib/hybrid/ManifestPlugin')
+const BuildJsonPlugin = require('../lib/BuildJsonPlugin')
+const { SinaHybridPlugin } = require('../lib/hybrid')
+const ZenJsPlugin = require('../lib/ZenJsPlugin')
 const config = require('../config')
 
 const shouldUseSourceMap = !!config.build.sourceMap
@@ -312,7 +312,7 @@ module.exports = function(context, spinner) {
   // @TODO publish npm module
   // 生成serviceworker
   // if (config.sw) {
-  //   const webpackWS = require('@mfelibs/webpack-create-serviceworker')
+  //   const webpackWS = require('@mfelib/webpack-create-serviceworker')
   //   const swConfig = config.sw_config || {}
   //   webpackConfig.plugins.push(new webpackWS(swConfig))
   // }

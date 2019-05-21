@@ -4,8 +4,8 @@ const path = require('path')
 const merge = require('webpack-merge')
 const config = require('../../config')
 const paths = config.paths
-const getCacheIdentifier = require('../../libs/getCacheIdentifier')
-const inlineJson = require.resolve('../../libs/babelInlineJson')
+const getCacheIdentifier = require('../../lib/getCacheIdentifier')
+const inlineJson = require.resolve('../../lib/babelInlineJson')
 
 const externalMoudles = [paths.src, paths.test].concat(
   // 越来越多的库如 swiper 采用 es6 发布

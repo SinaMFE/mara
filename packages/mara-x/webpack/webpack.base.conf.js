@@ -13,7 +13,7 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const tsImportPluginFactory = require('ts-import-plugin')
 
 const getStyleLoaders = require('./loaders/style-loader')
-const getCacheIdentifier = require('../libs/getCacheIdentifier')
+const getCacheIdentifier = require('../lib/getCacheIdentifier')
 const config = require('../config')
 const { GLOB, VIEWS_DIR } = require('../config/const')
 const {
@@ -25,7 +25,7 @@ const {
   vueLoaderOptions,
   vueLoaderCacheConfig
 } = require('./loaders/vue-loader.conf')
-const { getEntries, rootPath, isInstalled } = require('../libs/utils')
+const { getEntries, rootPath, isInstalled } = require('../lib/utils')
 const paths = config.paths
 
 module.exports = function({ entry, buildEnv, publicPath }) {

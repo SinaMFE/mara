@@ -9,7 +9,7 @@ const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 
 const config = require('../config')
 const { GLOB } = require('../config/const')
-const { banner, getEntries } = require('../libs/utils')
+const { banner, getEntries } = require('../lib/utils')
 const shouldUseSourceMap = config.build.sourceMap
 
 function getLibName(name) {

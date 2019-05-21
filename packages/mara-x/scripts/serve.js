@@ -12,11 +12,11 @@ const webpack = require('webpack')
 const { getFreePort } = require('@mara/devkit')
 const config = require('../config')
 const getContext = require('../config/context')
-const getEntry = require('../libs/entry')
+const getEntry = require('../lib/entry')
 const getWebpackConfig = require('../webpack/webpack.dev.conf')
 const createDevServerConfig = require('../webpack/webpack.devServer.conf')
-const prehandleConfig = require('../libs/prehandleConfig')
-const DevServerPlugin = require('../libs/DevServerPlugin')
+const prehandleConfig = require('../lib/prehandleConfig')
+const DevServerPlugin = require('../lib/DevServerPlugin')
 const DEFAULT_PORT = parseInt(process.env.PORT, 10) || config.devServer.port
 const PROTOCOL = config.devServer.https === true ? 'https' : 'http'
 const spinner = ora('Starting development server...')
@@ -26,7 +26,7 @@ function getCompiler(webpackConf) {
 
   addDevClientToEntry(webpackConf, [
     // 使用 CRA 提供的 client，展示更友好的错误信息
-    require.resolve('../libs/hotDevClient')
+    require.resolve('../lib/hotDevClient')
   ])
 
   return compiler
