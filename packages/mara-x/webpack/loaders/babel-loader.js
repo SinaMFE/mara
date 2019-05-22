@@ -6,6 +6,7 @@ const config = require('../../config')
 const paths = config.paths
 const getCacheIdentifier = require('../../lib/getCacheIdentifier')
 const inlineJson = require.resolve('../../lib/babelInlineJson')
+const { isInstalled } = require('../../lib/utils')
 
 const externalMoudles = [paths.src, paths.test].concat(
   // 越来越多的库如 swiper 采用 es6 发布
@@ -57,7 +58,9 @@ const baseLoader = isProd => ({
     presets: [
       [
         require.resolve('babel-preset-react-app'),
-        { flow: false, typescript: true }
+        // 为了避免引入不必要的插件
+        // 需要判断安装 flow-bin 后，启用 flow 语法支持
+        { flow: isInstalled('flow-bin'), typescript: true }
       ]
     ],
     // 严格确保缓存标识唯一

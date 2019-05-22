@@ -50,7 +50,21 @@ module.exports = function({ entry, buildEnv, publicPath }) {
     jsx: 'preserve'
   }
 
-  const extensions = ['.mjs', '.js', '.ts', '.tsx', '.jsx', '.vue', '.json']
+  // react native web 为 .web. 后缀
+  const extensions = [
+    '.web.mjs',
+    '.mjs',
+    '.web.js',
+    '.js',
+    '.web.ts',
+    '.ts',
+    '.web.tsx',
+    '.tsx',
+    '.web.jsx',
+    '.jsx',
+    '.vue',
+    '.json'
+  ]
 
   let tsImportLibs = []
   if (config.tsImportLibs) {
@@ -89,6 +103,7 @@ module.exports = function({ entry, buildEnv, publicPath }) {
         // 使用特殊符号防止与 npm 包冲突
         // import '~/css/style.css'
         '~': paths.src,
+        'react-native': 'react-native-web',
         vue$: `vue/dist/vue${vueRuntimeOnly ? '.runtime' : ''}.esm.js`
       },
       plugins: [
