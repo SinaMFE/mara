@@ -116,7 +116,7 @@ const maraContext = {
   // 编译配置
   compiler: maraConf.compiler,
   // 通知 babel 以项目级配置编译 node_module 里额外的模块
-  esm: ['@mfelibs'],
+  esm: maraConf.esm,
   // 打包 dll
   vendor: maraConf.vendor,
   paths: paths,
