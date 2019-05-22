@@ -5,7 +5,7 @@ const devalue = require('devalue')
 const chalk = require('chalk')
 const semver = require('semver')
 const ConcatSource = require('webpack-sources/lib/ConcatSource')
-const { rootPath } = require('../../libs/utils')
+const { rootPath } = require('../../lib/utils')
 const ManifestPlugin = require('./ManifestPlugin')
 
 /**
