@@ -54,16 +54,19 @@ function createCSSRule(cssOptions = {}, preProcessor) {
   cssOptions.cssPublicPath = createCSSRule.publicPath || './'
   cssOptions.isLib = createCSSRule.isLib
 
+  // 预先生成 loader 配置，避免 cssOptions 注入失败
+  const styleLoaders = getStyleLoaders(cssOptions, preProcessor)
+
   return [
     {
       // rules for <style lang="module">
       resourceQuery: /module/,
-      loader: getStyleLoaders(cssOptions, preProcessor),
+      loader: styleLoaders,
       sideEffects: isProd
     },
     {
       resourceQuery: /\?vue/, // foo.css?inline
-      loader: getStyleLoaders(cssOptions, preProcessor),
+      loader: styleLoaders,
       // Don't consider CSS imports dead code even if the
       // containing package claims to have no side effects.
       // Remove this when webpack adds a warning or an error for this.
@@ -71,7 +74,7 @@ function createCSSRule(cssOptions = {}, preProcessor) {
       sideEffects: isProd
     },
     {
-      loader: getStyleLoaders(cssOptions, preProcessor),
+      loader: styleLoaders,
       sideEffects: isProd
     }
   ]
