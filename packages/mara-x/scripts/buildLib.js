@@ -117,7 +117,9 @@ async function build(options) {
 }
 
 function clean(options) {
-  const distArr = [options.distDir, options.libDir]
+  const distArr = [options.libDir]
+
+  if (shouldBuildDemos) distArr.push(options.distDir)
 
   return Promise.all(distArr.map(dir => fs.emptyDir(dir))).then(() => options)
 }

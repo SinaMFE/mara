@@ -9,19 +9,9 @@ const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 
 const config = require('../config')
 const { GLOB } = require('../config/const')
+const { getLibraryExportName } = require('../lib/getLibraryExportName')
 const { banner, getEntries } = require('../lib/utils')
 const shouldUseSourceMap = config.build.sourceMap
-
-function getLibName(name) {
-  const str = name.replace(/^@\w+\//i, '').replace(/_|-/g, '.')
-  const camelCaseByDot = name => {
-    const upperFirstChar = str =>
-      str.replace(/^[a-z]{1}/, match => match.toUpperCase())
-    return name.split('.').reduce((camel, cur) => camel + upperFirstChar(cur))
-  }
-
-  return camelCaseByDot(str)
-}
 
 /**
  * 生成生产配置
@@ -36,6 +26,10 @@ module.exports = function(options, context) {
 
   // 优先取外部注入的 version
   const buildVersion = context.version || pkgVersion
+  const libraryName = getLibraryExportName(
+    options.format,
+    config.library || pkgName
+  )
 
   const webpackConfig = merge(baseWebpackConfig, {
     mode: options.mode || 'production',
@@ -46,7 +40,7 @@ module.exports = function(options, context) {
     output: {
       path: config.paths.lib,
       filename: options.filename,
-      library: config.library || getLibName(pkgName),
+      library: libraryName,
       // https://doc.webpack-china.org/configuration/output/#output-librarytarget
       libraryTarget: options.format
     },
