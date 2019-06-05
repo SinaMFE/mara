@@ -103,7 +103,8 @@ module.exports = function({ entry, buildEnv, publicPath }) {
         // 使用特殊符号防止与 npm 包冲突
         // import '~/css/style.css'
         '~': paths.src,
-        'react-native': 'react-native-web',
+        // 末尾指定 $ 防止误匹配
+        'react-native$': 'react-native-web',
         vue$: `vue/dist/vue${vueRuntimeOnly ? '.runtime' : ''}.esm.js`
       },
       plugins: [
