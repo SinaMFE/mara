@@ -60,6 +60,21 @@
       "description": "Library global name.",
       "type": "string"
     },
+    "esm": {
+      "description": "Module name that requires full compilation.",
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "instanceof": "RegExp",
+            "tsType": "RegExp"
+          }
+        ]
+      }
+    },
     "tsImportLibs": {
       "type": "array",
       "items": { "type": "object" }

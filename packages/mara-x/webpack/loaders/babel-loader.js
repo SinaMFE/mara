@@ -14,13 +14,24 @@ const externalMoudles = [paths.src, paths.test].concat(
   babelExternalMoudles('all')
 )
 
+// 支持对依赖模块进行正则或字符串匹配
 function nodeModulesRegExp(...args) {
   // path.sep 指定平台特定的分隔符
   // Windows: \   POSIX: /
   // 参考：http://nodejs.cn/api/path.html#path_path_sep
   return args
     .reduce((res, item) => res.concat(item), [])
-    .map(mod => new RegExp(`node_modules\\${path.sep}${mod}?`))
+    .map(condition => {
+      if (condition instanceof RegExp) {
+        // 由于要拼接为新的正则，因此去除 ^
+        condition = condition.source.replace(/^\^/, '')
+
+        return new RegExp(`node_modules\\${path.sep}${condition}`)
+      }
+
+      // 当为字符串时，严格匹配包名
+      return new RegExp(`node_modules\\${path.sep}${condition}\\${path.sep}`)
+    })
 }
 
 function babelExternalMoudles(esm) {
