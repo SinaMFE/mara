@@ -16,12 +16,12 @@
 // that looks similar to our console output. The error overlay is inspired by:
 // https://github.com/glenjamin/webpack-hot-middleware
 
-var url = require('url')
-var SockJS = require('sockjs-client')
-var stripAnsi = require('@mara/devkit/lib/stripAnsi')
-var launchEditorEndpoint = require('react-dev-utils/launchEditorEndpoint')
-var formatWebpackMessages = require('react-dev-utils/formatWebpackMessages')
-var ErrorOverlay = require('react-error-overlay')
+const url = require('url')
+const SockJS = require('sockjs-client')
+const stripAnsi = require('@mara/devkit/lib/stripAnsi')
+const launchEditorEndpoint = require('react-dev-utils/launchEditorEndpoint')
+const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages')
+const ErrorOverlay = require('react-error-overlay')
 
 ErrorOverlay.setEditorHandler(function editorHandler(errorLocation) {
   // Keep this sync with errorOverlayMiddleware.js
@@ -42,7 +42,7 @@ ErrorOverlay.setEditorHandler(function editorHandler(errorLocation) {
 // application. This is handled below when we are notified of a compile (code
 // change).
 // See https://github.com/facebook/create-react-app/issues/3096
-var hadRuntimeError = false
+let hadRuntimeError = false
 ErrorOverlay.startReportingRuntimeErrors({
   onError: function() {
     hadRuntimeError = true
@@ -58,7 +58,7 @@ if (module.hot && typeof module.hot.dispose === 'function') {
 }
 
 // Connect to WebpackDevServer via a socket.
-var connection = new SockJS(
+const connection = new SockJS(
   url.format({
     protocol: window.location.protocol,
     hostname: window.location.hostname,
@@ -80,9 +80,9 @@ connection.onclose = function() {
 }
 
 // Remember some state related to hot module replacement.
-var isFirstCompilation = true
-var mostRecentCompilationHash = null
-var hasCompileErrors = false
+let isFirstCompilation = true
+let mostRecentCompilationHash = null
+let hasCompileErrors = false
 
 function clearOutdatedErrors() {
   // Clean up outdated compile errors, if any.
@@ -97,7 +97,7 @@ function clearOutdatedErrors() {
 function handleSuccess() {
   clearOutdatedErrors()
 
-  var isHotUpdate = !isFirstCompilation
+  const isHotUpdate = !isFirstCompilation
   isFirstCompilation = false
   hasCompileErrors = false
 
@@ -112,19 +112,19 @@ function handleSuccess() {
 function handleWarnings(warnings) {
   clearOutdatedErrors()
 
-  var isHotUpdate = !isFirstCompilation
+  const isHotUpdate = !isFirstCompilation
   isFirstCompilation = false
   hasCompileErrors = false
 
   function printWarnings() {
     // Print warnings to the console.
-    var formatted = formatWebpackMessages({
+    const formatted = formatWebpackMessages({
       warnings: warnings,
       errors: []
     })
 
     if (typeof console !== 'undefined' && typeof console.warn === 'function') {
-      for (var i = 0; i < formatted.warnings.length; i++) {
+      for (let i = 0; i < formatted.warnings.length; i++) {
         if (i === 5) {
           console.warn(
             'There were more warnings in other files.\n' +
@@ -157,7 +157,7 @@ function handleErrors(errors) {
   hasCompileErrors = true
 
   // "Massage" webpack messages.
-  var formatted = formatWebpackMessages({
+  const formatted = formatWebpackMessages({
     errors: errors,
     warnings: []
   })
@@ -167,7 +167,7 @@ function handleErrors(errors) {
 
   // Also log them to the console.
   if (typeof console !== 'undefined' && typeof console.error === 'function') {
-    for (var i = 0; i < formatted.errors.length; i++) {
+    for (let i = 0; i < formatted.errors.length; i++) {
       console.error(stripAnsi(formatted.errors[i]))
     }
   }
@@ -190,7 +190,7 @@ function handleAvailableHash(hash) {
 
 // Handle messages from the server.
 connection.onmessage = function(e) {
-  var message = JSON.parse(e.data)
+  const message = JSON.parse(e.data)
   switch (message.type) {
     case 'hash':
       handleAvailableHash(message.data)
@@ -258,7 +258,7 @@ function tryApplyUpdates(onHotUpdateSuccess) {
   }
 
   // https://webpack.github.io/docs/hot-module-replacement.html#check
-  var result = module.hot.check(/* autoApply */ true, handleApplyUpdates)
+  const result = module.hot.check(/* autoApply */ true, handleApplyUpdates)
 
   // // Webpack 2 returns a Promise instead of invoking a callback
   if (result && result.then) {
