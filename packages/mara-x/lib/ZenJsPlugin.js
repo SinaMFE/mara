@@ -8,6 +8,7 @@ module.exports = class ZenJsPlugin {
   }
 
   genZenJs(compiler) {
+    // 在 emit 阶段生成无 js 后缀脚本，以确保被正确压缩
     compiler.hooks.emit.tap(this.constructor.name, compilation => {
       const entryNames = Array.from(compilation.entrypoints.keys())
 
@@ -17,8 +18,12 @@ module.exports = class ZenJsPlugin {
           .getFiles()
 
         entryPointFiles.forEach(chunkFile => {
-          compilation.assets[removeJsExt(chunkFile)] =
-            compilation.assets[chunkFile]
+          if (!chunkFile.endsWith('.js')) return
+
+          const name = removeJsExt(chunkFile)
+
+          compilation.assets[name] = compilation.assets[chunkFile]
+          compilation.assets[name]._fileExt = 'js'
         })
       })
     })

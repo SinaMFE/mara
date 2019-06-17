@@ -96,7 +96,7 @@ class BuildJsonPlugin {
   }
 
   getAssetsManifest(compilation, publicPath) {
-    const stats = compilation.getStats().toJson()
+    const stats = compilation.getStats()
 
     const getFileType = str => {
       str = str.replace(/\?.*/, '')
@@ -110,11 +110,13 @@ class BuildJsonPlugin {
         const isInitial = chunk.isOnlyInitial()
 
         if (name) {
+          const fileType = getFileType(path)
+
           if (isInitial) {
-            name = `static/${getFileType(path)}/` + name
+            name = `static/${fileType}/` + name
           }
 
-          name += '.' + getFileType(path)
+          name += '.' + fileType
         } else {
           // For nameless chunks, just map the files directly.
           name = path
@@ -141,7 +143,7 @@ class BuildJsonPlugin {
 
     // module assets don't show up in assetsByChunkName.
     // we're getting them this way;
-    files = stats.assets.reduce((files, asset) => {
+    files = stats.toJson().assets.reduce((files, asset) => {
       const name = this.moduleAssets[asset.name]
 
       if (name) {
@@ -159,9 +161,18 @@ class BuildJsonPlugin {
 
       if (isEntryAsset) return files
 
+      // 兼容 zenMode
+      let fixAssetName = asset.name
+      if (
+        stats.compilation.assets[asset.name] &&
+        stats.compilation.assets[asset.name]._fileExt === 'js'
+      ) {
+        fixAssetName = asset.name.replace(/\.js$/, '') + '.js'
+      }
+
       return files.concat({
         path: asset.name,
-        name: asset.name,
+        name: fixAssetName,
         isInitial: false,
         isChunk: false,
         isAsset: true,
