@@ -3223,7 +3223,7 @@ browserslist@^4.4.2:
     electron-to-chromium "^1.3.116"
     node-releases "^1.1.11"
 
-browserslist@^4.5.2, browserslist@^4.5.4, browserslist@^4.5.6:
+browserslist@^4.5.2, browserslist@^4.5.4:
   version "4.5.6"
   resolved "https://registry.npm.taobao.org/browserslist/download/browserslist-4.5.6.tgz#ea42e8581ca2513fa7f371d4dd66da763938163d"
   integrity sha1-6kLoWByiUT+n83HU3Wbadjk4Fj0=
@@ -3231,6 +3231,15 @@ browserslist@^4.5.2, browserslist@^4.5.4, browserslist@^4.5.6:
     caniuse-lite "^1.0.30000963"
     electron-to-chromium "^1.3.127"
     node-releases "^1.1.17"
+
+browserslist@^4.6.3:
+  version "4.6.3"
+  resolved "https://registry.npmjs.org/browserslist/-/browserslist-4.6.3.tgz#0530cbc6ab0c1f3fc8c819c72377ba55cf647f05"
+  integrity sha512-CNBqTCq22RKM8wKJNowcqihHJ4SkI8CGeK7KOR9tPboXUuS5Zk5lQgzzTbs4oxD8x+6HUshZUa2OyNI9lR93bQ==
+  dependencies:
+    caniuse-lite "^1.0.30000975"
+    electron-to-chromium "^1.3.164"
+    node-releases "^1.1.23"
 
 bser@^2.0.0:
   version "2.0.0"
@@ -3523,6 +3532,11 @@ caniuse-lite@^1.0.30000963:
   version "1.0.30000967"
   resolved "https://registry.npm.taobao.org/caniuse-lite/download/caniuse-lite-1.0.30000967.tgz#a5039577806fccee80a04aaafb2c0890b1ee2f73"
   integrity sha1-pQOVd4BvzO6AoEqq+ywIkLHuL3M=
+
+caniuse-lite@^1.0.30000975:
+  version "1.0.30000975"
+  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30000975.tgz#d4e7131391dddcf2838999d3ce75065f65f1cdfc"
+  integrity sha512-ZsXA9YWQX6ATu5MNg+Vx/cMQ+hM6vBBSqDeJs8ruk9z0ky4yIHML15MoxcFt088ST2uyjgqyUGRJButkptWf0w==
 
 capture-exit@^1.2.0:
   version "1.2.0"
@@ -5148,6 +5162,11 @@ electron-to-chromium@^1.3.127:
   version "1.3.133"
   resolved "https://registry.npm.taobao.org/electron-to-chromium/download/electron-to-chromium-1.3.133.tgz#c47639c19b91feee3e22fad69f5556142007008c"
   integrity sha1-xHY5wZuR/u4+IvrWn1VWFCAHAIw=
+
+electron-to-chromium@^1.3.164:
+  version "1.3.164"
+  resolved "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.3.164.tgz#8680b875577882c1572c42218d53fa9ba5f71d5d"
+  integrity sha512-VLlalqUeduN4+fayVtRZvGP2Hl1WrRxlwzh2XVVMJym3IFrQUS29BFQ1GP/BxOJXJI1OFCrJ5BnFEsAe8NHtOg==
 
 electron-to-chromium@^1.3.92:
   version "1.3.92"
@@ -9984,6 +10003,13 @@ node-releases@^1.1.17:
   dependencies:
     semver "^5.3.0"
 
+node-releases@^1.1.23:
+  version "1.1.23"
+  resolved "https://registry.npmjs.org/node-releases/-/node-releases-1.1.23.tgz#de7409f72de044a2fa59c097f436ba89c39997f0"
+  integrity sha512-uq1iL79YjfYC0WXoHbC/z28q/9pOl8kSHaXdWmAAc8No+bDwqkZbzIJz55g/MUsPgSGm9LZ7QSUbzTcH5tz47w==
+  dependencies:
+    semver "^5.3.0"
+
 "nopt@2 || 3":
   version "3.0.6"
   resolved "https://registry.npmjs.org/nopt/-/nopt-3.0.6.tgz#c6465dbf08abcd4db359317f79ac68a646b28ff9"
@@ -11457,8 +11483,8 @@ postcss-place@^4.0.1:
 
 postcss-preset-env@^6.6.0:
   version "6.6.0"
-  resolved "http://registry.npm.taobao.org/postcss-preset-env/download/postcss-preset-env-6.6.0.tgz?cache=0&other_urls=http%3A%2F%2Fregistry.npm.taobao.org%2Fpostcss-preset-env%2Fdownload%2Fpostcss-preset-env-6.6.0.tgz#642e7d962e2bdc2e355db117c1eb63952690ed5b"
-  integrity sha1-ZC59li4r3C41XbEXwetjlSaQ7Vs=
+  resolved "https://registry.npmjs.org/postcss-preset-env/-/postcss-preset-env-6.6.0.tgz#642e7d962e2bdc2e355db117c1eb63952690ed5b"
+  integrity sha512-I3zAiycfqXpPIFD6HXhLfWXIewAWO8emOKz+QSsxaUZb9Dp8HbF5kUf+4Wy/AxR33o+LRoO8blEWCHth0ZsCLA==
   dependencies:
     autoprefixer "^9.4.9"
     browserslist "^4.4.2"
