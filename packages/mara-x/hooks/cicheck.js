@@ -22,7 +22,7 @@ async function checkLatestDistView() {
   const files = await fs.readdir(dist)
   const stats = await Promise.all(files.map(getStat))
   const dir = stats.filter(stat => stat.isDirectory())
-  const target = dir.sort((a, b) => a.birthtime - b.birthtime)[0]
+  const target = dir.sort((a, b) => b.birthtime - a.birthtime)[0]
 
   return deployCheck.check({ viewName: target._name, env: 'local' })
 }
