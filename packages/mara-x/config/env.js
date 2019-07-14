@@ -81,7 +81,7 @@ function stringify(raw) {
   }, {})
 }
 
-function getEnv({ publicPath, deployEnv, globalEnv = {} }) {
+function getEnv({ publicPath, deployEnv, globalEnv = {}, version }) {
   // NODE_ENV，PUBLIC_URL 放在 assign 尾部
   // 防止被用户覆盖
   const baseEnv = Object.assign({}, globalEnv, {
@@ -90,6 +90,7 @@ function getEnv({ publicPath, deployEnv, globalEnv = {} }) {
     NODE_ENV: process.env.NODE_ENV || 'development',
     // 命令行获取的 env 具有最高优先级
     DEPLOY_ENV: deployEnv,
+    VERSION: version,
     // 公共资源路径，去除尾 /
     // 在 js 内，以 process.env.PUBLIC_URL 变量存在
     // html 中可使用 %PUBLIC_URL% 占位符

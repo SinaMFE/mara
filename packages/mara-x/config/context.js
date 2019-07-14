@@ -35,7 +35,8 @@ module.exports = async function getContext({ version, view }) {
   const buildEnv = getEnv({
     deployEnv,
     globalEnv,
-    publicPath
+    publicPath,
+    version
   })
 
   return {
