@@ -23,7 +23,6 @@ const InlineUmdHtmlPlugin = require('../lib/InlineUmdHtmlPlugin')
 const { GLOB, VIEWS_DIR, DLL_DIR, TARGET } = require('../config/const')
 const ManifestPlugin = require('../lib/hybrid/ManifestPlugin')
 const BuildJsonPlugin = require('../lib/BuildJsonPlugin')
-// const { SinaHybridPlugin } = require('../lib/hybrid')
 const ZenJsPlugin = require('../lib/ZenJsPlugin')
 const config = require('../config')
 
@@ -191,12 +190,6 @@ module.exports = function(context, spinner) {
       // 创建 maraContext
       // new HybridCommonPlugin(),
 
-      // 确保在 copy Files 之前
-      // isHybridMode &&
-      //   new SinaHybridPlugin(HtmlWebpackPlugin, {
-      //     ...context,
-      //     splitSNC: config.compiler.splitSNC
-      //   }),
       // 【争议】：lib 模式禁用依赖分析?
       new moduleDependency({
         emitError: config.compiler.checkDuplicatePackage
