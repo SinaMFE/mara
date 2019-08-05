@@ -16,7 +16,7 @@ const { GLOB, VIEWS_DIR } = require('../config/const')
 
 module.exports = function(context, spinner) {
   const entry = context.entry
-  const baseWebpackConfig = require('./webpack.base.conf')(context)
+  const baseWebpackConfig = require('./webpack.base.conf')(context, 'dev')
   const servantEntry = getEntryPoints(
     `${VIEWS_DIR}/${entry}/${GLOB.SERVANT_ENTRY}`
   )
@@ -36,26 +36,6 @@ module.exports = function(context, spinner) {
       // Point sourcemap entries to original disk location (format as URL on Windows)
       devtoolModuleFilenameTemplate: info =>
         path.resolve(info.absoluteResourcePath).replace(/\\/g, '/')
-    },
-    // 放在单独的 dev.conf 中，保持 base.conf 通用性
-    optimization: {
-      // Automatically split vendor and commons
-      // https://twitter.com/wSokra/status/969633336732905474
-      // https://medium.com/webpack/webpack-4-code-splitting-chunk-graph-and-the-splitchunks-optimization-be739a861366
-      splitChunks: {
-        chunks(chunk) {
-          // servant entry 仅输出 async 包
-          if (/\.servant/.test(chunk.name)) return false
-
-          return !!config.compiler.splitChunks
-        },
-        // 一些 CDN 不支持 `~`，因此指定为 `-``
-        automaticNameDelimiter: '_',
-        name: true
-      },
-      // Keep the runtime chunk seperated to enable long term caching
-      // https://twitter.com/wSokra/status/969679223278505985
-      runtimeChunk: false
     },
     plugins: [
       // 由于 base.conf 会被外部引用，在一些情况下不需要 ProgressPlugin

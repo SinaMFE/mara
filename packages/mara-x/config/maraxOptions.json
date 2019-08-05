@@ -126,6 +126,10 @@
           "description": "Split initial chunks.",
           "type": "boolean"
         },
+        "splitSNC": {
+          "description": "Split universal-framework.",
+          "type": "boolean"
+        },
         "vueRuntimeOnly": {
           "description": "Compile with vue runtime.",
           "type": "boolean"

@@ -25,7 +25,9 @@ module.exports = {
     // @TODO 移除 console
     dropConsole: false,
     // 分离 initial chunk
-    splitChunks: true
+    splitChunks: true,
+    // 分离 SNC
+    splitSNC: false
   },
   webpackPluginsHandler: (command, webpackConf) => webpackConf,
   proxyTable: {},

@@ -1,5 +1,6 @@
 'use strict'
 
+const fs = require('fs')
 const webpack = require('webpack')
 // PnpWebpackPlugin 即插即用，要使用 require.resolve 解析 loader 路径
 const PnpWebpackPlugin = require('pnp-webpack-plugin')
@@ -14,8 +15,9 @@ const tsImportPluginFactory = require('ts-import-plugin')
 
 const getStyleLoaders = require('./loaders/style-loader')
 const getCacheIdentifier = require('../lib/getCacheIdentifier')
+const { SinaHybridPlugin } = require('../lib/hybrid')
 const config = require('../config')
-const { GLOB, VIEWS_DIR } = require('../config/const')
+const { GLOB, VIEWS_DIR, TARGET } = require('../config/const')
 const {
   babelLoader,
   babelForTs,
@@ -28,11 +30,17 @@ const {
 const { getEntries, rootPath, isInstalled } = require('../lib/utils')
 const paths = config.paths
 
-module.exports = function({ entry, buildEnv, publicPath }) {
+module.exports = function(
+  { entry, buildEnv, target, publicPath, version },
+  cmd
+) {
   const isDev = process.env.NODE_ENV === 'development'
   const isProd = process.env.NODE_ENV === 'production'
-
-  const isLib = entry === '__LIB__'
+  const isLib = cmd === 'lib'
+  const isDevOrBuildCmd = cmd === 'dev' || cmd === 'build'
+  const isHybridMode = target === TARGET.APP
+  const htmlTemplatePath = `${config.paths.views}/${entry}/index.html`
+  const hasHtml = fs.existsSync(htmlTemplatePath)
   const assetsDir = isLib ? '' : 'static/'
   const entryGlob = `${VIEWS_DIR}/${entry}/${GLOB.MAIN_ENTRY}`
   const useTypeScript = config.useTypeScript
@@ -79,9 +87,35 @@ module.exports = function({ entry, buildEnv, publicPath }) {
   getStyleLoaders.publicPath = publicPath
   getStyleLoaders.isLib = isLib
 
+  let entryConf = {}
+  let externals = {}
+
+  const shouldSNCHoisting =
+    isDevOrBuildCmd &&
+    isHybridMode &&
+    config.compiler.splitSNC &&
+    isInstalled('@mfelibs/universal-framework')
+
+  // hybrid SDK 提升，以尽快建立 jsbridge
+  if (shouldSNCHoisting) {
+    entryConf = getEntries(entryGlob)
+    // 从主入口中排除 SNC 依赖
+    externals = {
+      '@mfelibs/universal-framework': '__UNI_SNC__'
+    }
+
+    // 拆分 SNC，由于依赖 Promise，因此一并添加 polyfills
+    entryConf['__UNI_SNC__'] = [
+      require.resolve('./polyfills'),
+      require.resolve('../lib/hybrid/appSNC')
+    ]
+  } else {
+    entryConf = getEntries(entryGlob, require.resolve('./polyfills'))
+  }
+
   const baseConfig = {
     // dev, build 环境依赖 base.entry，务必提供
-    entry: getEntries(entryGlob, require.resolve('./polyfills')),
+    entry: entryConf,
     output: {
       path: paths.dist,
       filename: 'static/js/[name].js',
@@ -282,7 +316,6 @@ module.exports = function({ entry, buildEnv, publicPath }) {
       new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
       !isLib && new webpack.DefinePlugin(buildEnv.stringified),
       new VueLoaderPlugin(),
-
       // TypeScript type checking
       useTypeScript &&
         new ForkTsCheckerWebpackPlugin({
@@ -328,6 +361,40 @@ module.exports = function({ entry, buildEnv, publicPath }) {
     // 禁用包体积性能警告
     performance: {
       hints: false
+    },
+    externals: externals
+  }
+
+  if (isDevOrBuildCmd) {
+    // Automatically split vendor and commons
+    // https://twitter.com/wSokra/status/969633336732905474
+    // https://medium.com/webpack/webpack-4-code-splitting-chunk-graph-and-the-splitchunks-optimization-be739a861366
+    baseConfig.optimization = {
+      splitChunks: {
+        chunks(chunk) {
+          // servant entry 仅输出 async 包
+          if (/\.servant|__UNI_SNC__/.test(chunk.name)) return false
+
+          return !!config.compiler.splitChunks
+        },
+        // 一些 CDN 不支持 `~`，因此指定为 `-``
+        automaticNameDelimiter: '_',
+        name: true
+      }
+    }
+
+    if (isHybridMode) {
+      const HtmlWebpackPlugin = require('html-webpack-plugin')
+
+      // 确保在 copy Files 之前
+      baseConfig.plugins.push(
+        new SinaHybridPlugin(HtmlWebpackPlugin, {
+          entry: entry,
+          version: version,
+          publicPath: publicPath,
+          splitSNC: config.compiler.splitSNC
+        })
+      )
     }
   }
 

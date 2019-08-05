@@ -20,7 +20,7 @@ const shouldUseSourceMap = config.build.sourceMap
  * @return {Object}           webpack 配置对象
  */
 module.exports = function(options, context) {
-  const baseWebpackConfig = require('./webpack.base.conf')(context)
+  const baseWebpackConfig = require('./webpack.base.conf')(context, 'lib')
   const { name: pkgName, version: pkgVersion } = require(config.paths
     .packageJson)
 

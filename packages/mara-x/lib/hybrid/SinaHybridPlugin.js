@@ -5,7 +5,7 @@ const devalue = require('devalue')
 const chalk = require('chalk')
 const semver = require('semver')
 const ConcatSource = require('webpack-sources/lib/ConcatSource')
-const { rootPath } = require('../../lib/utils')
+const { rootPath, isInstalled } = require('../../lib/utils')
 const ManifestPlugin = require('./ManifestPlugin')
 
 /**
@@ -13,9 +13,13 @@ const ManifestPlugin = require('./ManifestPlugin')
  * 未来会通过 manifest 中 version 替代
  */
 class SinaHybridPlugin {
-  constructor(options) {
+  constructor(htmlWebpackPlugin, options) {
     this.entry = options.entry
+    this.publicPath = options.publicPath
     this.version = options.version || require(rootPath('package.json')).version
+    this.htmlWebpackPlugin = htmlWebpackPlugin
+    this.shouldSNCHoisting =
+      options.splitSNC && isInstalled('@mfelibs/universal-framework')
     this.rewriteField = genRewriteFn(ManifestPlugin.getManifestPath(this.entry))
 
     if (!semver.valid(this.version)) {
@@ -29,8 +33,32 @@ class SinaHybridPlugin {
     compiler.hooks.compilation.tap(this.constructor.name, compilation => {
       const maraCtx = compiler['maraContext'] || {}
 
-      this.genVersionFile(compilation)
+      this.splitSNC(compilation)
       this.injectDataSource(compilation, maraCtx.dataSource)
+      this.genVersionFile(compilation)
+    })
+  }
+
+  splitSNC(compilation) {
+    if (!this.shouldSNCHoisting) return
+
+    const hooks = this.htmlWebpackPlugin.getHooks(compilation)
+    const src = this.publicPath + 'static/js/__UNI_SNC__.min.js'
+
+    hooks.alterAssetTagGroups.tap(this.constructor.name, assets => {
+      const idx = assets.bodyTags.findIndex(tag => {
+        return tag.attributes.src.indexOf('__UNI_SNC__.') > -1
+      })
+
+      if (idx < 0) return
+
+      assets.headTags.push({
+        tagName: 'script',
+        attributes: { src: assets.bodyTags[idx].attributes.src },
+        closeTag: true
+      })
+
+      assets.bodyTags.splice(idx, 1)
     })
   }
 
@@ -82,8 +110,6 @@ function genRewriteFn(manPath) {
     ;[].concat(manPath).forEach(path => {
       try {
         const manifest = require(path)
-
-        // if (manifest.version === version) return
 
         manifest[field] = value
         fs.writeFileSync(path, JSON.stringify(manifest, null, 2))

@@ -23,7 +23,7 @@ const InlineUmdHtmlPlugin = require('../lib/InlineUmdHtmlPlugin')
 const { GLOB, VIEWS_DIR, DLL_DIR, TARGET } = require('../config/const')
 const ManifestPlugin = require('../lib/hybrid/ManifestPlugin')
 const BuildJsonPlugin = require('../lib/BuildJsonPlugin')
-const { SinaHybridPlugin } = require('../lib/hybrid')
+// const { SinaHybridPlugin } = require('../lib/hybrid')
 const ZenJsPlugin = require('../lib/ZenJsPlugin')
 const config = require('../config')
 
@@ -38,7 +38,7 @@ const shouldUseSourceMap = !!config.build.sourceMap
 module.exports = function(context, spinner) {
   const entry = context.entry
   const distPageDir = `${config.paths.dist}/${entry}`
-  const baseWebpackConfig = require('./webpack.base.conf')(context)
+  const baseWebpackConfig = require('./webpack.base.conf')(context, 'build')
   const htmlTemplatePath = `${config.paths.views}/${entry}/index.html`
   const hasHtml = fs.existsSync(htmlTemplatePath)
   const servantEntry = getEntryPoints(
@@ -139,20 +139,6 @@ module.exports = function(context, spinner) {
           canPrint: false // 不显示通知
         })
       ],
-      // Automatically split vendor and commons
-      // https://twitter.com/wSokra/status/969633336732905474
-      // https://medium.com/webpack/webpack-4-code-splitting-chunk-graph-and-the-splitchunks-optimization-be739a861366
-      splitChunks: {
-        chunks(chunk) {
-          // servant entry 仅输出 async 包
-          if (/\.servant/.test(chunk.name)) return false
-
-          return !!config.compiler.splitChunks
-        },
-        // 一些 CDN 不支持 `~`，因此指定为 `-``
-        automaticNameDelimiter: '_',
-        name: true
-      },
       // Keep the runtime chunk seperated to enable long term caching
       // https://twitter.com/wSokra/status/969679223278505985
       // set false until https://github.com/webpack/webpack/issues/6598 be resolved
@@ -206,7 +192,11 @@ module.exports = function(context, spinner) {
       // new HybridCommonPlugin(),
 
       // 确保在 copy Files 之前
-      isHybridMode && new SinaHybridPlugin({ entry, version: buildVersion }),
+      // isHybridMode &&
+      //   new SinaHybridPlugin(HtmlWebpackPlugin, {
+      //     ...context,
+      //     splitSNC: config.compiler.splitSNC
+      //   }),
       // 【争议】：lib 模式禁用依赖分析?
       new moduleDependency({
         emitError: config.compiler.checkDuplicatePackage
