@@ -5,8 +5,9 @@ const devalue = require('devalue')
 const chalk = require('chalk')
 const semver = require('semver')
 const ConcatSource = require('webpack-sources/lib/ConcatSource')
-const { rootPath, isInstalled } = require('../../lib/utils')
+const { rootPath } = require('../../lib/utils')
 const ManifestPlugin = require('./ManifestPlugin')
+const { UNI_SNC } = require('../../config/const')
 
 /**
  * 生成版本文件
@@ -18,8 +19,7 @@ class SinaHybridPlugin {
     this.publicPath = options.publicPath
     this.version = options.version || require(rootPath('package.json')).version
     this.htmlWebpackPlugin = htmlWebpackPlugin
-    this.shouldSNCHoisting =
-      options.splitSNC && isInstalled('@mfelibs/universal-framework')
+    this.shouldSNCHoisting = options.splitSNC
     this.rewriteField = genRewriteFn(ManifestPlugin.getManifestPath(this.entry))
 
     if (!semver.valid(this.version)) {
@@ -43,12 +43,11 @@ class SinaHybridPlugin {
     if (!this.shouldSNCHoisting) return
 
     const hooks = this.htmlWebpackPlugin.getHooks(compilation)
-    const src = this.publicPath + 'static/js/__UNI_SNC__.min.js'
 
     hooks.alterAssetTagGroups.tap(this.constructor.name, assets => {
-      const idx = assets.bodyTags.findIndex(tag => {
-        return tag.attributes.src.indexOf('__UNI_SNC__.') > -1
-      })
+      const idx = assets.bodyTags.findIndex(tag =>
+        tag.attributes.src.includes(`${UNI_SNC}.`)
+      )
 
       if (idx < 0) return
 

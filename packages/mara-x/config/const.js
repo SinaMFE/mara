@@ -26,5 +26,6 @@ module.exports = {
   DLL_DIR: 'dll',
   PUBLIC_PATH: './',
   HYBRID_PUBLIC_PATH: './',
-  DEV_PUBLIC_PATH: '/'
+  DEV_PUBLIC_PATH: '/',
+  UNI_SNC: '__UNI_SNC__'
 }

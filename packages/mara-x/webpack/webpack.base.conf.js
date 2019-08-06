@@ -15,9 +15,9 @@ const tsImportPluginFactory = require('ts-import-plugin')
 
 const getStyleLoaders = require('./loaders/style-loader')
 const getCacheIdentifier = require('../lib/getCacheIdentifier')
-const { SinaHybridPlugin } = require('../lib/hybrid')
+const { SinaHybridPlugin, splitSNC } = require('../lib/hybrid')
 const config = require('../config')
-const { GLOB, VIEWS_DIR, TARGET } = require('../config/const')
+const { GLOB, VIEWS_DIR, TARGET, UNI_SNC } = require('../config/const')
 const {
   babelLoader,
   babelForTs,
@@ -87,30 +87,24 @@ module.exports = function(
   getStyleLoaders.publicPath = publicPath
   getStyleLoaders.isLib = isLib
 
+  let externals = []
   let entryConf = {}
-  let externals = {}
 
-  const shouldSNCHoisting =
+  const shouldSplitSNC =
     isDevOrBuildCmd &&
     isHybridMode &&
     config.compiler.splitSNC &&
     isInstalled('@mfelibs/universal-framework')
 
   // hybrid SDK 提升，以尽快建立 jsbridge
-  if (shouldSNCHoisting) {
-    entryConf = getEntries(entryGlob)
-    // 从主入口中排除 SNC 依赖
-    externals = {
-      '@mfelibs/universal-framework': '__UNI_SNC__'
-    }
+  if (shouldSplitSNC) {
+    const sncConf = splitSNC(entryGlob)
 
-    // 拆分 SNC，由于依赖 Promise，因此一并添加 polyfills
-    entryConf['__UNI_SNC__'] = [
-      require.resolve('./polyfills'),
-      require.resolve('../lib/hybrid/appSNC')
-    ]
+    // 使用拆分后的 entry 配置
+    entryConf = sncConf.entry
+    externals.push(...sncConf.externals)
   } else {
-    entryConf = getEntries(entryGlob, require.resolve('./polyfills'))
+    entryConf = getEntries(entryGlob, require.resolve('../lib/polyfills'))
   }
 
   const baseConfig = {
@@ -392,7 +386,7 @@ module.exports = function(
           entry: entry,
           version: version,
           publicPath: publicPath,
-          splitSNC: config.compiler.splitSNC
+          splitSNC: shouldSplitSNC
         })
       )
     }
