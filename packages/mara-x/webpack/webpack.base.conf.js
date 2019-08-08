@@ -1,6 +1,5 @@
 'use strict'
 
-const fs = require('fs')
 const webpack = require('webpack')
 // PnpWebpackPlugin 即插即用，要使用 require.resolve 解析 loader 路径
 const PnpWebpackPlugin = require('pnp-webpack-plugin')
@@ -11,23 +10,17 @@ const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin')
 const { resolve } = require('@mara/devkit')
 const getCSSModuleLocalIdent = require('react-dev-utils/getCSSModuleLocalIdent')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
-// const tsImportPluginFactory = require('ts-import-plugin')
 
 const getStyleLoaders = require('./loaders/style-loader')
-// const getCacheIdentifier = require('../lib/getCacheIdentifier')
 const { SinaHybridPlugin, splitSNC } = require('../lib/hybrid')
 const config = require('../config')
 const { GLOB, VIEWS_DIR, TARGET } = require('../config/const')
-const {
-  babelLoader
-  // babelForTs,
-  // babelExternalMoudles
-} = require('./loaders/babel-loader')
+const { babelLoader } = require('./loaders/babel-loader')
 const {
   vueLoaderOptions,
   vueLoaderCacheConfig
 } = require('./loaders/vue-loader.conf')
-const { getEntries, rootPath, isInstalled } = require('../lib/utils')
+const { getEntries, isInstalled } = require('../lib/utils')
 const paths = config.paths
 
 module.exports = function(
@@ -39,8 +32,6 @@ module.exports = function(
   const isLib = cmd === 'lib'
   const isDevOrBuildCmd = cmd === 'dev' || cmd === 'build'
   const isHybridMode = target === TARGET.APP
-  const htmlTemplatePath = `${config.paths.views}/${entry}/index.html`
-  const hasHtml = fs.existsSync(htmlTemplatePath)
   const assetsDir = isLib ? '' : 'static/'
   const entryGlob = `${VIEWS_DIR}/${entry}/${GLOB.MAIN_ENTRY}`
   const useTypeScript = config.useTypeScript
@@ -73,15 +64,6 @@ module.exports = function(
     '.vue',
     '.json'
   ]
-
-  let tsImportLibs = []
-  if (config.tsImportLibs) {
-    if (Array.isArray(config.tsImportLibs)) {
-      tsImportLibs = config.tsImportLibs
-    } else {
-      throw Error('marauder.config.js 中的 tsImportLibs 必须是 Array 类型！')
-    }
-  }
 
   // 统一设置 loaders 配置
   getStyleLoaders.publicPath = publicPath
@@ -219,47 +201,6 @@ module.exports = function(
           // Process JS with Babel.
           oneOf: babelLoader(isProd, useTypeScript)
         },
-        // {
-        //   test: /\.tsx?$/,
-        //   include: babelExternalMoudles,
-        //   use: [
-        //     {
-        //       loader: require.resolve('cache-loader'),
-        //       options: {
-        //         cacheDirectory: rootPath('node_modules/.cache/ts-loader'),
-        //         cacheIdentifier: getCacheIdentifier(['ts-loader', 'typescript'])
-        //       }
-        //     },
-        //     babelForTs(isProd),
-        //     {
-        //       loader: require.resolve('ts-loader'),
-        //       options: {
-        //         appendTsSuffixTo: ['\\.vue$'],
-        //         // disable type checker
-        //         // 起到加速作用
-        //         // transpileOnly: true,
-        //         // https://webpack.docschina.org/guides/build-performance/#typescript-loader
-        //         experimentalWatchApi: isDev,
-        //         getCustomTransformers: tsImportLibs.length
-        //           ? () => ({
-        //               before: [tsImportPluginFactory(tsImportLibs)]
-        //             })
-        //           : undefined,
-        //         compilerOptions: tsCompilerOptions,
-        //         // 仅打包被 webpack 加载的模块
-        //         onlyCompileBundledFiles: true,
-        //         allowTsInNodeModules: true,
-        //         errorFormatter: error => {
-        //           // ForkTsCheckerWebpackPlugin 使用 `diagnostic` 标识 ts 错误
-        //           // 这里同样指定 type，方便错误归类
-        //           return Object.assign({}, error, { type: 'diagnostic' })
-        //         }
-        //         // https://github.com/TypeStrong/ts-loader#happypackmode-boolean-defaultfalse
-        //         // happyPackMode: useThreads
-        //       }
-        //     }
-        //   ]
-        // },
         {
           test: /\.(bmp|png|jpe?g|gif|webp)(\?.*)?$/,
           loader: require.resolve('url-loader'),
