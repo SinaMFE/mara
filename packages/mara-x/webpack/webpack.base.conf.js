@@ -11,17 +11,17 @@ const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin')
 const { resolve } = require('@mara/devkit')
 const getCSSModuleLocalIdent = require('react-dev-utils/getCSSModuleLocalIdent')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
-const tsImportPluginFactory = require('ts-import-plugin')
+// const tsImportPluginFactory = require('ts-import-plugin')
 
 const getStyleLoaders = require('./loaders/style-loader')
-const getCacheIdentifier = require('../lib/getCacheIdentifier')
+// const getCacheIdentifier = require('../lib/getCacheIdentifier')
 const { SinaHybridPlugin, splitSNC } = require('../lib/hybrid')
 const config = require('../config')
-const { GLOB, VIEWS_DIR, TARGET, UNI_SNC } = require('../config/const')
+const { GLOB, VIEWS_DIR, TARGET } = require('../config/const')
 const {
-  babelLoader,
-  babelForTs,
-  babelExternalMoudles
+  babelLoader
+  // babelForTs,
+  // babelExternalMoudles
 } = require('./loaders/babel-loader')
 const {
   vueLoaderOptions,
@@ -366,8 +366,10 @@ module.exports = function(
     baseConfig.optimization = {
       splitChunks: {
         chunks(chunk) {
-          // servant entry 仅输出 async 包
-          if (/\.servant|__UNI_SNC__/.test(chunk.name)) return false
+          const isServantOrSNC = /\.servant|__UNI_SNC__/.test(chunk.name)
+
+          // 仅输出 async 包
+          if (isServantOrSNC || isHybridMode) return false
 
           return !!config.compiler.splitChunks
         },
