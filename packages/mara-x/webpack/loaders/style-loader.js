@@ -14,7 +14,9 @@ function getPostCSSPlugins(
 ) {
   const basic = [
     require('postcss-flexbugs-fixes'),
-    require('postcss-preset-env')(config.postcss)
+    require('postcss-preset-env')(config.postcss),
+    // @import-normalize 支持，取决于 browserslist 设置
+    require('postcss-normalize')
   ]
   const advanced = [
     // 提供代码段引入，为了保证引入的代码段能够享受后续的配置
