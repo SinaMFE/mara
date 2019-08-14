@@ -107,7 +107,7 @@ module.exports = function(
       // https://doc.webpack-china.org/configuration/resolve/#resolve-mainfields
       // source 为自定义拓展属性，表示源码入口
       mainFields: ['source', 'browser', 'module', 'main'],
-      modules: ['node_modules'],
+      modules: ['node_modules', paths.nodeModules],
       alias: {
         // 使用 `~` 作为 src 别名
         // 使用特殊符号防止与 npm 包冲突
