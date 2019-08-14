@@ -268,7 +268,6 @@ module.exports = function(
           reportFiles: [
             // 检查范围缩小到 src，屏蔽第三方模块的错误
             'src/**',
-            '!**/*.json',
             '!**/__tests__/**',
             '!**/?(*.)(spec|test).*',
             '!**/src/setupProxy.*',
