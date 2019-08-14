@@ -95,7 +95,9 @@ module.exports = function(
     output: {
       path: paths.dist,
       filename: 'static/js/[name].js',
-      chunkFilename: 'static/js/[name].chunk.js'
+      chunkFilename: 'static/js/[name].chunk.js',
+      // TODO: remove this when upgrading to webpack 5
+      futureEmitAssets: true
     },
     resolve: {
       // disable symlinks
