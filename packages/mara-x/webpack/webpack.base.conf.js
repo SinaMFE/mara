@@ -287,6 +287,7 @@ module.exports = function(
       setImmediate: false,
       module: 'empty',
       dgram: 'empty',
+      dns: 'mock',
       fs: 'empty',
       http2: 'empty',
       net: 'empty',
@@ -310,7 +311,8 @@ module.exports = function(
           const isServantOrSNC = /\.servant|__UNI_SNC__/.test(chunk.name)
 
           // 仅输出 async 包
-          if (isServantOrSNC || isHybridMode) return false
+          // hybrid prod 模式不拆 chunk，减少 IO 损耗
+          if (isServantOrSNC || (isHybridMode && isProd)) return false
 
           return !!config.compiler.splitChunks
         },
