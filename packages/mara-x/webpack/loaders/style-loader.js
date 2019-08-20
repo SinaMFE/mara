@@ -139,15 +139,26 @@ function getStyleLoaders(cssOptions = {}, preProcessor) {
   // 确保预处理 loader 在 postcss 之后
   // 以保证实际优先处理
   if (preProcessor) {
-    loaders.push({
-      loader: preProcessor,
-      options: Object.assign(
-        {
+    // 使用 resolve-url-loader 修复片段模块相对路径资源引用问题
+    // https://github.com/facebook/create-react-app/issues/4653
+    loaders.push(
+      {
+        loader: require.resolve('resolve-url-loader'),
+        options: {
           sourceMap: shouldUseSourceMap
-        },
-        cssOptions
-      )
-    })
+        }
+      },
+      {
+        // 不使用 require.resolve，允许按需安装
+        loader: preProcessor,
+        options: Object.assign(
+          {
+            sourceMap: shouldUseSourceMap
+          },
+          cssOptions
+        )
+      }
+    )
   }
 
   return loaders
