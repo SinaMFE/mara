@@ -5,11 +5,10 @@ const errorOverlayMiddleware = require('react-dev-utils/errorOverlayMiddleware')
 const evalSourceMapMiddleware = require('react-dev-utils/evalSourceMapMiddleware')
 const noopServiceWorkerMiddleware = require('react-dev-utils/noopServiceWorkerMiddleware')
 const ignoredFiles = require('react-dev-utils/ignoredFiles')
-const { localIp } = require('@mara/devkit')
 const { rootPath } = require('../lib/utils')
 const paths = require('../config/paths')
 
-module.exports = function({ entry, proxy, protocol, publicPath = '/' }) {
+module.exports = function({ entry, proxy, protocol, publicPath = '/', host }) {
   const localPublicDir = rootPath(`${paths.views}/${entry}/public`)
 
   return {
@@ -56,7 +55,7 @@ module.exports = function({ entry, proxy, protocol, publicPath = '/' }) {
     },
     // Enable HTTPS if the HTTPS environment variable is set to 'true'
     https: protocol === 'https',
-    host: localIp(),
+    host: host,
     overlay: false,
     historyApiFallback: {
       // Paths with dots should still use the history fallback.

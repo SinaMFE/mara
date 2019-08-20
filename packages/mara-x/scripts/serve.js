@@ -9,7 +9,7 @@ process.on('unhandledRejection', err => {
 
 const ora = require('ora')
 const webpack = require('webpack')
-const { getFreePort } = require('@mara/devkit')
+const { getFreePort, localIp } = require('@mara/devkit')
 const config = require('../config')
 const getContext = require('../config/context')
 const getEntry = require('../lib/entry')
@@ -47,10 +47,11 @@ function addDevClientToEntry(config, devClient) {
 }
 
 function createDevServer(webpackConf, opts) {
-  const DevServer = require('webpack-dev-server')
+  const host = localIp()
   const proxyConfig = config.devServer.proxy
   const serverConf = createDevServerConfig({
     entry: opts.entry,
+    host: host,
     proxy: proxyConfig,
     protocol: PROTOCOL,
     publicPath: opts.publicPath
@@ -66,7 +67,7 @@ function createDevServer(webpackConf, opts) {
     spinner,
     protocol: PROTOCOL,
     root: config.paths.app,
-    host: serverConf.host,
+    host: host,
     openBrowser: config.devServer.open,
     useTypeScript: config.useTypeScript,
     onTsError(severity, errors) {
@@ -74,6 +75,7 @@ function createDevServer(webpackConf, opts) {
     }
   }).apply(compiler)
 
+  const DevServer = require('webpack-dev-server')
   const devServer = new DevServer(compiler, serverConf)
 
   return devServer
