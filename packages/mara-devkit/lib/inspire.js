@@ -30,6 +30,7 @@ const quotes = [
   'In programming the hard part isn’t solving problems, but deciding what problems to solve. - Paul Graham',
   'All programming is maintenance programming, because you are rarely writing original code. - Dave Thomas',
   'What I cannot build, I do not understand. - Richard Feynman',
+  'Always implement things when you actually need them, never when you just foresee that you need them. - Ron Jeffries',
   'Marauder loves you. - Vincent'
 ]
 
