@@ -34,12 +34,13 @@ async function upload(filePath, remotePath) {
   })
 }
 
-function getRemotePath({ project, view, namespace, target }) {
+function getRemotePath({ project, view, namespace, target, version }) {
   namespace = namespace ? `branch_${namespace}` : ''
 
   return path.posix.join(
     '/wap_front/marauder',
     project,
+    ftpConf.remotePath.version ? version : '',
     namespace,
     // 添加构建类型标识，隔离环境
     target || '',

@@ -54,7 +54,9 @@ module.exports = {
     password: '',
     reload: true, // 刷新缓存
     openBrowser: true, // 上传完毕后自动打开浏览器
-    remotePath: {},
+    remotePath: {
+      version: false
+    },
     hybridPublish: true, // dev 环境 hybrid 资源包发布
     hybridAutoVersion: true // dev 环境自动更新版本号
   },

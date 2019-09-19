@@ -17,7 +17,7 @@ const getEntry = require('../lib/entry')
 const { bumpProjectVersion } = require('../lib/utils')
 const { cliBadge } = require('@mara/devkit')
 const config = require('../config')
-const getContext = require('../config/context')
+const getBuildContext = require('../config/context')
 const { TARGET, DEPLOY_ENV } = require('../config/const')
 const paths = config.paths
 const getWebpackConfig = require('../webpack/webpack.prod.conf')
@@ -62,7 +62,7 @@ async function setup(entryInput) {
     currentVersion = stdout.replace(/^v/, '')
   }
 
-  const context = await getContext({
+  const context = await getBuildContext({
     version: currentVersion,
     view: entryInput.entry
   })
@@ -239,6 +239,7 @@ async function ftp(options) {
 
   const remotePath = await require('../lib/ftp').uploadDir({
     project: projectName,
+    version: options.version,
     view: options.entry,
     namespace: options.ftpBranch,
     target: config.target
