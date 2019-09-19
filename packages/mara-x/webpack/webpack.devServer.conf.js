@@ -19,7 +19,12 @@ module.exports = function({ entry, proxy, protocol, publicPath = '/', host }) {
     compress: true,
     // 屏蔽 WebpackDevServer 自身的日志输出
     // 此设置不影响警告与错误信息
-    clientLogLevel: 'none',
+    clientLogLevel: 'silent',
+    // https://github.com/webpack/webpack-dev-server/pull/2235
+    // 由于 WDS #2235 改动，强制指定 logLevel 为 silent，
+    // quiet 保持缺省，避免 WDS 打印初始化信息
+    // quiet: true,
+    logLevel: 'silent',
     // 注意，不要通过 webpack import public 内的资源
     // 对于脚本及样式，应使用 script，link 标签引入
     // <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
@@ -43,9 +48,6 @@ module.exports = function({ entry, proxy, protocol, publicPath = '/', host }) {
     // It is important to tell WebpackDevServer to use the same "root" path
     // as we specified in the config. In development, we always serve from /.
     publicPath: publicPath,
-    // WebpackDevServer is noisy by default so we emit custom message instead
-    // by listening to the compiler events with `compiler.hooks[...].tap` calls above.
-    quiet: true,
     // Reportedly, this avoids CPU overload on some systems.
     // https://github.com/facebook/create-react-app/issues/293
     // src/node_modules is not ignored to support absolute imports
@@ -80,6 +82,7 @@ module.exports = function({ entry, proxy, protocol, publicPath = '/', host }) {
       // it used the same host and port.
       // https://github.com/facebook/create-react-app/issues/2272#issuecomment-302832432
       app.use(noopServiceWorkerMiddleware())
-    }
+    },
+    open: false
   }
 }
