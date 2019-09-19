@@ -4,12 +4,12 @@ const hybridDevPublish = require('./HybridDevPublish')
 const testDeploy = require('./testDeploy')
 const SinaHybridPlugin = require('./SinaHybridPlugin')
 const HybridCommonPlugin = require('./HybridCommonPlugin')
-const splitSNC = require('./splitSNC')
+const getCommonPkgConf = require('./getCommonPkgConf')
 
 module.exports = {
   hybridDevPublish,
   testDeploy,
   SinaHybridPlugin,
   HybridCommonPlugin,
-  splitSNC
+  getCommonPkgConf
 }

@@ -38,6 +38,7 @@ function getViews(entryGlob) {
  */
 function getEntries(globPath, preDep = []) {
   const files = glob.sync(rootPath(globPath))
+  const hasPreDep = preDep.length > 0
   const getViewName = filepath => {
     const dirname = path.dirname(path.relative(`${C.VIEWS_DIR}/`, filepath))
     // 兼容组件，src/index.js
@@ -50,7 +51,7 @@ function getEntries(globPath, preDep = []) {
   return files.reverse().reduce((entries, filepath) => {
     const name = getViewName(filepath)
     // preDep 支持数组或字符串。所以这里使用 concat 方法
-    entries[name] = [].concat(preDep, filepath)
+    entries[name] = hasPreDep ? [].concat(preDep, filepath) : filepath
 
     return entries
   }, {})
@@ -58,13 +59,15 @@ function getEntries(globPath, preDep = []) {
 
 function getEntryPoints(globPath, preDep = []) {
   const files = glob.sync(rootPath(globPath))
-  const getTrunkName = filepath => {
-    const basename = path.posix.basename(filepath, '.js')
+  const getChunkName = filepath => {
+    const extname = path.extname(filepath)
+    const basename = path.posix.basename(filepath, extname)
+
     return basename.replace(/^index\./, '') + '.servant'
   }
 
   return files.reduce((chunks, filepath) => {
-    const name = getTrunkName(filepath)
+    const name = getChunkName(filepath)
     // preDep 支持数组或字符串。所以这里使用 concat 方法
     chunks[name] = [].concat(preDep, filepath)
 

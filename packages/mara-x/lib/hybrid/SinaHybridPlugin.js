@@ -1,6 +1,7 @@
 'use strict'
 
 const fs = require('fs')
+const path = require('path')
 const devalue = require('devalue')
 const chalk = require('chalk')
 const semver = require('semver')
@@ -19,7 +20,8 @@ class SinaHybridPlugin {
     this.publicPath = options.publicPath
     this.version = options.version || require(rootPath('package.json')).version
     this.htmlWebpackPlugin = htmlWebpackPlugin
-    this.shouldSNCHoisting = options.splitSNC
+    this.useCommonPkg = options.useCommonPkg
+    this.commonPkgPath = options.commonPkgPath
     this.rewriteField = genRewriteFn(ManifestPlugin.getManifestPath(this.entry))
 
     if (!semver.valid(this.version)) {
@@ -33,31 +35,40 @@ class SinaHybridPlugin {
     compiler.hooks.compilation.tap(this.constructor.name, compilation => {
       const maraCtx = compiler['maraContext'] || {}
 
-      this.splitSNC(compilation)
+      this.injectCommonAssets(compilation)
       this.injectDataSource(compilation, maraCtx.dataSource)
       this.genVersionFile(compilation)
     })
   }
 
-  splitSNC(compilation) {
-    if (!this.shouldSNCHoisting) return
+  genCommonAssets() {
+    const source = fs.readFileSync(this.commonPkgPath, 'utf8')
+
+    return {
+      source: () => source,
+      size: () => source.length
+    }
+  }
+
+  injectCommonAssets(compilation) {
+    if (!this.useCommonPkg) return
+
+    const filePath = 'static/js/__SINA_COMMON_PKG__.js'
+
+    compilation.hooks.additionalAssets.tap(this.constructor.name, () => {
+      compilation.assets[filePath] = this.genCommonAssets()
+    })
 
     const hooks = this.htmlWebpackPlugin.getHooks(compilation)
 
     hooks.alterAssetTagGroups.tap(this.constructor.name, assets => {
-      const idx = assets.bodyTags.findIndex(tag =>
-        tag.attributes.src.includes(`${UNI_SNC}.`)
-      )
-
-      if (idx < 0) return
-
       assets.headTags.push({
         tagName: 'script',
-        attributes: { src: assets.bodyTags[idx].attributes.src },
+        attributes: {
+          src: this.publicPath + filePath
+        },
         closeTag: true
       })
-
-      assets.bodyTags.splice(idx, 1)
     })
   }
 

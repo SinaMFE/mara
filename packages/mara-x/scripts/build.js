@@ -234,12 +234,12 @@ function success({
   return options
 }
 
-async function ftp(options) {
+async function ftpUpload(options) {
   if (options.ftpBranch === null) return options
 
   const remotePath = await require('../lib/ftp').uploadDir({
     project: projectName,
-    version: options.version,
+    version: options.context.version,
     view: options.entry,
     namespace: options.ftpBranch,
     target: config.target
@@ -292,7 +292,7 @@ module.exports = function runBuild(argv) {
     .then(clean)
     .then(build)
     .then(success)
-    .then(ftp)
+    .then(ftpUpload)
     .then(deploy)
     .then(done)
     .catch(error)

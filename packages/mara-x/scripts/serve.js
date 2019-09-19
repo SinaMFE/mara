@@ -21,15 +21,13 @@ const DEFAULT_PORT = parseInt(process.env.PORT, 10) || config.devServer.port
 const PROTOCOL = config.devServer.https === true ? 'https' : 'http'
 const spinner = ora('Starting development server...')
 
-function getCompiler(webpackConf) {
-  const compiler = webpack(webpackConf)
-
+function getDevCompiler(webpackConf) {
   addDevClientToEntry(webpackConf, [
     // 使用 CRA 提供的 client，展示更友好的错误信息
     require.resolve('../lib/hotDevClient')
   ])
 
-  return compiler
+  return webpack(webpackConf)
 }
 
 function addDevClientToEntry(config, devClient) {
@@ -56,7 +54,7 @@ function createDevServer(webpackConf, opts) {
     protocol: PROTOCOL,
     publicPath: opts.publicPath
   })
-  const compiler = getCompiler(webpackConf)
+  const compiler = getDevCompiler(webpackConf)
 
   // 确保在 new DevServer 前执行
   // 避免错过事件钩子

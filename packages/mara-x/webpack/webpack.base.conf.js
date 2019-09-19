@@ -12,7 +12,7 @@ const getCSSModuleLocalIdent = require('react-dev-utils/getCSSModuleLocalIdent')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 
 const getStyleLoaders = require('./loaders/style-loader')
-const { SinaHybridPlugin, splitSNC } = require('../lib/hybrid')
+const { SinaHybridPlugin, getCommonPkgConf } = require('../lib/hybrid')
 const config = require('../config')
 const { GLOB, VIEWS_DIR, TARGET } = require('../config/const')
 const { babelLoader } = require('./loaders/babel-loader')
@@ -71,19 +71,21 @@ module.exports = function(
 
   let externals = []
   let entryConf = {}
+  let commonPkgPath = ''
 
-  const shouldSplitSNC =
+  const useCommonPkg =
     isDevOrBuildCmd &&
     isHybridMode &&
     config.compiler.splitSNC &&
-    isInstalled('@mfelibs/universal-framework')
+    isInstalled('@mfelibs/hybridcontainer')
 
   // hybrid SDK 提升，以尽快建立 jsbridge
-  if (shouldSplitSNC) {
-    const sncConf = splitSNC(entryGlob)
+  if (useCommonPkg) {
+    const sncConf = getCommonPkgConf(entryGlob)
 
     // 使用拆分后的 entry 配置
     entryConf = sncConf.entry
+    commonPkgPath = sncConf.commonPkgPath
     externals.push(...sncConf.externals)
   } else {
     entryConf = getEntries(entryGlob, require.resolve('../lib/polyfills'))
@@ -324,15 +326,14 @@ module.exports = function(
     }
 
     if (isHybridMode) {
-      const HtmlWebpackPlugin = require('html-webpack-plugin')
-
       // 确保在 copy Files 之前
       baseConfig.plugins.push(
-        new SinaHybridPlugin(HtmlWebpackPlugin, {
+        new SinaHybridPlugin(require('html-webpack-plugin'), {
           entry: entry,
           version: version,
           publicPath: publicPath,
-          splitSNC: shouldSplitSNC
+          useCommonPkg: useCommonPkg,
+          commonPkgPath: commonPkgPath
         })
       )
     }
@@ -340,6 +341,7 @@ module.exports = function(
 
   if (!isLib && isInstalled('@mara/plugin-extract-comp-meta')) {
     const VueMetaPlugin = require('@mara/plugin-extract-comp-meta/lib/vue-meta-plugin')
+
     baseConfig.plugins.push(new VueMetaPlugin({ entry }))
   }
 
