@@ -1,76 +1,90 @@
-const fetch = require('./fetch')
 const chalk = require('chalk')
 const fs = require('fs-extra')
 const { customSerializeVueByDirectory } = require('sina-meta-serialize')
-const { extractOptions, reportApi } = require('./config')
+const uploadMeta = require('./upload-meta')
+const { compExtractOptions, pageExtractOptions } = require('./config')
 
 const steps = [
-  `${chalk.blue('🔍  [1/3]')} 提取组件元信息...`,
+  `${chalk.blue('🔍  [1/3]')} 提取元信息...`,
   `${chalk.blue('📝  [2/3]')} 生成元数据文件...`,
-  `${chalk.blue('🚀  [3/3]')} 上传元数据文件...`,
+  [
+    `${chalk.blue('🚀  [3/3]')} 保存元数据文件...`,
+    `${chalk.blue('🚀  [3/3]')} 上传元数据文件...`
+  ],
   `🎉  ${chalk.green('Success!')}\n`,
   `😵  ${chalk.red('Failed!')}\n`
 ]
 
-module.exports = function extractCompMeta({ config, commend, context }) {
-  console.log(steps[0])
+async function checkLatestDistView() {
+  const getStat = f =>
+    fs.stat(path.join(dist, f)).then(stat => {
+      stat['_name'] = f
+      return stat
+    })
+  const files = await fs.readdir(dist)
+  const stats = await Promise.all(files.map(getStat))
+  const dir = stats.filter(stat => stat.isDirectory())
+  const target = dir.sort((a, b) => b.birthtime - a.birthtime)[0]
 
-  const paths = config.paths
-  const { name: pkgName, version: pkgVer } = require(paths.packageJson)
+  return deployCheck.check({ viewName: target._name, env: 'local' })
+}
 
-  function postMetaData({ metaData, dataTypes }) {
-    const query = `
-      mutation ($version:String,$name:String,$metaData:JSON,$dataTypes:JSON){
-        registPackageMeta(packageMetaInput:{
-          version:$version,
-          name:$name,
-          metaData:$metaData,
-          dataTypes:$dataTypes
-        }){
-          errorCode,
-          errorMessage
-        }
-      }`
+async function extractMeta(src, entry) {
+  let extractOpt = compExtractOptions
 
-    const variables = {
-      version: pkgVer,
-      name: pkgName,
-      metaData: metaData,
-      dataTypes: dataTypes
-    }
-
-    return fetch.post(reportApi, {
-      query,
-      variables
+  if (entry) {
+    extractOpt = Object.assign({}, pageExtractOptions, {
+      viewDirname: entry
     })
   }
 
-  return customSerializeVueByDirectory(paths.src, extractOptions).then(
-    result => {
-      console.log(steps[1])
-
-      return fs
-        .outputJson(`${paths.lib}/meta.json`, result)
-        .then(() => {
-          console.log(steps[2])
-
-          return postMetaData({
-            dataTypes: result.dataTypes,
-            metaData: result.components
-          }).then(rep => rep.data)
-        })
-        .then(rep => {
-          if (rep.registPackageMeta.errorCode != '0') {
-            throw new Error(rep.registPackageMeta.errorMessage)
-          }
-
-          console.log(steps[3])
-        })
-        .catch(err => {
-          console.error(steps[4])
-
-          console.log(chalk.red(err))
-        })
-    }
-  )
+  return customSerializeVueByDirectory(src, extractOpt)
 }
+
+async function updateBuildJson(path, data) {
+  const json = require(path)
+
+  json['metaData'] = data
+
+  return fs.writeFileSync(path, JSON.stringify(json, null, 2))
+}
+
+async function extractCompMeta({ config, argv, context }) {
+  console.log(steps[0])
+
+  const paths = config.paths
+  const entry = context.entry
+  const isBuildHook = argv.hook && entry
+  const { name: pkgName, version: pkgVer } = require(paths.packageJson)
+
+  try {
+    const data = await extractMeta(paths.src, entry)
+    console.log(steps[1])
+
+    if (isBuildHook) {
+      await updateBuildJson(`${paths.dist}/${entry}/build.json`, data)
+      console.log(steps[2][0])
+    } else {
+      await fs.outputJson(`${paths.lib}/meta.json`, data)
+      console.log(steps[2][1])
+
+      const { data: rep } = await uploadMeta({
+        name: pkgName,
+        version: pkgVer,
+        dataTypes: data.dataTypes,
+        metaData: data.components
+      })
+
+      if (rep.registPackageMeta.errorCode != '0') {
+        throw new Error(rep.registPackageMeta.errorMessage)
+      }
+    }
+
+    console.log(steps[3])
+  } catch (e) {
+    console.log(steps[4])
+    console.log(chalk.red(e))
+  }
+}
+
+module.exports = extractCompMeta

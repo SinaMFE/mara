@@ -1,8 +1,7 @@
-const config = require('../config')
-const { isInstalled } = require('../lib/utils')
+async function prepublishOnly(argv, context) {
+  const extractMetaData = require('./extractMeta')
 
-if (isInstalled('@mara/plugin-extract-comp-meta')) {
-  const plugin = require('@mara/plugin-extract-comp-meta')
-
-  plugin({ config })
+  await extractMetaData(argv, context)
 }
+
+module.exports = prepublishOnly

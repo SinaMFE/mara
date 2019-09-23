@@ -14,7 +14,7 @@ const path = require('path')
 const ora = require('ora')
 const webpack = require('webpack')
 const getEntry = require('../lib/entry')
-const { bumpProjectVersion } = require('../lib/utils')
+const { bumpProjectVersion, isInstalled } = require('../lib/utils')
 const { cliBadge } = require('@mara/devkit')
 const config = require('../config')
 const getBuildContext = require('../config/context')
@@ -26,7 +26,7 @@ const { hybridDevPublish, testDeploy } = require('../lib/hybrid')
 const printBuildError = require('../lib/printBuildError')
 const {
   getLastBuildSize,
-  printBuildResult,
+  printBuildAssets,
   getBuildSizeOfFileMap
 } = require('../lib/buildReporter')
 const prehandleConfig = require('../lib/prehandleConfig')
@@ -45,9 +45,7 @@ const WARN_AFTER_CHUNK_GZIP_SIZE = 1024 * 1024
 const spinner = ora('Building for production...')
 
 // entryInput: {entry, ftpBranch, entryArgs}
-async function setup(entryInput) {
-  spinner.start()
-
+async function createContext(entryInput) {
   const isHybridPublish =
     config.ftp.hybridPublish && entryInput.ftpBranch !== null
   const enableAutoVersion = config.ftp.hybridAutoVersion
@@ -62,37 +60,25 @@ async function setup(entryInput) {
     currentVersion = stdout.replace(/^v/, '')
   }
 
-  const context = await getBuildContext({
+  return getBuildContext({
     version: currentVersion,
     view: entryInput.entry
   })
 
-  // Make sure to force cancel
-  ;['SIGINT', 'SIGTERM'].forEach(sig => {
-    process.on(sig, () => {
-      process.exit()
-    })
-  })
-
-  return { context, ...entryInput }
+  // return { context, ...entryInput }
 }
 
-async function clean(options) {
-  const dist = path.join(paths.dist, options.entry)
-  const preBuildSize = await getLastBuildSize(dist)
-
-  await fs.emptyDir(dist)
-
-  return { options, preBuildSize, dist }
+async function clean(dist) {
+  return fs.emptyDir(dist)
 }
 
-function build({ options, preBuildSize, dist }) {
-  let webpackConfig = getWebpackConfig(options.context, spinner)
+function build(context) {
+  let webpackConfig = getWebpackConfig(context, spinner)
 
   webpackConfig = prehandleConfig({
     command: 'build',
     webpackConfig,
-    entry: options.entry
+    entry: context.entry
   })
 
   const compiler = webpack(webpackConfig)
@@ -140,12 +126,10 @@ function build({ options, preBuildSize, dist }) {
       }
 
       const tinifyOriginSizes = getBuildSizeOfFileMap(compiler._tinifySourceMap)
-      preBuildSize.sizes = Object.assign(preBuildSize.sizes, tinifyOriginSizes)
 
       return resolve({
         stats,
-        options,
-        preBuildSize,
+        sizes: tinifyOriginSizes,
         publicPath: webpackConfig.output.publicPath,
         outputPath: webpackConfig.output.path,
         warnings: messages.warnings
@@ -154,14 +138,11 @@ function build({ options, preBuildSize, dist }) {
   })
 }
 
-function success({
-  stats,
-  options,
-  preBuildSize,
-  publicPath,
-  outputPath,
-  warnings
-}) {
+function printResult(
+  { stats, sizes, publicPath, outputPath, warnings },
+  context,
+  preBuildSize
+) {
   const result = stats.toJson({
     hash: false,
     chunks: false,
@@ -188,8 +169,9 @@ function success({
   console.log('File sizes after gzip:\n')
 
   result.assets['__dist'] = outputPath
+  preBuildSize.sizes = Object.assign({}, preBuildSize.sizes, sizes)
 
-  printBuildResult(
+  printBuildAssets(
     // view 为数组
     { view: [result.assets] },
     preBuildSize,
@@ -210,7 +192,7 @@ function success({
   console.log()
   console.log(
     `The ${chalk.cyan(
-      'dist/' + options.entry
+      'dist/' + context.entry
     )} folder is ready to be deployed.\n`
   )
 
@@ -230,25 +212,23 @@ function success({
       )
     )
   }
-
-  return options
 }
 
-async function ftpUpload(options) {
-  if (options.ftpBranch === null) return options
+async function ftpUpload(entryInput, context) {
+  if (entryInput.ftpBranch === null) return ''
 
   const remotePath = await require('../lib/ftp').uploadDir({
     project: projectName,
-    version: options.context.version,
-    view: options.entry,
-    namespace: options.ftpBranch,
+    version: context.version,
+    view: entryInput.entry,
+    namespace: entryInput.ftpBranch,
     target: config.target
   })
 
-  return { ...options, remotePath }
+  return remotePath
 }
 
-async function deploy({ entry, entryArgs, remotePath }) {
+async function deploy({ entry, entryArgs }, remotePath) {
   // hybrid deplpy 需提供 hybrid 配置
   // 并且为 app 模式
   if (isHybridMode && config.ftp.hybridPublish && remotePath) {
@@ -271,7 +251,7 @@ function done() {
   }
 }
 
-function error(err) {
+function printError(err) {
   // 构建中途报错将直接被 error 捕获
   // 这里确保 spinner 被及时关闭
   spinner.stop()
@@ -286,14 +266,51 @@ function error(err) {
   process.exit(1)
 }
 
-module.exports = function runBuild(argv) {
-  return getEntry(argv)
-    .then(setup)
-    .then(clean)
-    .then(build)
-    .then(success)
-    .then(ftpUpload)
-    .then(deploy)
-    .then(done)
-    .catch(error)
+async function loadHook(argv, context) {
+  const hookName = argv.hook
+
+  if (hookName && isInstalled(`../hooks/${hookName}`)) {
+    const mod = require(`../hooks/${hookName}`)
+
+    console.log(`Execute hook - ${hookName}...\n`)
+
+    if (typeof mod === 'function') await mod(argv, context)
+  } else {
+    console.log(chalk.red('Can not find hook', hookName))
+  }
+}
+
+async function run(argv) {
+  // Make sure to force cancel
+  ;['SIGINT', 'SIGTERM'].forEach(sig => {
+    process.on(sig, () => {
+      process.exit()
+    })
+  })
+
+  const entryInput = await getEntry(argv)
+  const dist = path.join(paths.dist, entryInput.entry)
+
+  spinner.start()
+
+  const context = await createContext(entryInput)
+  const preBuildSize = await getLastBuildSize(dist)
+
+  await clean(dist)
+
+  const buildResult = await build(context)
+  printResult(buildResult, context, preBuildSize)
+
+  await loadHook(argv, context)
+
+  const remotePath = await ftpUpload(entryInput, context)
+  await deploy(entryInput, remotePath)
+}
+
+module.exports = async function runBuild(argv) {
+  try {
+    await run(argv).then(done)
+  } catch (e) {
+    printError(e)
+  }
 }

@@ -1,12 +1,12 @@
 const { customSerailizeVueFilesWithSinaFormat } = require('sina-meta-serialize')
-const { extractOptions } = require('./config')
+const { compExtractOptions } = require('./config')
 
 const isVue = mod => /\.vue$/.test(mod.resource)
 const globalName = '__CMOP_META'
 
 function getMetaData(files) {
   const { components = {} } =
-    customSerailizeVueFilesWithSinaFormat(files, extractOptions) || {}
+    customSerailizeVueFilesWithSinaFormat(files, compExtractOptions) || {}
 
   // drop design field
   Object.keys(components).forEach(stag => {

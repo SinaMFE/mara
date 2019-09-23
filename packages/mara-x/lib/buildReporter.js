@@ -8,7 +8,7 @@ const gzipSize = require('gzip-size').sync
 const { groupBy } = require('lodash')
 
 // assetsData：{<Object>: <Array>}
-function printBuildResult(
+function printBuildAssets(
   assetsData,
   previousSizeMap,
   maxBundleGzipSize = Infinity,
@@ -252,6 +252,6 @@ function getLastBuildSize(buildFolder) {
 
 module.exports = {
   getLastBuildSize,
-  printBuildResult,
+  printBuildAssets,
   getBuildSizeOfFileMap
 }

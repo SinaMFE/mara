@@ -6,6 +6,8 @@ module.exports = function applyHook(argv) {
   if (isInstalled(`../hooks/${hookName}`)) {
     const mod = require(`../hooks/${hookName}`)
 
-    if (typeof mod === 'function') mod(argv)
+    if (typeof mod === 'function') mod(argv, {})
+  } else {
+    console.log(chalk.red('Can not find hook', hookName))
   }
 }

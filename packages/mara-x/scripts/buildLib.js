@@ -26,7 +26,7 @@ const printBuildError = require('../lib/printBuildError')
 const skeleton = require('../lib/skeleton')
 const {
   getLastBuildSize,
-  printBuildResult,
+  printBuildAssets,
   getBuildSizeOfFileMap
 } = require('../lib/buildReporter')
 const prehandleConfig = require('../lib/prehandleConfig')
@@ -164,7 +164,7 @@ function success({ warnings, buildTime, stats, demos, options }) {
     return stats.assets
   })
 
-  printBuildResult(compAssets, options.preBuildSize)
+  printBuildAssets(compAssets, options.preBuildSize)
 
   console.log()
   console.log(`The ${chalk.cyan('lib')} folder is ready to be published.\n`)

@@ -27,7 +27,7 @@ async function checkLatestDistView() {
   return deployCheck.check({ viewName: target._name, env: 'local' })
 }
 
-async function doCheck(argv) {
+async function doCheck(argv, context) {
   if (!fs.existsSync(dist)) return
 
   const viewName = argv._[2]
