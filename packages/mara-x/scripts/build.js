@@ -275,7 +275,7 @@ async function loadHook(argv, context) {
     console.log(`Execute hook - ${hookName}...\n`)
 
     if (typeof mod === 'function') await mod(argv, context)
-  } else {
+  } else if (hookName !== undefined) {
     console.log(chalk.red('Can not find hook', hookName))
   }
 }
