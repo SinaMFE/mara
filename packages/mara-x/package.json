@@ -1,6 +1,6 @@
 {
   "name": "@mara/x",
-  "version": "2.7.1",
+  "version": "2.7.2",
   "description": "支持 React / Vue + Ts 的多页应用打包工具",
   "keywords": [
     "ts",
@@ -35,7 +35,7 @@
     "@babel/types": "^7.5.5",
     "@mara/devkit": "^1.2.1",
     "@mara/friendly-errors-webpack-plugin": "^1.1.0",
-    "@mara/image-loader": "^1.0.2",
+    "@mara/image-loader": "^1.0.3",
     "@mara/schema-utils": "^1.0.2",
     "axios": "^0.18.0",
     "babel-core": "^7.0.0-bridge.0",
