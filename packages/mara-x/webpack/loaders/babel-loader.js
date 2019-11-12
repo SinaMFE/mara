@@ -96,6 +96,13 @@ module.exports.babelLoader = (isProd, useTypeScript) => [
     options: {
       plugins,
       overrides: [
+        // https://devblogs.microsoft.com/typescript/typescript-and-babel-7/
+        // 确保 @babel/plugin-transform-typescript 在其他插件之前
+        // 适配 https://github.com/babel/babel/commit/2b648c9f23cdfdf5077991dd475c6d47c1261f5b
+        useTypeScript && {
+          test: /\.vue$/,
+          plugins: [require('@babel/plugin-transform-typescript').default]
+        },
         {
           plugins: [
             [
@@ -103,11 +110,6 @@ module.exports.babelLoader = (isProd, useTypeScript) => [
               { legacy: true }
             ]
           ]
-        },
-        // https://devblogs.microsoft.com/typescript/typescript-and-babel-7/
-        useTypeScript && {
-          test: /\.vue$/,
-          plugins: [require('@babel/plugin-transform-typescript').default]
         }
       ].filter(Boolean)
     }
