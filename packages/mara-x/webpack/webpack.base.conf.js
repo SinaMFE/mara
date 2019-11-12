@@ -240,6 +240,10 @@ module.exports = function(
           options: {
             name: `${assetsDir}media/[name].[contenthash:8].[ext]`
           }
+        },
+        {
+          test: /\.txt$/,
+          loader: 'raw-loader'
         }
       ]
     },
