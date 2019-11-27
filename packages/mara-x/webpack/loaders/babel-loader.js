@@ -54,8 +54,10 @@ function babelExternalMoudles(esm) {
 // }
 
 const plugins = [
-  // 使用旧语法，兼容 react 装饰器
-  // [require.resolve('@babel/plugin-proposal-decorators'), { legacy: true }]
+  // https://github.com/tc39/proposal-optional-chaining
+  require.resolve('@babel/plugin-proposal-optional-chaining'),
+  // https://github.com/tc39/proposal-nullish-coalescing
+  require.resolve('@babel/plugin-proposal-nullish-coalescing-operator')
 ].concat(config.babelPlugins)
 // 加入了 inline-json，用于去除编译时的引入json（非全量引入）。
 // plugins.push(['inline-json', { matchPattern: '.' }])
