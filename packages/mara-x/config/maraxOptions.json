@@ -137,6 +137,10 @@
         "dropConsole": {
           "description": "Drop console.log.",
           "type": "boolean"
+        },
+        "jsonpFunction": {
+          "description": "Webpack jsonp function name.",
+          "type": "string"
         }
       }
     },

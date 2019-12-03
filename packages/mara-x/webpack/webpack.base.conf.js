@@ -35,7 +35,7 @@ module.exports = function(
   const assetsDir = isLib ? '' : 'static/'
   const entryGlob = `${VIEWS_DIR}/${entry}/${GLOB.MAIN_ENTRY}`
   const useTypeScript = config.useTypeScript
-  const { vueRuntimeOnly } = config.compiler
+  const { vueRuntimeOnly, jsonpFunction } = config.compiler
   const tsCompilerOptions = {
     // 输出 ESM 模块系统代码，交由 babel 二次编译
     module: 'esnext',
@@ -96,6 +96,7 @@ module.exports = function(
     entry: entryConf,
     output: {
       path: paths.dist,
+      jsonpFunction: jsonpFunction,
       filename: 'static/js/[name].js',
       chunkFilename: 'static/js/[name].chunk.js',
       // TODO: remove this when upgrading to webpack 5

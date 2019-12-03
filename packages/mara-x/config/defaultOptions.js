@@ -27,7 +27,9 @@ module.exports = {
     // 分离 initial chunk
     splitChunks: true,
     // 分离 SNC
-    splitSNC: false
+    splitSNC: false,
+    // webpack jsonp 函数名
+    jsonpFunction: 'webpackJsonp'
   },
   webpackPluginsHandler: (command, webpackConf) => webpackConf,
   proxyTable: {},
