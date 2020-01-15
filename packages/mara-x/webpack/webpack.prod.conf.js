@@ -43,6 +43,17 @@ module.exports = function(context, spinner) {
   const servantEntry = getEntryPoints(
     `${VIEWS_DIR}/${entry}/${GLOB.SERVANT_ENTRY}`
   )
+
+  const jscorePath = path.join(
+    `${config.paths.views}/${entry}`,
+    'jscore.index.js'
+  )
+  const jscoreEntry = {}
+  if (fs.existsSync(jscorePath)) {
+    const polyPath = require.resolve("../lib/jscore-poly.js");
+    jscoreEntry.jscore = [polyPath ,jscorePath]
+  }
+
   const debugLabel = config.debug ? '.debug' : ''
   const isHybridMode = context.target === TARGET.APP
   const shouldUseZenJs = config.compiler.zenJs && context.target != TARGET.APP
@@ -58,7 +69,7 @@ module.exports = function(context, spinner) {
     bail: true,
     devtool: shouldUseSourceMap ? 'source-map' : false,
     // merge base.config entry
-    entry: servantEntry,
+    entry: { ...servantEntry, ...jscoreEntry },
     output: {
       path: distPageDir,
       publicPath: context.publicPath,

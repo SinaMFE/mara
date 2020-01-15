@@ -317,10 +317,11 @@ module.exports = function(
       splitChunks: {
         chunks(chunk) {
           const isServantOrSNC = /\.servant|__UNI_SNC__/.test(chunk.name)
+          const isJscore = chunk.name === "jscore"
 
           // 仅输出 async 包
           // hybrid prod 模式不拆 chunk，减少 IO 损耗
-          if (isServantOrSNC || (isHybridMode && isProd)) return false
+          if (isJscore || isServantOrSNC || (isHybridMode && isProd)) return false
 
           return !!config.compiler.splitChunks
         },
