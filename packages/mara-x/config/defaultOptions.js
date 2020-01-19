@@ -60,7 +60,7 @@ module.exports = {
       version: false
     },
     hybridPublish: true, // dev 环境 hybrid 资源包发布
-    hybridAutoVersion: true // dev 环境自动更新版本号
+    hybridAutoVersion: false // dev 环境自动更新版本号
   },
   // hybrid 项目配置，存在此属性时，将会生成 zip 包
   // 默认保持缺省，dev deploy 做存在验证
