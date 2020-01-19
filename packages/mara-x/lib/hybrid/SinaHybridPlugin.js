@@ -5,7 +5,7 @@ const path = require('path')
 const devalue = require('devalue')
 const chalk = require('chalk')
 const semver = require('semver')
-const ConcatSource = require('webpack-sources/lib/ConcatSource')
+const prependEntryCode = require('../prependEntryCode')
 const { rootPath } = require('../../lib/utils')
 const ManifestPlugin = require('./ManifestPlugin')
 const { UNI_SNC } = require('../../config/const')
@@ -83,35 +83,11 @@ class SinaHybridPlugin {
   injectDataSource(compilation, dataSource) {
     if (!dataSource) return
 
-    this.prependEntryCode(
+    prependEntryCode(
       compilation,
       `var __SP_DATA_SOURCE = ${devalue(dataSource)};`
     )
     this.rewriteField('dataSource', dataSource)
-  }
-
-  prependEntryCode(compilation, code) {
-    const assets = compilation.assets
-    const concatSource = (assets, fileName, code) => {
-      assets[fileName] = new ConcatSource(code, assets[fileName])
-    }
-
-    compilation.hooks.optimizeChunkAssets.tapAsync(
-      this.name,
-      (chunks, callback) => {
-        chunks.forEach(chunk => {
-          if (!chunk.isInitial() || !chunk.name) return
-
-          chunk.files
-            .filter(fileName => fileName.match(/\.js$/))
-            .forEach(fileName => {
-              concatSource(assets, fileName, code)
-            })
-        })
-
-        callback()
-      }
-    )
   }
 }
 

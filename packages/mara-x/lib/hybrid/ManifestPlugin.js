@@ -1,7 +1,7 @@
 const fs = require('fs')
 const chalk = require('chalk')
 const validator = require('@mara/schema-utils')
-const ConcatSource = require('webpack-sources/lib/ConcatSource')
+const prependEntryCode = require('../prependEntryCode')
 const maraManifestSchema = require('./maraManifestSchema')
 const { rootPath, isObject, relativePath } = require('../utils')
 const { VIEWS_DIR, TARGET } = require('../../config/const')
@@ -114,8 +114,11 @@ module.exports = class ManifestPlugin {
         })
       })
 
-      compiler.hooks.emit.tap(pluginName, compilation => {
-        this.prependEntryCode(compilation, manifestAsset.source())
+      compiler.hooks.compilation.tap(pluginName, compilation => {
+        prependEntryCode(
+          compilation,
+          `window["${HYBRID_MANIFEST_INJECT_NAME}"] = ${manifestAsset.source()};`
+        )
       })
     }
   }
@@ -169,31 +172,9 @@ module.exports = class ManifestPlugin {
     return Object.assign({}, version, filter(manifest), version)
   }
 
-  prependEntryCode(compilation, code) {
-    const entry = compilation.chunks.filter(c => c.isOnlyInitial() && c.name)[0]
-    const entryName = entry.files.filter(f => /\.js$/.test(f))[0]
-    const assets = compilation.assets[entryName]
-    const asset = assets.children ? assets.children[0] : assets
-    let entrySource = asset.source()
-
-    entrySource =
-      `window["${HYBRID_MANIFEST_INJECT_NAME}"] = ${code};\n` + entrySource
-
-    const newRawSource = {
-      source: () => entrySource,
-      size: () => entrySource.length
-    }
-
-    if (assets.children) {
-      compilation.assets[entryName].children[0] = newRawSource
-    } else {
-      compilation.assets[entryName] = newRawSource
-    }
-  }
-
   genAsset() {
     const manifest = this.getManifest()
-    const source = JSON.stringify(manifest)
+    const source = JSON.stringify(manifest, null, 2)
 
     return {
       source: () => source,
