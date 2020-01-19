@@ -1,11 +1,13 @@
 const fs = require('fs')
 const chalk = require('chalk')
 const validator = require('@mara/schema-utils')
+const ConcatSource = require('webpack-sources/lib/ConcatSource')
 const maraManifestSchema = require('./maraManifestSchema')
 const { rootPath, isObject, relativePath } = require('../utils')
 const { VIEWS_DIR, TARGET } = require('../../config/const')
 
 const MANIFEST_FILE_NAME = 'manifest.json'
+const HYBRID_MANIFEST_INJECT_NAME = '__HB_MANIFEST'
 
 function readJsonFile(filePath) {
   if (typeof filePath !== 'string') throw new Error('manifest 路径错误')
@@ -103,12 +105,17 @@ module.exports = class ManifestPlugin {
 
   apply(compiler) {
     const pluginName = this.constructor.name
+    const manifestAsset = this.genAsset()
 
     if (this.manifestPath || this.isHybrid) {
       compiler.hooks.make.tap(pluginName, compilation => {
         compilation.hooks.additionalAssets.tap(pluginName, () => {
-          compilation.assets[MANIFEST_FILE_NAME] = this.genAsset(compilation)
+          compilation.assets[MANIFEST_FILE_NAME] = manifestAsset
         })
+      })
+
+      compiler.hooks.emit.tap(pluginName, compilation => {
+        this.prependEntryCode(compilation, manifestAsset.source())
       })
     }
   }
@@ -162,9 +169,31 @@ module.exports = class ManifestPlugin {
     return Object.assign({}, version, filter(manifest), version)
   }
 
-  genAsset(compilation) {
+  prependEntryCode(compilation, code) {
+    const entry = compilation.chunks.filter(c => c.isOnlyInitial() && c.name)[0]
+    const entryName = entry.files.filter(f => /\.js$/.test(f))[0]
+    const assets = compilation.assets[entryName]
+    const asset = assets.children ? assets.children[0] : assets
+    let entrySource = asset.source()
+
+    entrySource =
+      `window["${HYBRID_MANIFEST_INJECT_NAME}"] = ${code};\n` + entrySource
+
+    const newRawSource = {
+      source: () => entrySource,
+      size: () => entrySource.length
+    }
+
+    if (assets.children) {
+      compilation.assets[entryName].children[0] = newRawSource
+    } else {
+      compilation.assets[entryName] = newRawSource
+    }
+  }
+
+  genAsset() {
     const manifest = this.getManifest()
-    const source = JSON.stringify(manifest, null, 2)
+    const source = JSON.stringify(manifest)
 
     return {
       source: () => source,
