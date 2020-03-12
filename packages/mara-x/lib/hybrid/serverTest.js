@@ -10,8 +10,7 @@ const {
   showManualTip,
   pushBuildTag,
   checkRepo,
-  getPushErrTip
-} = require("./gitUtils");
+} = require('./gitUtils')
 
 const GITLAB_HOST = 'https://gitlab.weibo.cn'
 const fetch = axios.create({
@@ -83,7 +82,7 @@ async function getTestJob(pid, tagName) {
   const { data: jobs } = await fetch.get(`/projects/${pid}/jobs`)
 
   return jobs.find(job => {
-    return job.status === "running"
+    return job.status === 'running'
   })
 }
 
@@ -133,10 +132,8 @@ async function showManualTip(repoUrl, type = 'token') {
 }
 
 /**
- * 部署测试环境
- * @param  {string} entry    页面
+ * 服务器端运行测试脚本
  * @param  {string} version  版本号
- * @param  {string} message  部署信息
  */
 module.exports = async function runServerTest(version) {
   const path = require('path')
