@@ -7,8 +7,10 @@ const semver = require('semver')
 // 不引用 config/index 避免 env 过早初始化
 const argv = require('../config/argv')
 const paths = require('../config/paths')
-const requiredVersion = require('../package.json').engines.node
+const pkg = require('../package.json')
+const requiredVersion = pkg.engines.node
 const currentNodeVersion = process.versions.node
+const useColor = process.stdout.isTTY && process.env['TERM'] !== 'dumb'
 
 // node >= 8.0.0
 if (!semver.satisfies(currentNodeVersion, requiredVersion)) {
@@ -20,6 +22,40 @@ if (!semver.satisfies(currentNodeVersion, requiredVersion)) {
     )
   )
   process.exit(1)
+}
+
+const notifier = require('update-notifier')({ pkg })
+
+if (notifier.update && notifier.update.latest !== pkg.version) {
+  const old = notifier.update.current
+  const latest = notifier.update.latest
+  let type = notifier.update.type
+
+  if (useColor) {
+    switch (type) {
+      case 'major':
+        type = chalk.red(type)
+        break
+      case 'minor':
+        type = chalk.yellow(type)
+        break
+      case 'patch':
+        type = chalk.green(type)
+        break
+    }
+  }
+
+  notifier.notify({
+    message:
+      `New ${type} version of ${pkg.name} available! ${
+        useColor ? chalk.red(old) : old
+      } → ${useColor ? chalk.green(latest) : latest}\n` +
+      `Run ${
+        useColor
+          ? chalk.green(`yarn add -D ${pkg.name}`)
+          : `yarn add -D ${pkg.name}`
+      } to update!`
+  })
 }
 
 const cmdMap = {
