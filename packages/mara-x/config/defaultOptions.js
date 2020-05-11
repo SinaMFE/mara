@@ -1,5 +1,8 @@
 'use strict'
 
+const paths = require('./paths')
+const projectName = require(paths.packageJson).name
+
 module.exports = {
   hash: {
     main: true,
@@ -29,7 +32,7 @@ module.exports = {
     // 分离 SNC
     splitSNC: false,
     // webpack jsonp 函数名
-    jsonpFunction: 'webpackJsonp'
+    jsonpFunction: `webpackJsonp${projectName}`
   },
   webpackPluginsHandler: (command, webpackConf) => webpackConf,
   proxyTable: {},
