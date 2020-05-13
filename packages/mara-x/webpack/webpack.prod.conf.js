@@ -101,14 +101,22 @@ module.exports = function(context, spinner) {
               // https://github.com/facebook/create-react-app/issues/5250
               // Pending futher investigation:
               // https://github.com/terser-js/terser/issues/120
-              inline: 2
+              inline: 2,
+              // debug 模式下部合并 var
+              // 提升可读性
+              join_vars: !config.debug
             },
-            mangle: {
-              safari10: true
-            },
+            mangle: config.debug
+              ? false
+              : {
+                  safari10: true
+                },
+            keep_classnames: config.debug,
+            keep_fnames: config.debug,
             output: {
               ecma: 5,
-              comments: false,
+              comments: config.debug && /(\sMODULE)|(^\s\d+\s$)/,
+              beautify: config.debug,
               // Turned on because emoji and regex is not minified properly using default
               // https://github.com/facebook/create-react-app/issues/2488
               ascii_only: true
