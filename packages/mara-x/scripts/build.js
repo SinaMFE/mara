@@ -14,6 +14,7 @@ const path = require('path')
 const ora = require('ora')
 const webpack = require('webpack')
 const getEntry = require('../lib/entry')
+const updateNotifier = require('../lib/updateNotifier')
 const { bumpProjectVersion, isInstalled } = require('../lib/utils')
 const { cliBadge } = require('@mara/devkit')
 const config = require('../config')
@@ -290,6 +291,15 @@ async function run(argv) {
 
   const entryInput = await getEntry(argv)
   const dist = path.join(paths.dist, entryInput.entry)
+
+  // @TODO dev 发布检查脚手架版本
+  // if (entryInput.ftpBranch != null) {
+  //   if (updateNotifier.hasUpdate) {
+  //     process.exit(0)
+  //   } else {
+  //     updateNotifier({ interval: 1, forceCheck: true })
+  //   }
+  // }
 
   spinner.start()
 

@@ -303,9 +303,7 @@ module.exports = function(
       child_process: 'empty'
     },
     // 禁用包体积性能警告
-    performance: {
-      hints: false
-    },
+    performance: false,
     externals: externals
   }
 
