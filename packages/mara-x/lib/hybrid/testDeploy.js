@@ -161,8 +161,9 @@ function checkRepo(remote, branch) {
 
   if (remote.indexOf('http') > -1) throw new Error('请配置 ssh 仓库地址')
 
-  if (!DEBUG && branch != 'master')
-    throw new Error(chalk.red('🚧  请在 master 分支上执行 test 发布操作'))
+  // 放开分支限制
+  // if (!DEBUG && branch != 'master')
+  //   throw new Error(chalk.red('🚧  请在 master 分支上执行 test 发布操作'))
 }
 
 async function pushBuildCommit(branchName, verInfo) {
