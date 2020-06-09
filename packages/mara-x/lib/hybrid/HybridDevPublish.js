@@ -1,6 +1,7 @@
 'use strict'
 
 const fs = require('fs')
+const path = require('path')
 const Vinyl = require('vinyl')
 const chalk = require('chalk')
 const { fetch, md5, ensureSlash, getGitRepoName } = require('@mara/devkit')
@@ -42,8 +43,12 @@ async function updateRemoteHbConf(hbConf) {
   }
 }
 
-async function getRepoOrProjectName(packageJson) {
+async function getRepoOrProjectName(packageJson, useWorkspace) {
   let repoName = ''
+
+  if (useWorkspace) {
+    return path.basename(process.cwd())
+  }
 
   try {
     repoName = await getGitRepoName()
@@ -77,13 +82,13 @@ function logResult(hbMod) {
   console.log(`\n${chalk.yellow.inverse(' CONF ')} ${chalk.yellow(CONF_URL)}\n`)
 }
 
-module.exports = async function(entry, remotePath, version) {
+module.exports = async function({ entry, remotePath, version, entryArgs }) {
   console.log('----------- Hybrid Publish: Dev -----------\n')
   console.log(publishStep[0])
 
   const packageJson = require(config.paths.packageJson)
   const hbConf = await getHbConf(CONF_URL)
-  const repoName = await getRepoOrProjectName(packageJson)
+  const repoName = await getRepoOrProjectName(packageJson, entryArgs.workspace)
   const moduleName = `${repoName}/${entry}`
   const localPkgPath = rootPath(`${C.DIST_DIR}/${entry}/${entry}.php`)
   const moduleIdx = hbConf.data.modules.findIndex(

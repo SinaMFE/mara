@@ -180,9 +180,9 @@ function checkRepo(remote, branch) {
   //   throw new Error(chalk.red('🚧  请在 master 分支上执行 test 发布操作'))
 }
 
-async function pushBuildCommit(branchName, verInfo) {
+async function pushBuildCommit(branchName, msg, target) {
   const spinner = ora('Add commit...').start()
-  const commitInfo = await addCommit(verInfo)
+  const commitInfo = await addCommit(msg, target)
 
   spinner.text = 'Pushing commits...'
 
@@ -223,13 +223,13 @@ async function pushBuildTag(tagName, tagMsg, repoUrl) {
   spinner.stop()
 }
 
-async function addCommit(verInfo) {
+async function addCommit(msg, target) {
   await execa('git', ['add', '.'])
 
   const { stdout: commitInfo } = await execa('git', [
     'commit',
     '-m',
-    `[TEST] v${verInfo}`
+    `[TEST.${target.toUpperCase()}] ${msg}`
   ])
 
   return commitInfo
@@ -260,7 +260,7 @@ async function showManualTip(repoUrl, type = 'token') {
  * @param  {string} version  版本号
  * @param  {string} message  部署信息
  */
-module.exports = async function testDeploy(entry, version, argv) {
+module.exports = async function testDeploy(entry, version, argv, target) {
   const path = require('path')
   const config = require('../../config')
   const { URL } = require('url')
@@ -268,11 +268,8 @@ module.exports = async function testDeploy(entry, version, argv) {
   if (argv.workspace) {
     const parentDir = path.basename(process.cwd())
 
-    entry = `${parentDir}__${entry}`
+    entry = `${parentDir}/${entry}`
   }
-
-  const userName = await getGitUserEmailName()
-  const tagPrefix = `tag__${entry}__`
 
   console.log('----------- Test Deploy -----------\n')
 
@@ -287,9 +284,11 @@ module.exports = async function testDeploy(entry, version, argv) {
     'remote.origin.url'
   ])
 
-  const verInfo = `${version}_${branchName}_${userName}`
-  const tagName = tagPrefix + verInfo
-  const tagMsg = argv.test || `test ${entry} v${verInfo}`
+  const tagPrefix = `tag__${entry}`
+  const userInfo = await getGitUserEmailName()
+  const tagName = `${tagPrefix}__${version}(${branchName})__${userInfo}`
+  const commitMsg = `${entry}@${version} (${branchName})`
+  const tagMsg = argv.test || `deploy test ${entry}@${version}`
 
   checkRepo(remoteUrl, branchName)
 
@@ -300,7 +299,7 @@ module.exports = async function testDeploy(entry, version, argv) {
     .replace('/', '')
   const repoUrl = GITLAB_HOST + '/' + fullRepoName
 
-  await pushBuildCommit(branchName, verInfo)
+  await pushBuildCommit(branchName, commitMsg, target)
 
   await pushBuildTag(tagName, tagMsg, repoUrl)
 

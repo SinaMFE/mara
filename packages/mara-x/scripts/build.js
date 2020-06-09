@@ -51,7 +51,7 @@ async function createContext(entryInput) {
     config.ftp.hybridPublish && entryInput.ftpBranch !== null
   const enableAutoVersion = config.ftp.hybridAutoVersion
   const isWorkspaceDeploy =
-    entryInput.entryArgs.workspace && entryInput.entryArgs.test
+    entryInput.entryArgs.workspace && entryInput.entryArgs.test != undefined
   const shouldBumpVersion =
     isWorkspaceDeploy || (enableAutoVersion && isHybridMode && isHybridPublish)
 
@@ -241,9 +241,15 @@ async function deploy({ entry, entryArgs }, remotePath) {
   // hybrid deplpy 需提供 hybrid 配置
   // 并且为 app 模式
   if (isHybridMode && config.ftp.hybridPublish && remotePath) {
-    await hybridDevPublish(entry, remotePath, currentVersion)
+    await hybridDevPublish({
+      entry,
+      remotePath,
+      version: currentVersion,
+      target: config.target,
+      entryArgs
+    })
   } else if (entryArgs.test !== null) {
-    await testDeploy(entry, currentVersion, entryArgs)
+    await testDeploy(entry, currentVersion, entryArgs, config.target)
   }
 }
 

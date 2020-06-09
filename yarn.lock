@@ -13161,13 +13161,13 @@ prompts@^2.0.4:
     kleur "^3.0.2"
     sisteransi "^1.0.0"
 
-prompts@^2.2.1:
-  version "2.2.1"
-  resolved "https://registry.npm.taobao.org/prompts/download/prompts-2.2.1.tgz#f901dd2a2dfee080359c0e20059b24188d75ad35"
-  integrity sha1-+QHdKi3+4IA1nA4gBZskGI11rTU=
+prompts@^2.3.2:
+  version "2.3.2"
+  resolved "https://registry.npm.taobao.org/prompts/download/prompts-2.3.2.tgz#480572d89ecf39566d2bd3fe2c9fccb7c4c0b068"
+  integrity sha1-SAVy2J7POVZtK9P+LJ/Mt8TAsGg=
   dependencies:
     kleur "^3.0.3"
-    sisteransi "^1.0.3"
+    sisteransi "^1.0.4"
 
 promzard@^0.3.0:
   version "0.3.0"
@@ -14541,10 +14541,10 @@ sisteransi@^1.0.0:
   resolved "http://registry.npm.taobao.org/sisteransi/download/sisteransi-1.0.0.tgz#77d9622ff909080f1c19e5f4a1df0c1b0a27b88c"
   integrity sha1-d9liL/kJCA8cGeX0od8MGwonuIw=
 
-sisteransi@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.npm.taobao.org/sisteransi/download/sisteransi-1.0.3.tgz#98168d62b79e3a5e758e27ae63c4a053d748f4eb"
-  integrity sha1-mBaNYreeOl51jieuY8SgU9dI9Os=
+sisteransi@^1.0.4:
+  version "1.0.5"
+  resolved "https://registry.npm.taobao.org/sisteransi/download/sisteransi-1.0.5.tgz?cache=0&sync_timestamp=1584536263469&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fsisteransi%2Fdownload%2Fsisteransi-1.0.5.tgz#134d681297756437cc05ca01370d3a7a571075ed"
+  integrity sha1-E01oEpd1ZDfMBcoBNw06elcQde0=
 
 slash@^1.0.0:
   version "1.0.0"
