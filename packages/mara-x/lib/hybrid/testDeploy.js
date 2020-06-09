@@ -15,6 +15,20 @@ const fetch = axios.create({
 // marauder 发布时，请确保关闭
 const DEBUG = false
 
+async function getGitUserEmailName() {
+  const { stdout: email } = await execa('git', [
+    'config',
+    '--get',
+    'user.email'
+  ])
+
+  try {
+    return email.split('@')[0]
+  } catch (e) {
+    console.log(chalk.red('请设置 git user email'), '\n')
+  }
+}
+
 function replayAsync(fn, assertFn, maxLoop = 10, wait = 1000) {
   return (...args) => {
     let cycles = 0
@@ -246,15 +260,19 @@ async function showManualTip(repoUrl, type = 'token') {
  * @param  {string} version  版本号
  * @param  {string} message  部署信息
  */
-module.exports = async function testDeploy(entry, version, message) {
+module.exports = async function testDeploy(entry, version, argv) {
   const path = require('path')
   const config = require('../../config')
   const { URL } = require('url')
 
+  if (argv.workspace) {
+    const parentDir = path.basename(process.cwd())
+
+    entry = `${parentDir}__${entry}`
+  }
+
+  const userName = await getGitUserEmailName()
   const tagPrefix = `tag__${entry}__`
-  const verInfo = `${version}-${Date.now()}`
-  const tagName = tagPrefix + verInfo
-  const tagMsg = message || `test ${entry} v${verInfo}`
 
   console.log('----------- Test Deploy -----------\n')
 
@@ -268,6 +286,10 @@ module.exports = async function testDeploy(entry, version, message) {
     '--get',
     'remote.origin.url'
   ])
+
+  const verInfo = `${version}_${branchName}_${userName}`
+  const tagName = tagPrefix + verInfo
+  const tagMsg = argv.test || `test ${entry} v${verInfo}`
 
   checkRepo(remoteUrl, branchName)
 

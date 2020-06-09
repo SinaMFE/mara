@@ -50,12 +50,17 @@ async function createContext(entryInput) {
   const isHybridPublish =
     config.ftp.hybridPublish && entryInput.ftpBranch !== null
   const enableAutoVersion = config.ftp.hybridAutoVersion
-  const shouldBumpVersion = enableAutoVersion && isHybridMode && isHybridPublish
+  const isWorkspaceDeploy =
+    entryInput.entryArgs.workspace && entryInput.entryArgs.test
+  const shouldBumpVersion =
+    isWorkspaceDeploy || (enableAutoVersion && isHybridMode && isHybridPublish)
 
   // hybrid dev 发布模式下版本号自动递增
   if (shouldBumpVersion) {
     // e.g. v1.2.3-1
-    const { stdout } = bumpProjectVersion('prerelease')
+    const { stdout } = bumpProjectVersion(
+      isWorkspaceDeploy ? 'patch' : 'prerelease'
+    )
 
     // 记录最新版本
     currentVersion = stdout.replace(/^v/, '')
@@ -218,6 +223,9 @@ function printResult(
 async function ftpUpload(entryInput, context) {
   if (entryInput.ftpBranch === null) return ''
 
+  const parentDir = path.basename(process.cwd())
+  const pName = entryInput.workspace ? parentDir : projectName
+
   const remotePath = await require('../lib/ftp').uploadDir({
     project: projectName,
     version: context.version,
@@ -235,7 +243,7 @@ async function deploy({ entry, entryArgs }, remotePath) {
   if (isHybridMode && config.ftp.hybridPublish && remotePath) {
     await hybridDevPublish(entry, remotePath, currentVersion)
   } else if (entryArgs.test !== null) {
-    await testDeploy(entry, currentVersion, entryArgs.test)
+    await testDeploy(entry, currentVersion, entryArgs)
   }
 }
 
