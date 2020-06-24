@@ -69,7 +69,7 @@ module.exports = function(
   getStyleLoaders.publicPath = publicPath
   getStyleLoaders.isLib = isLib
 
-  let externals = []
+  let externals = [config.compiler.externals]
   let entryConf = {}
   let commonPkgPath = ''
 

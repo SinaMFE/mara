@@ -141,6 +141,10 @@
         "jsonpFunction": {
           "description": "Webpack jsonp function name.",
           "type": "string"
+        },
+        "externals": {
+          "description": "Excluding dependencies from the output bundles.",
+          "type": "object"
         }
       }
     },

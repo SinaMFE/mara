@@ -32,7 +32,8 @@ module.exports = {
     // 分离 SNC
     splitSNC: false,
     // webpack jsonp 函数名
-    jsonpFunction: `webpackJsonp${projectName}`
+    jsonpFunction: `webpackJsonp${projectName}`,
+    externals: {}
   },
   webpackPluginsHandler: (command, webpackConf) => webpackConf,
   proxyTable: {},
