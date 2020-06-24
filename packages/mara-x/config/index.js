@@ -115,6 +115,7 @@ const maraContext = {
   debug: argv.debug,
   library: maraConf.library,
   parallel: false,
+  workspace: !!argv.workspace,
   globalEnv: maraConf.globalEnv,
   tsImportLibs: maraConf.tsImportLibs,
   webpackPluginsHandler: maraConf.webpackPluginsHandler,

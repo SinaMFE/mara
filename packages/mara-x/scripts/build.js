@@ -51,7 +51,7 @@ async function createContext(entryInput) {
     config.ftp.hybridPublish && entryInput.ftpBranch !== null
   const enableAutoVersion = config.ftp.hybridAutoVersion
   const isWorkspaceDeploy =
-    entryInput.entryArgs.workspace && entryInput.entryArgs.test != undefined
+    config.workspace && entryInput.entryArgs.test != undefined
   const shouldBumpVersion =
     isWorkspaceDeploy || (enableAutoVersion && isHybridMode && isHybridPublish)
 
@@ -223,10 +223,8 @@ function printResult(
 async function ftpUpload(entryInput, context) {
   if (entryInput.ftpBranch === null) return ''
 
-  const parentDir = path.basename(process.cwd())
-  const pName = entryInput.workspace ? parentDir : projectName
-
   const remotePath = await require('../lib/ftp').uploadDir({
+    // 保持使用 package.json 的项目名称
     project: projectName,
     version: context.version,
     view: entryInput.entry,

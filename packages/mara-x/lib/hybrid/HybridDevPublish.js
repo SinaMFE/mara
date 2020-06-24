@@ -43,10 +43,10 @@ async function updateRemoteHbConf(hbConf) {
   }
 }
 
-async function getRepoOrProjectName(packageJson, useWorkspace) {
+async function getRepoOrProjectName(packageJson) {
   let repoName = ''
 
-  if (useWorkspace) {
+  if (config.workspace) {
     return path.basename(process.cwd())
   }
 
@@ -88,7 +88,7 @@ module.exports = async function({ entry, remotePath, version, entryArgs }) {
 
   const packageJson = require(config.paths.packageJson)
   const hbConf = await getHbConf(CONF_URL)
-  const repoName = await getRepoOrProjectName(packageJson, entryArgs.workspace)
+  const repoName = await getRepoOrProjectName(packageJson)
   const moduleName = `${repoName}/${entry}`
   const localPkgPath = rootPath(`${C.DIST_DIR}/${entry}/${entry}.php`)
   const moduleIdx = hbConf.data.modules.findIndex(
