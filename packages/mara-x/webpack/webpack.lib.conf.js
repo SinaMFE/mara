@@ -39,6 +39,7 @@ module.exports = function(options, context) {
     devtool: shouldUseSourceMap ? 'source-map' : false,
     output: {
       path: config.paths.lib,
+      publicPath: context.publicPath,
       filename: options.filename,
       library: libraryName,
       // https://doc.webpack-china.org/configuration/output/#output-librarytarget
