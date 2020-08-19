@@ -18,7 +18,8 @@ const dropOptions = {
   classDecorators: ['SComponent']
 }
 
-const reportApi = 'http://exp.smfe.sina.cn/graphql'
+const reportApi =
+  'http://microservicesystem.mfe.svc.nvsdbl.k8.nevis.sina.com.cn/graphql'
 
 const vueFiles = new Set()
 
