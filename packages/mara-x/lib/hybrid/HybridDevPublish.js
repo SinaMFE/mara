@@ -1,6 +1,7 @@
 'use strict'
 
 const fs = require('fs')
+const path = require('path')
 const Vinyl = require('vinyl')
 const chalk = require('chalk')
 const { fetch, md5, ensureSlash, getGitRepoName } = require('@mara/devkit')
@@ -45,6 +46,10 @@ async function updateRemoteHbConf(hbConf) {
 async function getRepoOrProjectName(packageJson) {
   let repoName = ''
 
+  if (config.workspace) {
+    return path.basename(process.cwd())
+  }
+
   try {
     repoName = await getGitRepoName()
   } catch (e) {
@@ -77,7 +82,7 @@ function logResult(hbMod) {
   console.log(`\n${chalk.yellow.inverse(' CONF ')} ${chalk.yellow(CONF_URL)}\n`)
 }
 
-module.exports = async function(entry, remotePath, version) {
+module.exports = async function({ entry, remotePath, version, entryArgs }) {
   console.log('----------- Hybrid Publish: Dev -----------\n')
   console.log(publishStep[0])
 

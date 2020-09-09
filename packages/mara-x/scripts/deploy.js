@@ -1,0 +1,1 @@
+const build = require('./build')

@@ -21,8 +21,8 @@ function rootPath(relativePath) {
  * 获取入口文件名列表
  * @return {Array} 入口名数组
  */
-function getViews(entryGlob) {
-  const entries = getEntries(`${process.cwd()}/${entryGlob}`)
+function getViews(entryGlob, useWorkspace) {
+  const entries = getEntries(`${process.cwd()}/${entryGlob}`, [], useWorkspace)
   return Object.keys(entries)
 }
 
@@ -36,10 +36,19 @@ function getViews(entryGlob) {
  *   viewB: ['b.js']
  * }
  */
-function getEntries(globPath, preDep = []) {
+function getEntries(globPath, preDep = [], useWorkspace) {
   const files = glob.sync(rootPath(globPath))
   const hasPreDep = preDep.length > 0
   const getViewName = filepath => {
+    if (useWorkspace) {
+      const projectPath = path.relative(`${process.cwd()}/projects/`, filepath)
+      const projectName = projectPath.split('/')[0]
+      const dirname = projectPath.split('/')[3]
+
+      // 兼容组件，src/index.js
+      return `${projectName}/${dirname}`
+    }
+
     const dirname = path.dirname(path.relative(`${C.VIEWS_DIR}/`, filepath))
     // 兼容组件，src/index.js
     return dirname === '..' ? 'index' : dirname

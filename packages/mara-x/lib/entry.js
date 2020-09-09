@@ -6,7 +6,7 @@ const prompts = require('prompts')
 const config = require('../config')
 const { getViews, rootPath } = require('./utils')
 const skeleton = require('./skeleton')
-const views = getViews(config.paths.entryGlob)
+let views = ''
 
 // TL
 // 识别 entry, branch
@@ -73,11 +73,20 @@ function result(entry = '', argv) {
 
   entryArgs = Object.assign(
     {},
+    argv,
     getEntryArgs(argv, 'ftp'),
     getEntryArgs(argv, 'test')
   )
 
-  return Promise.resolve({ entry, ftpBranch, entryArgs })
+  let workspace = ''
+
+  if (argv.rootWorkspace) {
+    workspace = entry.split('/')[0]
+    entry = entry.split('/')[1]
+  }
+  // console.log('workspace', argv)
+
+  return Promise.resolve({ entry, workspace, ftpBranch, entryArgs })
 }
 
 function chooseOne(argv) {
@@ -92,7 +101,7 @@ function chooseOne(argv) {
 }
 
 function chooseMany(argv) {
-  const entry = argv._[1]
+  const entry = argv.rootWorkspace ? argv._[2] : argv._[1]
 
   if (validEntry(entry)) return result(entry, argv)
 
@@ -113,7 +122,7 @@ async function chooseEntry(msg, argv) {
     choices: list.map(view => ({ title: view, value: view })),
     initial: initial < 0 ? 0 : initial,
     // message 不可为空串
-    message: msg || 'Pick target view'
+    message: msg || '请选择目标页面'
   }
 
   const { entry } = await prompts(question)
@@ -125,6 +134,12 @@ async function chooseEntry(msg, argv) {
 }
 
 module.exports = async function getEntry(argv) {
+  if (argv.rootWorkspace) {
+    views = getViews(config.paths.workspaceEntryGlob, true)
+  } else {
+    views = getViews(config.paths.entryGlob)
+  }
+
   if (!views.length) {
     empty()
   } else if (views.length === 1) {

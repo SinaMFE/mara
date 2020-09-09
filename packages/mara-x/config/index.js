@@ -52,11 +52,16 @@ function getMaraConf() {
 
   if (fs.existsSync(paths.marauder)) {
     const userOptions = require(paths.marauder)
+    let globalConf = {}
+
+    if (fs.existsSync(process.env.maraxGlobalConfig)) {
+      globalConf = require(process.env.maraxGlobalConfig)
+    }
 
     try {
       if (validateOptions(maraxOptionsSchema, userOptions, 'mararc', 'Marax')) {
         // use deep merge
-        maraConf = merge({}, defConf, userOptions)
+        maraConf = merge({}, defConf, globalConf, userOptions)
       }
     } catch (e) {
       console.log(e.message)
@@ -110,6 +115,7 @@ const maraContext = {
   debug: argv.debug,
   library: maraConf.library,
   parallel: false,
+  workspace: !!argv.workspace,
   globalEnv: maraConf.globalEnv,
   tsImportLibs: maraConf.tsImportLibs,
   webpackPluginsHandler: maraConf.webpackPluginsHandler,

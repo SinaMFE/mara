@@ -15,6 +15,20 @@ const fetch = axios.create({
 // marauder 发布时，请确保关闭
 const DEBUG = false
 
+async function getGitUserEmailName() {
+  const { stdout: email } = await execa('git', [
+    'config',
+    '--get',
+    'user.email'
+  ])
+
+  try {
+    return email.split('@')[0]
+  } catch (e) {
+    console.log(chalk.red('请设置 git user email'), '\n')
+  }
+}
+
 function replayAsync(fn, assertFn, maxLoop = 10, wait = 1000) {
   return (...args) => {
     let cycles = 0
@@ -166,9 +180,9 @@ function checkRepo(remote, branch) {
   //   throw new Error(chalk.red('🚧  请在 master 分支上执行 test 发布操作'))
 }
 
-async function pushBuildCommit(branchName, verInfo) {
+async function pushBuildCommit(branchName, msg, target) {
   const spinner = ora('Add commit...').start()
-  const commitInfo = await addCommit(verInfo)
+  const commitInfo = await addCommit(msg, target)
 
   spinner.text = 'Pushing commits...'
 
@@ -209,13 +223,13 @@ async function pushBuildTag(tagName, tagMsg, repoUrl) {
   spinner.stop()
 }
 
-async function addCommit(verInfo) {
+async function addCommit(msg, target) {
   await execa('git', ['add', '.'])
 
   const { stdout: commitInfo } = await execa('git', [
     'commit',
     '-m',
-    `[TEST] v${verInfo}`
+    `[TEST.${target.toUpperCase()}] ${msg}`
   ])
 
   return commitInfo
@@ -246,15 +260,16 @@ async function showManualTip(repoUrl, type = 'token') {
  * @param  {string} version  版本号
  * @param  {string} message  部署信息
  */
-module.exports = async function testDeploy(entry, version, message) {
+module.exports = async function testDeploy(entry, version, argv, target) {
   const path = require('path')
   const config = require('../../config')
   const { URL } = require('url')
 
-  const tagPrefix = `tag__${entry}__`
-  const verInfo = `${version}-${Date.now()}`
-  const tagName = tagPrefix + verInfo
-  const tagMsg = message || `test ${entry} v${verInfo}`
+  if (argv.workspace) {
+    const parentDir = path.basename(process.cwd())
+
+    entry = `${parentDir}/${entry}`
+  }
 
   console.log('----------- Test Deploy -----------\n')
 
@@ -269,6 +284,12 @@ module.exports = async function testDeploy(entry, version, message) {
     'remote.origin.url'
   ])
 
+  const tagPrefix = `tag__${entry}`
+  const userInfo = await getGitUserEmailName()
+  const tagName = `${tagPrefix}__${version}(${branchName})__${userInfo}`
+  const commitMsg = `${entry}@${version} (${branchName})`
+  const tagMsg = argv.test || `deploy test ${entry}@${version}`
+
   checkRepo(remoteUrl, branchName)
 
   const baseRepoName = path.basename(remoteUrl, '.git')
@@ -278,7 +299,7 @@ module.exports = async function testDeploy(entry, version, message) {
     .replace('/', '')
   const repoUrl = GITLAB_HOST + '/' + fullRepoName
 
-  await pushBuildCommit(branchName, verInfo)
+  await pushBuildCommit(branchName, commitMsg, target)
 
   await pushBuildTag(tagName, tagMsg, repoUrl)
 

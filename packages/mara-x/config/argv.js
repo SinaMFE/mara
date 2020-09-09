@@ -6,7 +6,7 @@ const rawArgv = process.argv.slice(2)
 
 module.exports = mri(rawArgv, {
   alias: { version: 'v' },
-  boolean: ['version', 'debug', 'report'],
+  boolean: ['version', 'debug', 'report', 'workspace'],
   string: ['target', 'test', 'ftp'],
   default: { debug: false, version: false }
 })
