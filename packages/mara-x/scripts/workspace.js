@@ -4,6 +4,7 @@ const config = require('../config')
 const getEntry = require('../lib/entry')
 const paths = require('../config/paths')
 const pkgJson = require(paths.packageJson)
+const rootMarax = `${process.cwd()}/node_modules/.bin/marax`
 
 async function run({ command, cwd, entry }) {
   const rawArgv = process.argv.slice(2)
@@ -18,17 +19,17 @@ async function run({ command, cwd, entry }) {
   // const runBuild = require('./build')
 
   if (command == 'dev') {
-    const child = execa('npx', ['marax', 'dev', entry, '--workspace'], options)
+    const child = execa(rootMarax, ['dev', entry, '--workspace'], options)
   } else if (command == 'build') {
     const child = execa(
-      'npx',
-      ['marax', 'build', entry, ...rawArgv, '--workspace'],
+      rootMarax,
+      ['build', entry, ...rawArgv, '--workspace'],
       options
     )
   } else if (command == 'deploy') {
     const child = execa(
-      'npx',
-      ['marax', 'build', entry, '--test', '--workspace'],
+      rootMarax,
+      ['build', entry, '--test', '--workspace'],
       options
     )
   }
