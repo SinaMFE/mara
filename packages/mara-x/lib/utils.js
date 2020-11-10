@@ -13,8 +13,8 @@ const C = require('../config/const')
 // https://github.com/facebookincubator/create-react-app/issues/637
 const appDirectory = fs.realpathSync(process.cwd())
 
-function rootPath(relativePath) {
-  return path.resolve(appDirectory, relativePath)
+function rootPath(...relativePath) {
+  return path.resolve(appDirectory, ...relativePath)
 }
 
 /**

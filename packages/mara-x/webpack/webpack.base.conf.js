@@ -21,6 +21,7 @@ const {
   vueLoaderCacheConfig
 } = require('./loaders/vue-loader.conf')
 const { getEntries, isInstalled } = require('../lib/utils')
+const workspaceResolution = require('../lib/workspaceResolution')
 const paths = config.paths
 
 module.exports = function(
@@ -79,6 +80,16 @@ module.exports = function(
     config.compiler.splitSNC &&
     isInstalled('@mfelibs/hybridcontainer')
 
+  const baseAlias = {
+    // 使用 `~` 作为 src 别名
+    // 使用特殊符号防止与 npm 包冲突
+    // import '~/css/style.css'
+    '~': paths.src,
+    // 末尾指定 $ 防止误匹配
+    'react-native$': 'react-native-web',
+    vue$: `vue/dist/vue${vueRuntimeOnly ? '.runtime' : ''}.esm.js`
+  }
+
   // hybrid SDK 提升，以尽快建立 jsbridge
   if (useCommonPkg) {
     const sncConf = getCommonPkgConf(entryGlob)
@@ -113,15 +124,7 @@ module.exports = function(
       // source 为自定义拓展属性，表示源码入口
       mainFields: ['source', 'browser', 'module', 'main'],
       modules: ['node_modules', paths.nodeModules],
-      alias: {
-        // 使用 `~` 作为 src 别名
-        // 使用特殊符号防止与 npm 包冲突
-        // import '~/css/style.css'
-        '~': paths.src,
-        // 末尾指定 $ 防止误匹配
-        'react-native$': 'react-native-web',
-        vue$: `vue/dist/vue${vueRuntimeOnly ? '.runtime' : ''}.esm.js`
-      },
+      alias: config.workspace ? workspaceResolution(baseAlias) : baseAlias,
       plugins: [
         // Adds support for installing with Plug'n'Play, leading to faster installs and adding
         // guards against forgotten dependencies and such.
