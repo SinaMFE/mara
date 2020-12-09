@@ -10,7 +10,8 @@ const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const config = require('../config')
 const { GLOB } = require('../config/const')
 const { getLibraryExportName } = require('../lib/getLibraryExportName')
-const { banner, getEntries } = require('../lib/utils')
+const { banner } = require('../lib/utils')
+const { getEntries } = require('../lib/entry')
 const shouldUseSourceMap = config.build.sourceMap
 
 /**

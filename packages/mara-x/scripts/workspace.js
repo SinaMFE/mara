@@ -1,10 +1,10 @@
 const path = require('path')
 const execa = require('execa')
 const config = require('../config')
-const getEntry = require('../lib/entry')
+const { getBuildEntry } = require('../lib/entry')
 const paths = require('../config/paths')
 const pkgJson = require(paths.packageJson)
-const rootMarax = `${process.cwd()}/node_modules/.bin/marax`
+const rootMarax = `${paths.root}/node_modules/.bin/marax`
 
 async function run({ command, cwd, entry }) {
   const rawArgv = process.argv.slice(2)
@@ -60,7 +60,7 @@ module.exports = async function workspace(argv) {
   })
 
   const command = argv._[1]
-  const { workspace, entry } = await getEntry(argv)
+  const { workspace, entry } = await getBuildEntry(argv)
   const cwd = `${process.cwd()}/projects/${workspace}`
 
   run({ command, cwd, entry })

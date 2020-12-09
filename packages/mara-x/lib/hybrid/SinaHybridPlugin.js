@@ -1,14 +1,13 @@
 'use strict'
 
 const fs = require('fs')
-const path = require('path')
 const devalue = require('devalue')
 const chalk = require('chalk')
 const semver = require('semver')
 const prependEntryCode = require('../prependEntryCode')
-const { rootPath } = require('../../lib/utils')
 const ManifestPlugin = require('./ManifestPlugin')
 const { UNI_SNC } = require('../../config/const')
+const paths = require('../../config/paths')
 
 /**
  * 生成版本文件
@@ -18,7 +17,7 @@ class SinaHybridPlugin {
   constructor(htmlWebpackPlugin, options) {
     this.entry = options.entry
     this.publicPath = options.publicPath
-    this.version = options.version || require(rootPath('package.json')).version
+    this.version = options.version || require(paths.packageJson).version
     this.htmlWebpackPlugin = htmlWebpackPlugin
     this.useCommonPkg = options.useCommonPkg
     this.commonPkgPath = options.commonPkgPath

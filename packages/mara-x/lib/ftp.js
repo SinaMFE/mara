@@ -7,7 +7,7 @@ const path = require('path')
 const chalk = require('chalk')
 const config = require('../config')
 const C = require('../config/const')
-const { rootPath } = require('./utils')
+const paths = require('../config/paths')
 
 const isInteractive = process.stdout.isTTY
 const ftpConf = config.ftp
@@ -81,7 +81,7 @@ module.exports.uploadDir = async function(options) {
 
   // /wap_front/marauder/hdphoto/1.1.0/wensen/index
   const remotePath = getRemotePath(options)
-  const localPath = rootPath(`${C.DIST_DIR}/${view}`) + '/**'
+  const localPath = paths.getRootPath(`${C.DIST_DIR}/${view}`) + '/**'
 
   try {
     await upload(localPath, remotePath)

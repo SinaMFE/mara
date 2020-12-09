@@ -10,16 +10,13 @@ const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin')
 const perfInstallModulePlugin = require('../lib/perfInstallModulePlugin')
 const BuildProgressPlugin = require('../lib/BuildProgressPlugin')
 const InlineUmdHtmlPlugin = require('../lib/InlineUmdHtmlPlugin')
-const { getEntryPoints } = require('../lib/utils')
+const { getServantEntry } = require('../lib/entry')
 const config = require('../config')
-const { GLOB, VIEWS_DIR } = require('../config/const')
 
 module.exports = function(context, spinner) {
   const entry = context.entry
   const baseWebpackConfig = require('./webpack.base.conf')(context, 'dev')
-  const servantEntry = getEntryPoints(
-    `${VIEWS_DIR}/${entry}/${GLOB.SERVANT_ENTRY}`
-  )
+  const servantEntry = getServantEntry(entry)
   const htmlTemplatePath = `${config.paths.views}/${entry}/index.html`
   const hasHtml = fs.existsSync(htmlTemplatePath)
 

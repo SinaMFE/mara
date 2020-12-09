@@ -13,7 +13,7 @@ const chalk = require('chalk')
 const path = require('path')
 const ora = require('ora')
 const webpack = require('webpack')
-const getEntry = require('../lib/entry')
+const { getBuildEntry } = require('../lib/entry')
 const updateNotifier = require('../lib/updateNotifier')
 const { bumpProjectVersion, isInstalled } = require('../lib/utils')
 const { cliBadge } = require('@mara/devkit')
@@ -301,7 +301,7 @@ async function run(argv) {
     })
   })
 
-  const entryInput = await getEntry(argv)
+  const entryInput = await getBuildEntry(argv)
   const dist = path.join(paths.dist, entryInput.entry)
 
   // @TODO dev 发布检查脚手架版本

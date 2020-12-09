@@ -3,8 +3,9 @@ const chalk = require('chalk')
 const validator = require('@mara/schema-utils')
 const prependEntryCode = require('../prependEntryCode')
 const maraManifestSchema = require('./maraManifestSchema')
-const { rootPath, isObject, relativePath } = require('../utils')
+const { isObject } = require('../utils')
 const { VIEWS_DIR, TARGET } = require('../../config/const')
+const paths = require('../../config/paths')
 
 const MANIFEST_FILE_NAME = 'manifest.json'
 const HYBRID_MANIFEST_INJECT_NAME = '__HB_MANIFEST'
@@ -53,8 +54,10 @@ function getPathOrThrowConflict(rootFilePath, publicFilePath) {
   if (hasRootFile && hasPublicFile) {
     throw new Error(
       chalk.red('There are multiple manifest.json, please keep one:\n\n') +
-        ` * ${relativePath(rootFilePath)}  ${chalk.green('(recommend)')}\n` +
-        ` * ${relativePath(publicFilePath)}`
+        ` * ${paths.getRelativePath(rootFilePath)}  ${chalk.green(
+          '(recommend)'
+        )}\n` +
+        ` * ${paths.getRelativePath(publicFilePath)}`
     )
   }
 
@@ -89,16 +92,16 @@ module.exports = class ManifestPlugin {
       'prefer_related_applications'
     ]
     this.entry = options.entry
-    this.rootFilePath = rootPath(
+    this.rootFilePath = paths.getRootPath(
       `${VIEWS_DIR}/${this.entry}/${MANIFEST_FILE_NAME}`
     )
-    this.publicFilePath = rootPath(
+    this.publicFilePath = paths.getRootPath(
       `${VIEWS_DIR}/${this.entry}/public/${MANIFEST_FILE_NAME}`
     )
     this.hasRootFile = fs.existsSync(this.rootFilePath)
     this.hasPublicFile = fs.existsSync(this.publicFilePath)
     this.isHybrid = options.target === TARGET.APP
-    this.version = options.version || require(rootPath('package.json')).version
+    this.version = options.version || require(paths.packageJson).version
 
     this.manifestPath = ManifestPlugin.getManifestPath(this.entry)
   }
@@ -142,8 +145,10 @@ module.exports = class ManifestPlugin {
   }
 
   static getManifestPath(view, fileName = MANIFEST_FILE_NAME) {
-    const rootFilePath = rootPath(`${VIEWS_DIR}/${view}/${fileName}`)
-    const publicFilePath = rootPath(`${VIEWS_DIR}/${view}/public/${fileName}`)
+    const rootFilePath = paths.getRootPath(`${VIEWS_DIR}/${view}/${fileName}`)
+    const publicFilePath = paths.getRootPath(
+      `${VIEWS_DIR}/${view}/public/${fileName}`
+    )
 
     return getPathOrThrowConflict(rootFilePath, publicFilePath)
   }

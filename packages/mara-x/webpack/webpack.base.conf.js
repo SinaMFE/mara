@@ -20,7 +20,8 @@ const {
   vueLoaderOptions,
   vueLoaderCacheConfig
 } = require('./loaders/vue-loader.conf')
-const { getEntries, isInstalled } = require('../lib/utils')
+const { isInstalled } = require('../lib/utils')
+const { getEntries } = require('../lib/entry')
 const workspaceResolution = require('../lib/workspaceResolution')
 const paths = config.paths
 
@@ -254,7 +255,7 @@ module.exports = function(
     plugins: [
       // This gives some necessary context to module not found errors, such as
       // the requesting resource.
-      new ModuleNotFoundPlugin(paths.app),
+      new ModuleNotFoundPlugin(paths.root),
       // Moment.js is an extremely popular library that bundles large locale files
       // by default due to how Webpack interprets its code. This is a practical
       // solution that requires the user to opt into importing specific locales.

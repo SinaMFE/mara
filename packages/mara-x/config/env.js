@@ -45,7 +45,7 @@ function loadBrowserslist() {
   const browserslist = require('browserslist')
 
   // https://github.com/ai/browserslist/blob/master/node.js
-  if (!browserslist.findConfig(paths.app)) {
+  if (!browserslist.findConfig(paths.root)) {
     // 默认浏览器配置，移动为先
     process.env.BROWSERSLIST = [
       '> 1%',

@@ -6,10 +6,10 @@ const Vinyl = require('vinyl')
 const chalk = require('chalk')
 const { fetch, md5, ensureSlash, getGitRepoName } = require('@mara/devkit')
 const config = require('../../config')
+const paths = require('../../config/paths')
 const C = require('../../config/const')
 const { uploadVinylFile } = require('../ftp')
 const ManifestPlugin = require('./ManifestPlugin')
-const { rootPath } = require('../utils')
 const CONF_DIR = '/wap_front/hybrid/config/'
 const CONF_NAME = getHbConfName(config.ciConfig)
 const CONF_URL = `http://wap_front.dev.sina.cn/hybrid/config/${CONF_NAME}`
@@ -31,7 +31,7 @@ function getHbConfName(ciConfig) {
 async function updateRemoteHbConf(hbConf) {
   // 创建虚拟文件
   const confFile = new Vinyl({
-    path: rootPath(CONF_NAME),
+    path: paths.getRootPath(CONF_NAME),
     contents: Buffer.from(JSON.stringify(hbConf))
   })
 
@@ -86,11 +86,11 @@ module.exports = async function({ entry, remotePath, version, entryArgs }) {
   console.log('----------- Hybrid Publish: Dev -----------\n')
   console.log(publishStep[0])
 
-  const packageJson = require(config.paths.packageJson)
+  const packageJson = require(paths.packageJson)
   const hbConf = await getHbConf(CONF_URL)
   const repoName = await getRepoOrProjectName(packageJson)
   const moduleName = `${repoName}/${entry}`
-  const localPkgPath = rootPath(`${C.DIST_DIR}/${entry}/${entry}.php`)
+  const localPkgPath = paths.getRootPath(`${C.DIST_DIR}/${entry}/${entry}.php`)
   const moduleIdx = hbConf.data.modules.findIndex(
     item => item.name === moduleName
   )

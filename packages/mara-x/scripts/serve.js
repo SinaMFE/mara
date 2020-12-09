@@ -12,7 +12,7 @@ const webpack = require('webpack')
 const { getFreePort, localIp } = require('@mara/devkit')
 const config = require('../config')
 const getContext = require('../config/context')
-const getEntry = require('../lib/entry')
+const { getBuildEntry } = require('../lib/entry')
 const getWebpackConfig = require('../webpack/webpack.dev.conf')
 const createDevServerConfig = require('../webpack/webpack.devServer.conf')
 const prehandleConfig = require('../lib/prehandleConfig')
@@ -64,7 +64,7 @@ function createDevServer(webpackConf, opts) {
     useYarn: config.useYarn,
     spinner,
     protocol: PROTOCOL,
-    root: config.paths.app,
+    root: config.paths.root,
     host: host,
     openBrowser: config.devServer.open,
     useTypeScript: config.useTypeScript,
@@ -121,7 +121,7 @@ async function server({ context, entry }) {
 }
 
 module.exports = function runServe(argv) {
-  return getEntry(argv)
+  return getBuildEntry(argv)
     .then(setup)
     .then(server)
 }

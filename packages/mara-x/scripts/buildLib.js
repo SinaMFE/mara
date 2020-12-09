@@ -14,7 +14,7 @@ const chalk = require('chalk')
 const ora = require('ora')
 const glob = require('glob')
 const webpack = require('webpack')
-const { getViews } = require('../lib/utils')
+const { getViews } = require('../lib/entry')
 const config = require('../config')
 const { GLOB } = require('../config/const')
 const getContext = require('../config/context')
@@ -58,10 +58,10 @@ async function build(options) {
   // @TODO 多配置应用 prehandleConfig
   // const webpackConfig = prehandleConfig('lib', webpackConfig);
   const ticker = new Stopwatch()
-  const demos = shouldBuildDemos ? getViews(config.paths.entryGlob) : []
+  const demos = shouldBuildDemos ? getViews(paths.entryGlob) : []
 
   const baseCtx = await getContext({
-    version: require(config.paths.packageJson).version
+    version: require(paths.packageJson).version
   })
 
   const webpackConfs = libs.concat(demos).map(target => {

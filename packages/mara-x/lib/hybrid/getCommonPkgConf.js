@@ -1,5 +1,5 @@
 const path = require('path')
-const { getEntries } = require('../utils')
+const { getEntries } = require('../entry')
 const { UNI_SNC } = require('../../config/const')
 
 function isSNCEntry(context, request) {

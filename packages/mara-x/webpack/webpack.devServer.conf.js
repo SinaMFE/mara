@@ -5,11 +5,10 @@ const errorOverlayMiddleware = require('react-dev-utils/errorOverlayMiddleware')
 const evalSourceMapMiddleware = require('react-dev-utils/evalSourceMapMiddleware')
 const noopServiceWorkerMiddleware = require('react-dev-utils/noopServiceWorkerMiddleware')
 const ignoredFiles = require('react-dev-utils/ignoredFiles')
-const { rootPath } = require('../lib/utils')
 const paths = require('../config/paths')
 
 module.exports = function({ entry, proxy, protocol, publicPath = '/', host }) {
-  const localPublicDir = rootPath(`${paths.views}/${entry}/public`)
+  const localPublicDir = paths.getRootPath(`${paths.views}/${entry}/public`)
 
   return {
     // 允许修改 host 模拟跨域

@@ -1,6 +1,6 @@
 const path = require('path')
 const paths = require('../config/paths')
-const { isInstalled, rootPath } = require('./utils')
+const { isInstalled } = require('./utils')
 const pkgJson = require(paths.packageJson)
 
 function resolvePkgName(pattern) {
@@ -23,7 +23,7 @@ function getResolution(baseAlias = {}) {
   // 对结果排重
   const pkgs = [...new Set(nohoist.map(resolvePkgName))]
   const confs = pkgs.reduce((target, name) => {
-    target[name] = rootPath(paths.nodeModules, name)
+    target[name] = paths.getRootPath(paths.nodeModules, name)
 
     return target
   }, {})

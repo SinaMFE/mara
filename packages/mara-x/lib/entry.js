@@ -1,12 +1,14 @@
 'use strict'
 
 const fs = require('fs')
+const glob = require('glob')
+const path = require('path')
 const chalk = require('chalk')
 const prompts = require('prompts')
 const config = require('../config')
-const { getViews, rootPath } = require('./utils')
+const paths = require('../config/paths')
+const { GLOB, VIEWS_DIR } = require('../config/const')
 const skeleton = require('./skeleton')
-let views = ''
 
 // TL
 // 识别 entry, branch
@@ -24,7 +26,7 @@ let views = ''
 function empty() {
   let msg = '请按如下结构创建页面'
 
-  if (fs.existsSync(rootPath('src/view'))) {
+  if (fs.existsSync(paths.view)) {
     msg += '，如果您从 marax@1.x 迁移，请将 view 目录重命名为 views'
   }
 
@@ -84,35 +86,49 @@ function result(entry = '', argv) {
     workspace = entry.split('/')[0]
     entry = entry.split('/')[1]
   }
-  // console.log('workspace', argv)
 
-  return Promise.resolve({ entry, workspace, ftpBranch, entryArgs })
+  return Promise.resolve({
+    entry,
+    workspace,
+    ftpBranch,
+    entryArgs
+  })
 }
 
-function chooseOne(argv) {
+async function resolveBuildEntry(views, argv) {
+  if (!views.length) return empty()
+
+  if (views.length === 1) {
+    return chooseOne(views, argv)
+  } else {
+    return chooseMany(views, argv)
+  }
+}
+
+function chooseOne(views, argv) {
   const entry = argv._[1]
 
-  if (entry && !validEntry(entry)) {
-    return chooseEntry('Incorrect view, please re-pick', argv)
+  if (entry && !validEntry(views, entry)) {
+    return chooseEntry(views, argv, 'Incorrect view, please re-pick')
   } else {
     // 无输入时返回默认页
     return result(views[0], argv)
   }
 }
 
-function chooseMany(argv) {
+function chooseMany(views, argv) {
   const entry = argv.rootWorkspace ? argv._[2] : argv._[1]
 
-  if (validEntry(entry)) return result(entry, argv)
+  if (validEntry(views, entry)) return result(entry, argv)
 
-  return chooseEntry(entry && 'Incorrect view, please re-pick', argv)
+  return chooseEntry(views, argv, entry && 'Incorrect view, please re-pick')
 }
 
-function validEntry(entry) {
+function validEntry(views, entry) {
   return views.includes(entry)
 }
 
-async function chooseEntry(msg, argv) {
+async function chooseEntry(views, argv, msg) {
   const list = [...views]
   const initial = list.indexOf('index')
 
@@ -133,18 +149,91 @@ async function chooseEntry(msg, argv) {
   return result(entry, argv)
 }
 
-module.exports = async function getEntry(argv) {
-  if (argv.rootWorkspace) {
-    views = getViews(config.paths.workspaceEntryGlob, true)
-  } else {
-    views = getViews(config.paths.entryGlob)
+/**
+ * 获取指定路径下的入口文件
+ * @param  {String} globPath 通配符路径
+ * @param  {String} preDep 前置模块
+ * @return {Object}          入口名:路径 键值对
+ * {
+ *   viewA: ['a.js'],
+ *   viewB: ['b.js']
+ * }
+ */
+function getEntries(globPath, preDep = [], useWorkspace) {
+  const files = glob.sync(paths.getRootPath(globPath))
+  const hasPreDep = preDep.length > 0
+  const getViewName = filepath => {
+    if (useWorkspace) {
+      const projectPath = path.relative(`${paths.root}/projects/`, filepath)
+      const projectName = projectPath.split('/')[0]
+      const dirname = projectPath.split('/')[3]
+
+      // 兼容组件，src/index.js
+      return `${projectName}/${dirname}`
+    }
+
+    const dirname = path.dirname(
+      path.relative(`${paths.root}/${VIEWS_DIR}/`, filepath)
+    )
+    // 兼容组件，src/index.js
+    return dirname === '..' ? 'index' : dirname
   }
 
-  if (!views.length) {
-    empty()
-  } else if (views.length === 1) {
-    return chooseOne(argv)
-  } else {
-    return chooseMany(argv)
-  }
+  // glob 按照字母顺序取 .js 与 .ts 文件
+  // 通过 reverse 强制使 js 文件在 ts 之后，达到覆盖目的
+  // 保证 index.js 优先原则
+  return files.reverse().reduce((entries, filepath) => {
+    const name = getViewName(filepath)
+    // preDep 支持数组或字符串。所以这里使用 concat 方法
+    entries[name] = hasPreDep ? [].concat(preDep, filepath) : filepath
+
+    return entries
+  }, {})
 }
+
+function getServantEntry(entry, preDep = []) {
+  const files = glob.sync(
+    paths.getRootPath(`${VIEWS_DIR}/${entry}/${GLOB.SERVANT_ENTRY}`)
+  )
+  const getChunkName = filepath => {
+    const extname = path.extname(filepath)
+    const basename = path.posix.basename(filepath, extname)
+
+    return basename.replace(/^index\./, '') + '.servant'
+  }
+
+  return files.reduce((chunks, filepath) => {
+    const name = getChunkName(filepath)
+    // preDep 支持数组或字符串。所以这里使用 concat 方法
+    chunks[name] = [].concat(preDep, filepath)
+
+    return chunks
+  }, {})
+}
+
+/**
+ * 获取入口文件名列表
+ * @return {Array} 入口名数组
+ */
+function getViews(entryGlob, useWorkspace) {
+  const entries = getEntries(entryGlob, [], useWorkspace)
+
+  return Object.keys(entries)
+}
+
+async function getBuildEntry(argv) {
+  let views
+
+  if (argv.rootWorkspace) {
+    views = getViews(paths.workspaceEntryGlob, true)
+  } else {
+    views = getViews(paths.entryGlob)
+  }
+
+  // views 正序排列
+  views = views.sort()
+
+  return resolveBuildEntry(views, argv)
+}
+
+module.exports = { getViews, getBuildEntry, getEntries, getServantEntry }

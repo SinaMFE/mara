@@ -14644,10 +14644,10 @@ sina-meta-serialize@^2.1.0:
     lodash "^4.17.11"
     ts-meta-extract "^0.7.3"
 
-sinamfe-webpack-module_dependency@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.npm.taobao.org/sinamfe-webpack-module_dependency/download/sinamfe-webpack-module_dependency-2.0.1.tgz#861f376f4ea181f5bfd9e376a6297729b36ec95b"
-  integrity sha1-hh83b06hgfW/2eN2pil3KbNuyVs=
+sinamfe-webpack-module_dependency@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.npmjs.org/sinamfe-webpack-module_dependency/-/sinamfe-webpack-module_dependency-2.1.0.tgz#4b8da9282163777a1daa3b040572ccfcc7f3501b"
+  integrity sha512-v8o2go/EMql8D87MbymXwW/jg7X+ryD3FFXUBvSCxst5IKjFE6rWjiS++f5VwSctwXQqAAxH4dBvroPJll4T3Q==
   dependencies:
     find-root "^1.1.0"
     neo-async "^2.6.0"

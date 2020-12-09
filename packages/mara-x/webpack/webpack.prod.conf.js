@@ -17,14 +17,16 @@ const InlineChunkHtmlPlugin = require('react-dev-utils/InlineChunkHtmlPlugin')
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin')
 
 // const { HybridCommonPlugin } = require('../lib/hybrid')
-const { banner, rootPath, getEntryPoints } = require('../lib/utils')
+const { banner } = require('../lib/utils')
+const { getServantEntry } = require('../lib/entry')
 const BuildProgressPlugin = require('../lib/BuildProgressPlugin')
 const InlineUmdHtmlPlugin = require('../lib/InlineUmdHtmlPlugin')
-const { GLOB, VIEWS_DIR, DLL_DIR, TARGET } = require('../config/const')
+const { DLL_DIR, TARGET } = require('../config/const')
 const ManifestPlugin = require('../lib/hybrid/ManifestPlugin')
 const BuildJsonPlugin = require('../lib/BuildJsonPlugin')
 const ZenJsPlugin = require('../lib/ZenJsPlugin')
 const config = require('../config')
+const paths = require('../config/paths')
 
 const shouldUseSourceMap = !!config.build.sourceMap
 
@@ -36,20 +38,17 @@ const shouldUseSourceMap = !!config.build.sourceMap
  */
 module.exports = function(context, spinner) {
   const entry = context.entry
-  const distPageDir = `${config.paths.dist}/${entry}`
+  const distPageDir = `${paths.dist}/${entry}`
   const baseWebpackConfig = require('./webpack.base.conf')(context, 'build')
-  const htmlTemplatePath = `${config.paths.views}/${entry}/index.html`
+  const htmlTemplatePath = `${paths.views}/${entry}/index.html`
   const hasHtml = fs.existsSync(htmlTemplatePath)
-  const servantEntry = getEntryPoints(
-    `${VIEWS_DIR}/${entry}/${GLOB.SERVANT_ENTRY}`
-  )
+  const servantEntry = getServantEntry(entry)
   const debugLabel = config.debug ? '.debug' : ''
   const isHybridMode = context.target === TARGET.APP
   const shouldUseZenJs = config.compiler.zenJs && context.target != TARGET.APP
 
   // 优先取外部注入的 version
-  const buildVersion =
-    context.version || require(config.paths.packageJson).version
+  const buildVersion = context.version || require(paths.packageJson).version
 
   // https://github.com/survivejs/webpack-merge
   const webpackConfig = merge(baseWebpackConfig, {
@@ -71,9 +70,7 @@ module.exports = function(context, spinner) {
         : `static/js/[name].chunk${debugLabel}.js`,
       // Point sourcemap entres to original disk location (format as URL on Windows)
       devtoolModuleFilenameTemplate: info =>
-        path
-          .relative(config.paths.src, info.absoluteResourcePath)
-          .replace(/\\/g, '/')
+        path.relative(paths.src, info.absoluteResourcePath).replace(/\\/g, '/')
     },
     // 放在单独的 prod.conf 中，保持 base.conf 通用性
     optimization: {
@@ -200,6 +197,7 @@ module.exports = function(context, spinner) {
 
       // 【争议】：lib 模式禁用依赖分析?
       new moduleDependency({
+        cwd: paths.root,
         emitError: config.compiler.checkDuplicatePackage
       }),
       new webpack.BannerPlugin({
@@ -212,7 +210,7 @@ module.exports = function(context, spinner) {
         env: config.deployEnv,
         version: buildVersion,
         workspace: config.workspace,
-        marax: require(config.paths.maraxPackageJson).version
+        marax: require(paths.maraxPackageJson).version
       }),
       new ManifestPlugin({
         entry,
@@ -222,35 +220,6 @@ module.exports = function(context, spinner) {
       ...copyPublicFiles(entry, distPageDir)
     ].filter(Boolean)
   })
-
-  // 预加载
-  if (config.prerender) {
-    const PrerenderSPAPlugin = require('prerender-html-plugin')
-    const Renderer = PrerenderSPAPlugin.PuppeteerRenderer
-
-    new PrerenderSPAPlugin({
-      // 生成文件的路径，也可以与webpakc打包的一致。
-      // 这个目录只能有一级，如果目录层次大于一级，在生成的时候不会有任何错误提示，在预渲染的时候只会卡着不动。
-      entry: `${entry}`,
-
-      staticDir: path.join(rootPath(`dist`), `${entry}`),
-
-      outputDir: path.join(rootPath(`dist`), `${entry}`),
-
-      // 对应自己的路由文件，比如index有参数，就需要写成 /index/param1。
-      routes: ['/'],
-
-      // 这个很重要，如果没有配置这段，也不会进行预编译
-      renderer: new Renderer({
-        inject: {
-          foo: 'bar'
-        },
-        headless: false,
-        // 在 main.js 中 document.dispatchEvent(new Event('render-event'))，两者的事件名称要对应上。
-        renderAfterDocumentEvent: 'render-event'
-      })
-    })
-  }
 
   const vendorConf = config.vendor || []
   if (Object.keys(vendorConf).length) {
@@ -268,7 +237,7 @@ module.exports = function(context, spinner) {
     const namespace = config.vendor.name ? `${config.vendor.name}_` : ''
 
     try {
-      manifest = require(`${config.paths.dll}/${namespace}manifest.json`)
+      manifest = require(`${paths.dll}/${namespace}manifest.json`)
     } catch (err) {
       console.log(
         chalk.yellow(
@@ -352,7 +321,7 @@ module.exports = function(context, spinner) {
 }
 
 function copyPublicFiles(entry, distPageDir) {
-  const localPublicDir = rootPath(`${config.paths.views}/${entry}/public`)
+  const localPublicDir = paths.getRootPath(`${paths.views}/${entry}/public`)
   const plugins = []
 
   function getCopyOption(src) {
@@ -367,8 +336,8 @@ function copyPublicFiles(entry, distPageDir) {
   }
 
   // 全局 public
-  if (fs.existsSync(config.paths.public)) {
-    plugins.push(new CopyWebpackPlugin([getCopyOption(config.paths.public)]))
+  if (fs.existsSync(paths.public)) {
+    plugins.push(new CopyWebpackPlugin([getCopyOption(paths.public)]))
   }
 
   // 页面级 public，能够覆盖全局 public
