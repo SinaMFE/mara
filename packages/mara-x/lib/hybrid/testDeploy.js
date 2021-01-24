@@ -260,15 +260,19 @@ async function showManualTip(repoUrl, type = 'token') {
  * @param  {string} version  版本号
  * @param  {string} message  部署信息
  */
-module.exports = async function testDeploy(entry, version, argv, target) {
+module.exports = async function testDeploy({
+  entry,
+  version,
+  project,
+  argv,
+  target
+}) {
   const path = require('path')
   const config = require('../../config')
   const { URL } = require('url')
 
-  if (argv.workspace) {
-    const parentDir = path.basename(process.cwd())
-
-    entry = `${parentDir}/${entry}`
+  if (project) {
+    entry = `${project}/${entry}`
   }
 
   console.log('----------- Test Deploy -----------\n')

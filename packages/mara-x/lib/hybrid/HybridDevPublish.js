@@ -43,17 +43,15 @@ async function updateRemoteHbConf(hbConf) {
   }
 }
 
-async function getRepoOrProjectName(packageJson) {
+async function getProjectName(project) {
   let repoName = ''
 
-  if (config.workspace) {
-    return path.basename(process.cwd())
-  }
+  if (project) return project
 
   try {
     repoName = await getGitRepoName()
   } catch (e) {
-    repoName = packageJson.name
+    throw new Error('请设置 git 远程仓库地址')
   }
 
   return repoName
@@ -82,14 +80,19 @@ function logResult(hbMod) {
   console.log(`\n${chalk.yellow.inverse(' CONF ')} ${chalk.yellow(CONF_URL)}\n`)
 }
 
-module.exports = async function({ entry, remotePath, version, entryArgs }) {
+module.exports = async function hybridDevPublish({
+  entry,
+  project,
+  remotePath,
+  version,
+  entryArgs
+}) {
   console.log('----------- Hybrid Publish: Dev -----------\n')
   console.log(publishStep[0])
 
-  const packageJson = require(paths.packageJson)
   const hbConf = await getHbConf(CONF_URL)
-  const repoName = await getRepoOrProjectName(packageJson)
-  const moduleName = `${repoName}/${entry}`
+  const projectName = await getProjectName(project)
+  const moduleName = `${projectName}/${entry}`
   const localPkgPath = paths.getRootPath(`${C.DIST_DIR}/${entry}/${entry}.php`)
   const moduleIdx = hbConf.data.modules.findIndex(
     item => item.name === moduleName
@@ -109,7 +112,7 @@ module.exports = async function({ entry, remotePath, version, entryArgs }) {
 
   const hbMod = {
     name: moduleName,
-    version: version || packageJson.version,
+    version: version,
     pkg_url: `${ensureSlash(remotePath) + entry}.php`,
     hybrid: true,
     md5: md5(fs.readFileSync(localPkgPath)),

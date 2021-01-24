@@ -1,6 +1,6 @@
 {
   "name": "@mara/x",
-  "version": "2.13.0-beta",
+  "version": "2.14.0-beta.3",
   "description": "支持 React / Vue + Ts 的多页应用打包工具",
   "keywords": [
     "ts",
@@ -107,6 +107,7 @@
     "webpack-bundle-analyzer": "^3.7.0",
     "webpack-dev-server": "^3.11.0",
     "webpack-merge": "^4.2.2",
+    "yazl": "^2.5.1",
     "zip-webpack-plugin": "^3.0.0"
   },
   "publishConfig": {

@@ -24,19 +24,22 @@ module.exports = class HybridCommonPlugin {
   apply(compiler) {
     if (!this.assets) return
 
-    compiler.hooks.compilation(this.constructor.name, (compilation, data) => {
-      data.normalModuleFactory.plugin('parser', (parser, options) => {
-        this.resolveImport(parser)
-        this.resolveRequire(parser)
-        this.resolveMemberRequire(parser)
-      })
+    compiler.hooks.compilation.tap(
+      this.constructor.name,
+      (compilation, data) => {
+        data.normalModuleFactory.plugin('parser', (parser, options) => {
+          this.resolveImport(parser)
+          this.resolveRequire(parser)
+          this.resolveMemberRequire(parser)
+        })
 
-      this.injectCommonAssets2Html(compilation)
-    })
+        this.injectCommonAssets2Html(compilation)
+      }
+    )
   }
 
   injectCommonAssets2Html(compilation) {
-    compilation.hooks.htmlWebpackPluginBeforeHtmlGeneration(
+    compilation.hooks.htmlWebpackPluginBeforeHtmlGeneration.tap(
       this.constructor.name,
       (htmlData, callback) => {
         // assets props [ 'publicPath', 'chunks', 'js', 'css', 'manifest' ]

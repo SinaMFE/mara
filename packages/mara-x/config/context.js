@@ -6,23 +6,32 @@ const resolvePublicPath = require('../lib/resolvePublicPath')
 const { deployEnv, globalEnv, paths, target } = config
 const isDev = process.env.NODE_ENV === 'development'
 
-async function getPublicPath(view, version) {
+// 读取 manifest.json
+
+async function getPublicPath({ view, project, version }) {
   if (isDev) return DEV_PUBLIC_PATH
 
   // hybrid 使用相对路径引用本地资源
-  if (target === TARGET.APP) {
+  if (config.isHybridMode) {
     return HYBRID_PUBLIC_PATH
   } else {
     let repoName = ''
+    let projectName = ''
     const pkgName = require(paths.packageJson).name
 
     try {
       repoName = await getGitRepoName()
     } catch (e) {}
 
-    return resolvePublicPath(config.publicPath, deployEnv, {
+    if (project) {
+      projectName = project
+    } else {
       // repo 优先
-      project: repoName || pkgName,
+      projectName = repoName || pkgName
+    }
+
+    return resolvePublicPath(config.publicPath, deployEnv, {
+      project: projectName,
       repo: repoName,
       version,
       view
@@ -30,8 +39,8 @@ async function getPublicPath(view, version) {
   }
 }
 
-module.exports = async function getContext({ version, view }) {
-  const publicPath = await getPublicPath(view, version)
+module.exports = async function getContext({ version, view, project }) {
+  const publicPath = await getPublicPath({ view, project, version })
   const buildEnv = getEnv({
     deployEnv,
     globalEnv,

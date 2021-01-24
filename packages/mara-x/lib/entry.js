@@ -7,7 +7,7 @@ const chalk = require('chalk')
 const prompts = require('prompts')
 const config = require('../config')
 const paths = require('../config/paths')
-const { GLOB, VIEWS_DIR } = require('../config/const')
+const { GLOB, VIEWS_DIR, WORKSPACE_PROJECT_DIR } = require('../config/const')
 const skeleton = require('./skeleton')
 
 // TL
@@ -85,6 +85,8 @@ function result(entry = '', argv) {
   if (argv.rootWorkspace) {
     workspace = entry.split('/')[0]
     entry = entry.split('/')[1]
+  } else if (argv.workspace) {
+    workspace = path.basename(paths.root)
   }
 
   return Promise.resolve({
@@ -159,17 +161,20 @@ async function chooseEntry(views, argv, msg) {
  *   viewB: ['b.js']
  * }
  */
-function getEntries(globPath, preDep = [], useWorkspace) {
+function getEntries(globPath, preDep = [], isRootWorkspace) {
   const files = glob.sync(paths.getRootPath(globPath))
   const hasPreDep = preDep.length > 0
   const getViewName = filepath => {
-    if (useWorkspace) {
-      const projectPath = path.relative(`${paths.root}/projects/`, filepath)
+    if (isRootWorkspace) {
+      const projectPath = path.relative(
+        `${paths.root}/${WORKSPACE_PROJECT_DIR}/`,
+        filepath
+      )
       const projectName = projectPath.split('/')[0]
-      const dirname = projectPath.split('/')[3]
+      const viewName = projectPath.split('/')[3]
 
       // 兼容组件，src/index.js
-      return `${projectName}/${dirname}`
+      return `${projectName}/${viewName}`
     }
 
     const dirname = path.dirname(
@@ -215,8 +220,8 @@ function getServantEntry(entry, preDep = []) {
  * 获取入口文件名列表
  * @return {Array} 入口名数组
  */
-function getViews(entryGlob, useWorkspace) {
-  const entries = getEntries(entryGlob, [], useWorkspace)
+function getViews(entryGlob, isRootWorkspace) {
+  const entries = getEntries(entryGlob, [], isRootWorkspace)
 
   return Object.keys(entries)
 }

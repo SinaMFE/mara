@@ -16,13 +16,12 @@ const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const InlineChunkHtmlPlugin = require('react-dev-utils/InlineChunkHtmlPlugin')
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin')
 
-// const { HybridCommonPlugin } = require('../lib/hybrid')
 const { banner } = require('../lib/utils')
 const { getServantEntry } = require('../lib/entry')
 const BuildProgressPlugin = require('../lib/BuildProgressPlugin')
 const InlineUmdHtmlPlugin = require('../lib/InlineUmdHtmlPlugin')
 const { DLL_DIR, TARGET } = require('../config/const')
-const ManifestPlugin = require('../lib/hybrid/ManifestPlugin')
+const { ManifestPlugin, HybridCommonPlugin } = require('../lib/hybrid')
 const BuildJsonPlugin = require('../lib/BuildJsonPlugin')
 const ZenJsPlugin = require('../lib/ZenJsPlugin')
 const config = require('../config')
@@ -287,32 +286,7 @@ module.exports = function(context, spinner) {
         // if not present, the basename of the path
         filename: entry,
         extension: 'php',
-        // OPTIONAL: defaults to including everything
-        // can be a string, a RegExp, or an array of strings and RegExps
-        //   include: [/\.js$/],
-        // OPTIONAL: defaults to excluding nothing
-        // can be a string, a RegExp, or an array of strings and RegExps
-        // if a file matches both include and exclude, exclude takes precedence
-        exclude: [
-          /__MACOSX$/,
-          /.DS_Store$/,
-          /dependencyGraph.json$/,
-          /build.json$/,
-          /js.map$/,
-          /css.map$/
-        ],
-        // yazl Options
-        // OPTIONAL: see https://github.com/thejoshwolfe/yazl#addfilerealpath-metadatapath-options
-        fileOptions: {
-          mtime: new Date(),
-          mode: 0o100664,
-          compress: true,
-          forceZip64Format: false
-        },
-        // OPTIONAL: see https://github.com/thejoshwolfe/yazl#endoptions-finalsizecallback
-        zipOptions: {
-          forceZip64Format: false
-        }
+        ...config.zipConf
       })
     )
   }

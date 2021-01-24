@@ -31,9 +31,11 @@ const {
   getBuildSizeOfFileMap
 } = require('../lib/buildReporter')
 const prehandleConfig = require('../lib/prehandleConfig')
-const isHybridMode = config.hybrid && config.target === TARGET.APP
+const zip = require('../lib/zip')
+const isHybridMode = config.isHybridMode
+const useCommonPkg = config.useCommonPkg
 
-const { name: projectName, version: latestVersion } = require(config.paths
+const { name: pkgJsonName, version: latestVersion } = require(config.paths
   .packageJson)
 // hybrid 模式下 ftp 发布将自动更新 package version
 // 此变量记录更新后的版本号
@@ -68,13 +70,18 @@ async function createContext(entryInput) {
 
   return getBuildContext({
     version: currentVersion,
-    view: entryInput.entry
+    view: entryInput.entry,
+    project: entryInput.workspace
   })
 
   // return { context, ...entryInput }
 }
 
 async function clean(dist) {
+  if (useCommonPkg) {
+    fs.remove(dist + '.lite')
+  }
+
   return fs.emptyDir(dist)
 }
 
@@ -223,9 +230,10 @@ function printResult(
 async function ftpUpload(entryInput, context) {
   if (entryInput.ftpBranch === null) return ''
 
+  const workspace = entryInput.workspace
   const remotePath = await require('../lib/ftp').uploadDir({
-    // 保持使用 package.json 的项目名称
-    project: projectName,
+    // workspace 模式下取工作区文件夹
+    project: workspace || pkgJsonName,
     version: context.version,
     view: entryInput.entry,
     namespace: entryInput.ftpBranch,
@@ -235,19 +243,29 @@ async function ftpUpload(entryInput, context) {
   return remotePath
 }
 
-async function deploy({ entry, entryArgs }, remotePath) {
+async function deploy({ entry, workspace, entryArgs }, remotePath) {
+  const target = config.target
+  const version = currentVersion
+
   // hybrid deplpy 需提供 hybrid 配置
   // 并且为 app 模式
   if (isHybridMode && config.ftp.hybridPublish && remotePath) {
     await hybridDevPublish({
       entry,
       remotePath,
-      version: currentVersion,
-      target: config.target,
+      project: workspace,
+      version,
+      target,
       entryArgs
     })
   } else if (entryArgs.test !== null) {
-    await testDeploy(entry, currentVersion, entryArgs, config.target)
+    await testDeploy({
+      entry,
+      version,
+      project: workspace,
+      target,
+      argv: entryArgs
+    })
   }
 }
 
@@ -321,12 +339,42 @@ async function run(argv) {
   await clean(dist)
 
   const buildResult = await build(context)
+
   printResult(buildResult, context, preBuildSize)
+
+  if (useCommonPkg) {
+    await buildCommonPkg(dist)
+  }
 
   await loadHook(argv, context)
 
   const remotePath = await ftpUpload(entryInput, context)
   await deploy(entryInput, remotePath)
+}
+
+async function buildCommonPkg(dist) {
+  const cDist = dist + '.lite'
+  const commonPkgReg = /[\w./-_]+__SINA_COMMON_PKG__\.js/
+
+  fs.copySync(dist, cDist)
+  fs.remove(`${cDist}/static/js/__SINA_COMMON_PKG__.js`)
+  fs.remove(`${cDist}/${path.basename(dist)}.php`)
+
+  const htmlPath = `${cDist}/index.html`
+  const html = fs.readFileSync(htmlPath, 'utf8')
+  const repHtml = html.replace(
+    commonPkgReg,
+    'http://wap_front.dev.sina.cn/marauder/@mfelibs/hybridcontainer/1.1.4/app/index/static/js/index.min.js'
+  )
+
+  fs.writeFileSync(htmlPath, repHtml)
+
+  return zip({
+    src: cDist,
+    filename: path.basename(dist),
+    extension: 'php',
+    ...config.zipConf
+  })
 }
 
 module.exports = async function runBuild(argv) {

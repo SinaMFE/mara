@@ -33,7 +33,7 @@ module.exports = function(
   const isProd = process.env.NODE_ENV === 'production'
   const isLib = cmd === 'lib'
   const isDevOrBuildCmd = cmd === 'dev' || cmd === 'build'
-  const isHybridMode = target === TARGET.APP
+  const isHybridMode = config.isHybridMode
   const assetsDir = isLib ? '' : 'static/'
   const entryGlob = `${VIEWS_DIR}/${entry}/${GLOB.MAIN_ENTRY}`
   const useTypeScript = config.useTypeScript
@@ -75,11 +75,7 @@ module.exports = function(
   let entryConf = {}
   let commonPkgPath = ''
 
-  const useCommonPkg =
-    isDevOrBuildCmd &&
-    isHybridMode &&
-    config.compiler.splitSNC &&
-    isInstalled('@mfelibs/hybridcontainer')
+  const useCommonPkg = isDevOrBuildCmd && config.useCommonPkg
 
   const baseAlias = {
     // 使用 `~` 作为 src 别名

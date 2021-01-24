@@ -9,6 +9,7 @@ const argv = require('./argv')
 const { isObject } = require('@mara/devkit')
 const defConf = require('./defaultOptions')
 const { DEPLOY_ENV, TARGET } = require('./const')
+const { isInstalled } = require('../lib/utils')
 const maraxVersion = require(paths.maraxPackageJson).version
 
 const maraConf = getMaraConf()
@@ -147,6 +148,28 @@ const maraContext = {
   // hybrid 项目配置，存在此属性时，将会生成 zip 包
   hybrid: maraConf.hybrid,
   babelPlugins: maraConf.babelPlugins,
+  zipConf: {
+    exclude: [
+      /__MACOSX$/,
+      /.DS_Store$/,
+      /dependencyGraph.json$/,
+      /build.json$/,
+      /js.map$/,
+      /css.map$/
+    ],
+    // yazl Options
+    // OPTIONAL: see https://github.com/thejoshwolfe/yazl#addfilerealpath-metadatapath-options
+    fileOptions: {
+      mtime: new Date(),
+      mode: 0o100664,
+      compress: true,
+      forceZip64Format: false
+    },
+    // OPTIONAL: see https://github.com/thejoshwolfe/yazl#endoptions-finalsizecallback
+    zipOptions: {
+      forceZip64Format: false
+    }
+  },
   postcss: {
     stage: 3,
     // 允许 flexbox 2009 以支持多行超出省略
@@ -158,5 +181,13 @@ const maraContext = {
   },
   marax: maraConf.marax
 }
+
+const isHybridMode = maraContext.hybrid && target === TARGET.APP
+
+maraContext.isHybridMode = isHybridMode
+maraContext.useCommonPkg =
+  isHybridMode &&
+  maraContext.compiler.splitSNC &&
+  isInstalled('@mfelibs/hybridcontainer')
 
 module.exports = maraContext
