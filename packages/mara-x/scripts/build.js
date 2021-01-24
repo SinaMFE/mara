@@ -194,20 +194,30 @@ function printResult(
 
   // just new line
   console.log()
+
+  const versionBadge = cliBadge('build', `v${context.version}`)
   const targetBadge = cliBadge('target', config.target)
   const envBadge = cliBadge(
     'env',
     config.deployEnv,
     config.deployEnv === DEPLOY_ENV.ONLINE ? 'info' : 'warning'
   )
-  console.log(`${targetBadge} ${envBadge}`)
 
-  console.log()
-  console.log(
-    `The ${chalk.cyan(
-      'dist/' + context.entry
-    )} folder is ready to be deployed.\n`
-  )
+  console.log(`${targetBadge} ${envBadge} ${versionBadge}\n`)
+
+  if (context.project) {
+    console.log(
+      `The project ${chalk.cyan(
+        `${context.project}/${context.entry}`
+      )} is ready to be deployed.\n`
+    )
+  } else {
+    console.log(
+      `The ${chalk.cyan(
+        `dist/${context.entry}`
+      )} folder is ready to be deployed.\n`
+    )
+  }
 
   if (publicPath === '/') {
     console.log(
@@ -279,6 +289,7 @@ function done() {
     const quote = inspire.random()
 
     console.log(chalk.magenta('☕️ ' + quote))
+    console.log()
   }
 }
 

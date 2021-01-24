@@ -50,6 +50,7 @@ module.exports = async function getContext({ version, view, project }) {
 
   return {
     entry: view,
+    project,
     version,
     publicPath,
     buildEnv,
