@@ -1,25 +1,27 @@
-const fs = require('fs')
+const fs = require('fs-extra')
 const chalk = require('chalk')
+const babel = require('@babel/core')
 const validator = require('@mara/schema-utils')
 const prependEntryCode = require('../prependEntryCode')
 const maraManifestSchema = require('./maraManifestSchema')
 const { isObject } = require('../utils')
-const { VIEWS_DIR, TARGET } = require('../../config/const')
+const { VIEWS_DIR, TARGET, MANIFEST } = require('../../config/const')
 const paths = require('../../config/paths')
 
-const MANIFEST_FILE_NAME = 'manifest.json'
 const HYBRID_MANIFEST_INJECT_NAME = '__HB_MANIFEST'
 
 function readJsonFile(filePath) {
-  if (typeof filePath !== 'string') throw new Error('manifest 路径错误')
+  if (typeof filePath !== 'string') throw new Error(`${MANIFEST} 路径错误`)
 
   const fileText = fs.readFileSync(filePath, 'utf8')
 
   try {
-    return JSON.parse(fileText)
+    babel.parse(`export default ${fileText}`)
   } catch (e) {
-    throw new Error('manifest json 解析错误')
+    throw new Error(e.message.replace('unknown: ', ''))
   }
+
+  return JSON.parse(fileText)
 }
 
 /**
@@ -64,6 +66,15 @@ function getPathOrThrowConflict(rootFilePath, publicFilePath) {
   return hasRootFile ? rootFilePath : hasPublicFile ? publicFilePath : ''
 }
 
+function genManifestAsset(obj) {
+  const source = JSON.stringify(obj, null, 2)
+
+  return {
+    source: () => source,
+    size: () => source.length
+  }
+}
+
 module.exports = class ManifestPlugin {
   constructor(options) {
     const defOpt = {
@@ -93,10 +104,10 @@ module.exports = class ManifestPlugin {
     ]
     this.entry = options.entry
     this.rootFilePath = paths.getRootPath(
-      `${VIEWS_DIR}/${this.entry}/${MANIFEST_FILE_NAME}`
+      `${VIEWS_DIR}/${this.entry}/${MANIFEST}`
     )
     this.publicFilePath = paths.getRootPath(
-      `${VIEWS_DIR}/${this.entry}/public/${MANIFEST_FILE_NAME}`
+      `${VIEWS_DIR}/${this.entry}/public/${MANIFEST}`
     )
     this.hasRootFile = fs.existsSync(this.rootFilePath)
     this.hasPublicFile = fs.existsSync(this.publicFilePath)
@@ -108,20 +119,38 @@ module.exports = class ManifestPlugin {
 
   apply(compiler) {
     const pluginName = this.constructor.name
-    const manifestAsset = this.genAsset()
 
     if (this.manifestPath || this.isHybrid) {
-      compiler.hooks.make.tap(pluginName, compilation => {
-        compilation.hooks.additionalAssets.tap(pluginName, () => {
-          compilation.assets[MANIFEST_FILE_NAME] = manifestAsset
-        })
-      })
+      compiler.hooks.make.tapAsync(pluginName, (compilation, callback) => {
+        let manifestAsset = null
 
-      compiler.hooks.compilation.tap(pluginName, compilation => {
+        try {
+          manifestAsset = genManifestAsset(this.getManifest())
+        } catch (e) {
+          // 非 watch 模式尽早抛出错误
+          if (!compiler.watchMode) return callback(e)
+
+          // watch 模式不阻塞进程
+          compilation.errors.push(e)
+          manifestAsset = genManifestAsset({ version: this.version })
+        }
+
+        // 添加变动监听
+        compilation.hooks.optimizeTree.tap(pluginName, (chunks, modules) => {
+          compilation.compilationDependencies.add(this.manifestPath)
+        })
+
+        // 添加生成结果
+        compilation.hooks.additionalAssets.tap(pluginName, () => {
+          compilation.assets[MANIFEST] = manifestAsset
+        })
+
         prependEntryCode(
           compilation,
           `window["${HYBRID_MANIFEST_INJECT_NAME}"] = ${manifestAsset.source()};`
         )
+
+        callback()
       })
     }
   }
@@ -130,21 +159,25 @@ module.exports = class ManifestPlugin {
   // views/<view>/manifest.json
   // views/<view>/public/manifest.json
   resolveManifest() {
-    let manifest
+    let manifest = {}
 
-    try {
-      manifest = this.manifestPath ? readJsonFile(this.manifestPath) : {}
-    } catch (e) {
-      // 未设置 manifest 时，设置缺省配置
-      manifest = {}
+    if (this.manifestPath) {
+      try {
+        manifest = readJsonFile(this.manifestPath)
+      } catch (err) {
+        err.message = `manifest 解析错误: ${err.message}`
+        err.file = paths.getRelativePath(this.manifestPath)
+
+        throw err
+      }
     }
 
-    if (validator(maraManifestSchema, manifest, MANIFEST_FILE_NAME)) {
+    if (validator(maraManifestSchema, manifest, MANIFEST)) {
       return manifest
     }
   }
 
-  static getManifestPath(view, fileName = MANIFEST_FILE_NAME) {
+  static getManifestPath(view, fileName = MANIFEST) {
     const rootFilePath = paths.getRootPath(`${VIEWS_DIR}/${view}/${fileName}`)
     const publicFilePath = paths.getRootPath(
       `${VIEWS_DIR}/${view}/public/${fileName}`
@@ -175,15 +208,5 @@ module.exports = class ManifestPlugin {
     // 第一个 version 是为了将字段提升至第一位
     // 最后一个 version 是为了覆盖原有值
     return Object.assign({}, version, filter(manifest), version)
-  }
-
-  genAsset() {
-    const manifest = this.getManifest()
-    const source = JSON.stringify(manifest, null, 2)
-
-    return {
-      source: () => source,
-      size: () => source.length
-    }
   }
 }

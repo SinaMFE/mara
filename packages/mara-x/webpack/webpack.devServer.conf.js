@@ -16,7 +16,6 @@ module.exports = function({ entry, proxy, protocol, publicPath = '/', host }) {
     headers: { 'Access-Control-Allow-Origin': '*' },
     // Enable gzip compression of generated files.
     compress: true,
-    proxy: proxy,
     // 屏蔽 WebpackDevServer 自身的日志输出
     // 此设置不影响警告与错误信息
     clientLogLevel: 'silent',
@@ -83,6 +82,7 @@ module.exports = function({ entry, proxy, protocol, publicPath = '/', host }) {
       // https://github.com/facebook/create-react-app/issues/2272#issuecomment-302832432
       app.use(noopServiceWorkerMiddleware())
     },
+    // 自行控制浏览器打开
     open: false
   }
 }

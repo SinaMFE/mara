@@ -10,6 +10,7 @@ const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin')
 const perfInstallModulePlugin = require('../lib/perfInstallModulePlugin')
 const BuildProgressPlugin = require('../lib/BuildProgressPlugin')
 const InlineUmdHtmlPlugin = require('../lib/InlineUmdHtmlPlugin')
+const { ManifestPlugin } = require('../lib/hybrid')
 const { getServantEntry } = require('../lib/entry')
 const config = require('../config')
 
@@ -63,7 +64,12 @@ module.exports = function(context, spinner) {
       //   url:"http://exp.smfe.sina.cn/service/addPerf"
       // }),
       // 严格区分大小写
-      new CaseSensitivePathsPlugin()
+      new CaseSensitivePathsPlugin(),
+      new ManifestPlugin({
+        entry,
+        version: context.version,
+        target: context.target
+      })
     ].filter(Boolean)
   })
 

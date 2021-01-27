@@ -46,6 +46,7 @@ module.exports = class MaraDevServerPlugin {
     this.tsMessagesPromise = Promise.resolve()
     this.options = Object.assign(defOpt, options)
     this.serverUrl = this.getServerURL()
+    this.spinner = this.options.spinner
   }
 
   apply(compiler) {
@@ -74,7 +75,15 @@ module.exports = class MaraDevServerPlugin {
       compiler.hooks.done.tap(pluginName, this.clearConsole)
     }
 
-    compiler.hooks.invalid.tap(pluginName, () => friendErrors.invalidFn())
+    compiler.hooks.invalid.tap(pluginName, () => {
+      return friendErrors.invalidFn()
+    })
+
+    compiler.hooks.failed.tap(pluginName, err => {
+      this.spinner && this.spinner.stop()
+      friendErrors.displayErrors([err], 'error')
+      process.exit(1)
+    })
 
     if (this.options.useTypeScript) {
       this.tsChecker(compiler)
@@ -107,7 +116,7 @@ module.exports = class MaraDevServerPlugin {
 
       const isSuccessful = !stats.hasErrors() && !stats.hasWarnings()
 
-      isFirstCompile && this.options.spinner.stop()
+      isFirstCompile && this.spinner && this.spinner.stop()
 
       friendErrors.doneFn(stats)
 

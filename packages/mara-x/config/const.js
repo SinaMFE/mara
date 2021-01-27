@@ -28,6 +28,7 @@ module.exports = {
   WORKSPACE_PROJECT_DIR: 'projects',
   PUBLIC_DIR: 'public',
   PACKAGE_JSON: 'package.json',
+  MANIFEST: 'manifest.json',
   MARA_CONF: 'marauder.config.js',
   DLL_DIR: 'dll',
   PUBLIC_PATH: './',

@@ -9,6 +9,7 @@ process.on('unhandledRejection', err => {
 
 const ora = require('ora')
 const webpack = require('webpack')
+const DevServer = require('webpack-dev-server')
 const { getFreePort, localIp } = require('@mara/devkit')
 const config = require('../config')
 const getContext = require('../config/context')
@@ -66,6 +67,7 @@ function createDevServer(webpackConf, opts) {
     protocol: PROTOCOL,
     root: config.paths.root,
     host: host,
+    clearConsole: true,
     openBrowser: config.devServer.open,
     useTypeScript: config.useTypeScript,
     onTsError(severity, errors) {
@@ -73,7 +75,6 @@ function createDevServer(webpackConf, opts) {
     }
   }).apply(compiler)
 
-  const DevServer = require('webpack-dev-server')
   const devServer = new DevServer(compiler, serverConf)
 
   return devServer
@@ -109,8 +110,12 @@ async function server({ context, entry }) {
   // Ctrl + C 触发
   ;['SIGINT', 'SIGTERM'].forEach(sig => {
     process.on(sig, () => {
+      spinner.stop()
       devServer.close()
-      process.exit()
+
+      setTimeout(() => {
+        process.exit(0)
+      }, 0)
     })
   })
 
