@@ -1,16 +1,9 @@
 'use strict'
 
-const {
-  NormalizedMessage
-} = require('fork-ts-checker-webpack-plugin/lib/NormalizedMessage')
 const { TYPE } = require('../core/const')
 
 function isTypeError(webpackError) {
-  return webpackError.type === 'diagnostic'
-}
-
-function isSyntaxError(webpackError) {
-  return webpackError.loaderSource === 'ts-loader'
+  return webpackError.origin === 'typescript'
 }
 
 function transform(error) {
@@ -18,18 +11,10 @@ function transform(error) {
 
   if (isTypeError(webpackError)) {
     return Object.assign({}, error, {
-      message: webpackError.content,
+      message: webpackError.message,
       type: TYPE.TS_TYPE_ERROR,
       severity: 950,
       name: 'Type error'
-    })
-  } else if (isSyntaxError(webpackError)) {
-    return Object.assign({}, error, {
-      message: webpackError.message.content,
-      webpackError: new NormalizedMessage(webpackError.message),
-      type: TYPE.TS_SYNTAX_ERROR,
-      severity: 950,
-      name: 'Syntax error'
     })
   }
 

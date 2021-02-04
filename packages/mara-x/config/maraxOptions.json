@@ -28,9 +28,6 @@
       "description": "Generate sourceMap for production build.",
       "type": "boolean"
     },
-    "prerender": {
-      "type": "boolean"
-    },
     "publicPath": {
       "description": "Project deployment base path.",
       "oneOf": [
@@ -145,6 +142,10 @@
         "externals": {
           "description": "Excluding dependencies from the output bundles.",
           "type": "object"
+        },
+        "noTsCheckError": {
+          "description": "Disable TypeScript checking.",
+          "type": "boolean"
         }
       }
     },

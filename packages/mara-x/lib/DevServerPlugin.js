@@ -38,8 +38,9 @@ module.exports = class MaraDevServerPlugin {
       clearConsole: true,
       publicPath: '/',
       useYarn: false,
+      noTsTypeError: false,
       useTypeScript: false,
-      onTsError: noop,
+      onTsCheckEnd: noop,
       root: process.cwd()
     }
 
@@ -52,11 +53,10 @@ module.exports = class MaraDevServerPlugin {
   apply(compiler) {
     const pluginName = this.constructor.name
     const useYarn = this.options.useYarn
-    let isFirstCompile = true
+    let isFirstCompilePass = true
     // friendly error plugin displays very confusing errors when webpack
     // fails to resolve a loader, so we provide custom handlers to improve it
     const friendErrors = new FriendlyErrorsPlugin({
-      showFirstError: true,
       useYarn: useYarn,
       onErrors(severity, topErrors) {
         const hasLoaderError = topErrors.some(
@@ -95,20 +95,34 @@ module.exports = class MaraDevServerPlugin {
           friendErrors.invalidFn(
             'Files successfully emitted, waiting for typecheck results...'
           )
+
+          // 清空错误
+          this.options.onTsCheckEnd('errors', [])
         }, 100)
 
         const tsMsg = await this.tsMessagesPromise
+        const typeErrorSeverity = this.options.noTsTypeError
+          ? 'warnings'
+          : 'errors'
+
         clearTimeout(delayedMsg)
 
-        // Push errors and warnings into compilation result
-        // to show them after page refresh triggered by user.
-        stats.compilation.errors.push(...tsMsg.errors)
+        stats.compilation[typeErrorSeverity].push(...tsMsg.errors)
         stats.compilation.warnings.push(...tsMsg.warnings)
 
-        if (tsMsg.errors.length > 0) {
-          this.options.onTsError('error', tsMsg.errors.map(tsErrorFormat))
-        } else if (tsMsg.warnings.length > 0) {
-          this.options.onTsError('warning', tsMsg.warnings.map(tsErrorFormat))
+        // 优先抛出错误
+        // 不过滤条数，确保始终刷新 errorOverlay
+        this.options.onTsCheckEnd(
+          typeErrorSeverity,
+          // 在客户端错误遮罩层展示，仅在这里使用 tsErrorFormat
+          tsMsg.errors.map(tsErrorFormat)
+        )
+
+        if (tsMsg.errors.length == 0 && tsMsg.warnings.length > 0) {
+          this.options.onTsCheckEnd(
+            'warnings',
+            tsMsg.warnings.map(tsErrorFormat)
+          )
         }
 
         this.clearConsole()
@@ -116,11 +130,9 @@ module.exports = class MaraDevServerPlugin {
 
       const isSuccessful = !stats.hasErrors() && !stats.hasWarnings()
 
-      isFirstCompile && this.spinner && this.spinner.stop()
+      isFirstCompilePass && this.spinner && this.spinner.stop()
 
-      friendErrors.doneFn(stats)
-
-      if (isSuccessful && (isInteractive || isFirstCompile)) {
+      if (isSuccessful && (isInteractive || isFirstCompilePass)) {
         printInstructions(
           this.options.entry,
           this.serverUrl,
@@ -128,12 +140,14 @@ module.exports = class MaraDevServerPlugin {
         )
       }
 
-      if (isFirstCompile && !stats.hasErrors()) {
+      friendErrors.doneFn(stats)
+
+      if (isFirstCompilePass && !stats.hasErrors()) {
         if (this.options.openBrowser) {
           openBrowser(this.serverUrl.lanUrl)
         }
 
-        isFirstCompile = false
+        isFirstCompilePass = false
       }
     })
   }

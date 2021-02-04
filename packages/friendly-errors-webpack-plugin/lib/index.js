@@ -28,7 +28,6 @@ const defaultFormatters = [
 class FriendlyErrorsWebpackPlugin {
   constructor(options) {
     options = options || {}
-    this.showFirstError = !!options.showFirstError
     this.compilationSuccessInfo = options.compilationSuccessInfo || {}
     this.onErrors = options.onErrors
     this.useYarn = options.useYarn
@@ -52,9 +51,9 @@ class FriendlyErrorsWebpackPlugin {
       return
     }
 
+    // 优先展示错误
     if (hasErrors) {
       this.displayErrors(extractErrorsFromStats(stats, 'errors'), 'error')
-      // 错误优先
       return
     }
 
@@ -103,22 +102,22 @@ class FriendlyErrorsWebpackPlugin {
 
   displayErrors(errors, severity) {
     const processedErrors = transformErrors(errors, this.transformers)
-    const topErrors = getMaxSeverityErrors(processedErrors)
-    const nbErrors = topErrors.length
+    const topErrors = getMaxSeverityErrors(processedErrors, severity)
+    const errNum = topErrors.length
     let subtitle = ''
 
     if (severity === 'error') {
-      subtitle = this.showFirstError
-        ? `Failed to compile`
-        : `Failed to compile with ${nbErrors} ${severity}s`
+      subtitle =
+        errNum > 1
+          ? `Failed to compile with ${errNum} ${severity}s`
+          : `Failed to compile`
     } else {
-      subtitle = `Compiled with ${nbErrors} ${severity}s`
+      subtitle = `Compiled with ${errNum} ${severity}s`
     }
 
     output.title(severity, severity.toUpperCase(), subtitle)
 
     formatErrors(topErrors, this.formatters, severity, {
-      showFirst: this.showFirstError,
       useYarn: this.useYarn
     }).forEach(chunk => output.log(chunk))
 
@@ -158,9 +157,14 @@ function isMultiStats(stats) {
   return stats.stats
 }
 
-function getMaxSeverityErrors(errors) {
-  const maxSeverity = getMaxInt(errors, 'severity')
-  return errors.filter(e => e.severity === maxSeverity)
+// 获取重要错误
+function getMaxSeverityErrors(errors, severity) {
+  if (severity == 'error') {
+    const maxSeverity = getMaxInt(errors, 'severity')
+    return errors.filter(e => e.severity === maxSeverity)
+  } else {
+    return errors
+  }
 }
 
 function getMaxInt(collection, propertyName) {

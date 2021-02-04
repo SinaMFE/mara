@@ -17,7 +17,6 @@
 // https://github.com/glenjamin/webpack-hot-middleware
 
 const url = require('url')
-const SockJS = require('sockjs-client')
 const stripAnsi = require('@mara/devkit/lib/stripAnsi')
 const launchEditorEndpoint = require('react-dev-utils/launchEditorEndpoint')
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages')
@@ -58,13 +57,14 @@ if (module.hot && typeof module.hot.dispose === 'function') {
 }
 
 // Connect to WebpackDevServer via a socket.
-const connection = new SockJS(
+var connection = new WebSocket(
   url.format({
-    protocol: window.location.protocol,
-    hostname: window.location.hostname,
-    port: window.location.port,
+    protocol: window.location.protocol === 'https:' ? 'wss' : 'ws',
+    hostname: process.env.WDS_SOCKET_HOST || window.location.hostname,
+    port: process.env.WDS_SOCKET_PORT || window.location.port,
     // Hardcoded in WebpackDevServer
-    pathname: '/sockjs-node'
+    pathname: process.env.WDS_SOCKET_PATH || '/sockjs-node',
+    slashes: true
   })
 )
 
@@ -103,8 +103,11 @@ function handleSuccess() {
 
   // Attempt to apply hot updates or reload.
   if (isHotUpdate) {
-    tryDismissErrorOverlay()
-    tryApplyUpdates()
+    tryApplyUpdates(function onHotUpdateSuccess() {
+      // Only dismiss it when we're sure it's a hot update.
+      // Otherwise it would flicker right before the reload.
+      tryDismissErrorOverlay()
+    })
   }
 }
 
@@ -224,8 +227,7 @@ function isUpdateAvailable() {
 
 // Webpack disallows updates in other states.
 function canApplyUpdates() {
-  const status = module.hot.status()
-  return status === 'idle'
+  return module.hot.status() === 'idle'
 }
 
 // Attempt to update code on the fly, fall back to a hard reload.

@@ -128,7 +128,6 @@ const maraContext = {
   vendor: maraConf.vendor,
   paths: paths,
   publicPath: maraConf.publicPath,
-  prerender: maraConf.prerender,
   build: {
     sourceMap: maraConf.sourceMap,
     report: getCLIBooleanOptions('report'),

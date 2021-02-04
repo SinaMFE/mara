@@ -2,8 +2,8 @@
 
 const chalk = require('chalk')
 
-function formatTitle(severity, message) {
-  return chalk[bgColor(severity)].black('', message, '')
+function formatTitle(severity, title) {
+  return chalk[bgColor(severity)].black('', title, '')
 }
 
 function formatText(severity, message) {

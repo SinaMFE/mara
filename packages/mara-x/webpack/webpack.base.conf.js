@@ -274,6 +274,12 @@ module.exports = function(
           checkSyntacticErrors: true,
           tsconfig: paths.tsConfig,
           compilerOptions: tsCompilerOptions,
+          resolveModuleNameModule: process.versions.pnp
+            ? `${paths.marax}/lib/pnpTs.js`
+            : undefined,
+          resolveTypeReferenceDirectiveModule: process.versions.pnp
+            ? `${paths.marax}/lib/pnpTs.js`
+            : undefined,
           reportFiles: [
             // 检查范围缩小到 src，屏蔽第三方模块的错误
             'src/**',
@@ -282,8 +288,8 @@ module.exports = function(
             '!**/src/setupProxy.*',
             '!**/src/setupTests.*'
           ],
-          watch: paths.src,
           silent: true,
+          // 开发环境通过 MaraDevServerPlugin 格式化
           formatter: isProd ? tsFormatter : undefined
         })
     ].filter(Boolean),

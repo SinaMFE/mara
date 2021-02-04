@@ -1,27 +1,47 @@
-const path = require('path')
-const tsFormatter = require('react-dev-utils/typescriptFormatter')
+const fs = require('fs')
+const os = require('os')
+const codeFrame = require('@babel/code-frame').codeFrameColumns
+const chalk = require('chalk')
 const concat = require('../utils').concat
 const { TYPE } = require('../core/const')
 const formatTitle = require('../utils/colors').formatTitle
 
-function displayError(severity, error, type) {
+function tsFormatter(severity, issue) {
+  const { origin, file, line, character } = issue
+
+  const colors = new chalk.constructor()
+  const messageColor = severity === 'warning' ? colors.yellow : colors.red
+
+  const source = file && fs.existsSync(file) && fs.readFileSync(file, 'utf-8')
+  const frame = source
+    ? codeFrame(
+        source,
+        { start: { line: line, column: character } },
+        { highlightCode: true }
+      )
+        .split('\n')
+        .map(str => '  ' + str)
+        .join(os.EOL)
+    : ''
+  const code = messageColor.underline(`TS${issue.code}`)
+  const message = `TypeScript Error: ${issue.message}(${line},${character})  ${code}`
+
+  return [message, '', frame].join(os.EOL)
+}
+
+function displayError(severity, error) {
   const baseError = formatTitle(severity, severity)
-  const filePath = '.' + path.sep + path.relative(process.cwd(), error.file)
-  let message = tsFormatter(error.webpackError, true)
+  const message = tsFormatter(severity, error.webpackError)
 
   return concat(`${baseError} in ${error.file}`, '', message, '')
 }
 
 function isTsError(error) {
-  return isTypeError(error) || isSyntaxError(error)
+  return isTypeError(error)
 }
 
 function isTypeError(error) {
   return error.type === TYPE.TS_TYPE_ERROR
-}
-
-function isSyntaxError(error) {
-  return error.type === TYPE.TS_SYNTAX_ERROR
 }
 
 function removeVueTsSuffix(error) {
@@ -31,22 +51,13 @@ function removeVueTsSuffix(error) {
   return error
 }
 
-function format(errors, severity, { showFirst }) {
+function format(errors, severity) {
   const tsErrors = errors.filter(isTsError)
-
-  // 为了减少干扰，由 showFirst 控制展示
-  if (showFirst) {
-    tsErrors.length = 1
-  }
 
   return tsErrors.reduce((accum, error) => {
     error = removeVueTsSuffix(error)
 
-    if (isTypeError(error)) {
-      return accum.concat(displayError(severity, error, 'type'))
-    } else {
-      return accum.concat(displayError(severity, error, 'syntax'))
-    }
+    return accum.concat(displayError(severity, error))
   }, [])
 }
 

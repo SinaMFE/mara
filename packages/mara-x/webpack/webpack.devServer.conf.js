@@ -36,6 +36,7 @@ module.exports = function({ entry, proxy, protocol, publicPath = '/', host }) {
       // @FIXME 监听 html 文件变化，临时措施
       // `${paths.views}/${entry}/*.html`
     ],
+    contentBasePublicPath: publicPath,
     // By default files from `contentBase` will not trigger a page reload.
     watchContentBase: true,
     // Enable hot reloading server. It will provide /sockjs-node/ endpoint
@@ -44,6 +45,12 @@ module.exports = function({ entry, proxy, protocol, publicPath = '/', host }) {
     // in the Webpack development configuration. Note that only changes
     // to CSS are currently hot reloaded. JS changes will refresh the browser.
     hot: true,
+    // Use 'ws' instead of 'sockjs-node' on server since we're using native
+    // websockets in `webpackHotDevClient`.
+    transportMode: 'ws',
+    // Prevent a WS client from getting injected as we're already including
+    // `webpackHotDevClient`.
+    injectClient: false,
     // It is important to tell WebpackDevServer to use the same "root" path
     // as we specified in the config. In development, we always serve from /.
     publicPath: publicPath,
@@ -61,26 +68,30 @@ module.exports = function({ entry, proxy, protocol, publicPath = '/', host }) {
     historyApiFallback: {
       // Paths with dots should still use the history fallback.
       // See https://github.com/facebook/create-react-app/issues/387.
-      disableDotRule: true
+      disableDotRule: true,
+      index: publicPath
     },
-    // proxy,
+    proxy,
     before(app, server) {
-      if (fs.existsSync(paths.setupProxy)) {
-        // This registers user provided middleware for proxy reasons
-        require(paths.setupProxy)(app)
-      }
-
+      // Keep `evalSourceMapMiddleware` and `errorOverlayMiddleware`
+      // middlewares before `redirectServedPath` otherwise will not have any effect
       // This lets us fetch source contents from webpack for the error overlay
       app.use(evalSourceMapMiddleware(server))
       // This lets us open files from the runtime error overlay.
       app.use(errorOverlayMiddleware())
 
+      if (fs.existsSync(paths.proxySetup)) {
+        // This registers user provided middleware for proxy reasons
+        require(paths.proxySetup)(app)
+      }
+    },
+    after(app) {
       // This service worker file is effectively a 'no-op' that will reset any
       // previous service worker registered for the same host:port combination.
       // We do this in development to avoid hitting the production cache if
       // it used the same host and port.
       // https://github.com/facebook/create-react-app/issues/2272#issuecomment-302832432
-      app.use(noopServiceWorkerMiddleware())
+      app.use(noopServiceWorkerMiddleware(publicPath))
     },
     // 自行控制浏览器打开
     open: false

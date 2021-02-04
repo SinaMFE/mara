@@ -24,7 +24,7 @@ module.exports = {
   dotenv: getRootPath('.env'),
   entryGlob: `${C.VIEWS_DIR}/*/index.@(ts|tsx|js|jsx)`,
   workspaceEntryGlob: `${C.WORKSPACE_PROJECT_DIR}/*/${C.VIEWS_DIR}/*/index.@(ts|tsx|js|jsx)`,
-  setupProxy: getRootPath(`${C.SRC_DIR}/setupProxy.js`),
+  proxySetup: getRootPath(`${C.SRC_DIR}/proxySetup.js`),
   src: getRootPath(C.SRC_DIR),
   view: getRootPath(C.VIEW_DIR),
   views: getRootPath(C.VIEWS_DIR),

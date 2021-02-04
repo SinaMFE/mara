@@ -22,27 +22,19 @@ const DEFAULT_PORT = parseInt(process.env.PORT, 10) || config.devServer.port
 const PROTOCOL = config.devServer.https === true ? 'https' : 'http'
 const spinner = ora('Starting development server...')
 
-function getDevCompiler(webpackConf) {
-  addDevClientToEntry(webpackConf, [
-    // 使用 CRA 提供的 client，展示更友好的错误信息
-    require.resolve('../lib/hotDevClient')
-  ])
+function getDevCompiler(entry, webpackConf) {
+  const confEntry = webpackConf.entry
+  const devClient = require.resolve('react-dev-utils/webpackHotDevClient')
+
+  if (typeof confEntry === 'object' && !Array.isArray(confEntry)) {
+    confEntry[entry] = [devClient].concat(confEntry[entry])
+  } else if (typeof confEntry === 'function') {
+    webpackConf.entry = confEntry(devClient)
+  } else {
+    webpackConf.entry = [devClient].concat(confEntry)
+  }
 
   return webpack(webpackConf)
-}
-
-function addDevClientToEntry(config, devClient) {
-  const { entry } = config
-
-  if (typeof entry === 'object' && !Array.isArray(entry)) {
-    Object.keys(entry).forEach(key => {
-      entry[key] = devClient.concat(entry[key])
-    })
-  } else if (typeof entry === 'function') {
-    config.entry = entry(devClient)
-  } else {
-    config.entry = devClient.concat(entry)
-  }
 }
 
 function createDevServer(webpackConf, opts) {
@@ -55,7 +47,8 @@ function createDevServer(webpackConf, opts) {
     protocol: PROTOCOL,
     publicPath: opts.publicPath
   })
-  const compiler = getDevCompiler(webpackConf)
+  const compiler = getDevCompiler(opts.entry, webpackConf)
+  let devServer
 
   // 确保在 new DevServer 前执行
   // 避免错过事件钩子
@@ -66,16 +59,17 @@ function createDevServer(webpackConf, opts) {
     spinner,
     protocol: PROTOCOL,
     root: config.paths.root,
+    noTsCheckError: config.compiler.noTsCheckError,
     host: host,
     clearConsole: true,
     openBrowser: config.devServer.open,
     useTypeScript: config.useTypeScript,
-    onTsError(severity, errors) {
-      devServer.sockWrite(devServer.sockets, `${severity}s`, errors)
+    onTsCheckEnd(severity, messages) {
+      devServer.sockWrite(devServer.sockets, severity, messages)
     }
   }).apply(compiler)
 
-  const devServer = new DevServer(compiler, serverConf)
+  devServer = new DevServer(compiler, serverConf)
 
   return devServer
 }

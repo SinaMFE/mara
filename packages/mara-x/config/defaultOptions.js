@@ -9,8 +9,6 @@ module.exports = {
     chunk: true
   },
   globalEnv: {},
-  // 预渲染页面，直出首屏模板，依赖 Puppeteer
-  prerender: false,
   publicPath: {
     // 考虑到 hybrid 离线包，默认使用相对路径
     default: './'
@@ -19,6 +17,9 @@ module.exports = {
   tsImportLibs: [],
   // 编译配置
   compiler: {
+    // 禁用类型检查
+    // 设置后将以 warning 级别展示错误信息
+    noTsCheckError: false,
     // 提取 css 到额外的文件
     cssExtract: true,
     // 多版本依赖检测
@@ -36,7 +37,6 @@ module.exports = {
     externals: {}
   },
   webpackPluginsHandler: (command, webpackConf) => webpackConf,
-  proxyTable: {},
   babelPlugins: [],
   ciConfig: {
     privateToken: '',
