@@ -36,7 +36,7 @@
     "@babel/plugin-transform-typescript": "^7.10.1",
     "@babel/types": "^7.7.4",
     "@mara/devkit": "^1.2.1",
-    "@mara/friendly-errors-webpack-plugin": "^2.0.0-t.0",
+    "@mara/friendly-errors-webpack-plugin": "^2.0.0",
     "@mara/image-loader": "^1.0.3",
     "@mara/schema-utils": "^1.0.2",
     "axios": "^0.18.0",
