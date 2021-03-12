@@ -14,7 +14,8 @@ const defaultTransformers = [
   require('./transformers/typeError'),
   require('./transformers/resolveLoaderError'),
   require('./transformers/moduleNotFound'),
-  require('./transformers/esLintError')
+  require('./transformers/esLintError'),
+  require('./transformers/styleWarning')
 ]
 
 const defaultFormatters = [
@@ -22,6 +23,8 @@ const defaultFormatters = [
   require('./formatters/moduleNotFound'),
   require('./formatters/typeError'),
   require('./formatters/eslintError'),
+  require('./formatters/styleWarning'),
+  // 保持 defaultError 在末尾兜底
   require('./formatters/defaultError')
 ]
 
@@ -38,6 +41,10 @@ class FriendlyErrorsWebpackPlugin {
       defaultTransformers,
       options.additionalTransformers
     )
+  }
+
+  static removeLoaders(file) {
+    return utils.removeLoaders(file)
   }
 
   async doneFn(stats) {

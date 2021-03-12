@@ -9,7 +9,7 @@ const loaderMap = {
   },
   'sass-loader': {
     msg: 'To import Sass files, you first need to install sass-loader.',
-    dep: ['sass-loader', 'node-sass']
+    dep: ['sass-loader', 'sass']
   },
   'art-template-loader': {
     msg:

@@ -4,6 +4,7 @@ const path = require('path')
 const stripAnsi = require('strip-ansi')
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages')
 const formatTitle = require('../utils/colors').formatTitle
+const { removeLoaders } = require('../utils/index')
 
 function cleanMessage(message, filepath) {
   return (
@@ -15,17 +16,8 @@ function cleanMessage(message, filepath) {
       // .replace(`${filepath}: `, '')
       .replace(/^Module build failed.*:\s/, 'Syntax Error: ')
       .replace(/SyntaxError*:\s/, '')
+      .replace(/Syntax error*:\s/, '')
   )
-}
-
-function removeLoaders(file) {
-  if (!file) return ''
-
-  const split = file.split('!')
-  const filePath = split[split.length - 1]
-
-  // 去除 vue-loader 附加后缀
-  return filePath.replace(/\?vue&type=.+/, '')
 }
 
 function isDefaultError(error) {
@@ -37,9 +29,7 @@ function isDefaultError(error) {
  */
 function format(errors, severity) {
   const errs = errors.filter(isDefaultError).map(e => {
-    let filepath = removeLoaders(e.file)
-
-    filepath = path.join(process.cwd(), filepath)
+    const filepath = removeLoaders(e.file)
 
     return `${filepath}\n${e.message || e.webpackError}`
   })

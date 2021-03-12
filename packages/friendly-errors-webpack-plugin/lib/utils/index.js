@@ -1,5 +1,7 @@
 'use strict'
 
+const path = require('path')
+
 /**
  * Concat and flattens non-null values.
  * Ex: concat(1, undefined, 2, [3, 4]) = [1, 2, 3, 4]
@@ -25,7 +27,25 @@ function uniqueBy(arr, fun) {
   })
 }
 
+function removeLoaders(file) {
+  if (!file) return ''
+
+  const split = file.split('!')
+  const filePath = split[split.length - 1]
+  const purePath = removeVueTypeSuffix(filePath)
+
+  // 去除 vue-loader 附加后缀
+  return purePath.startsWith('/')
+    ? purePath
+    : path.join(process.cwd(), purePath)
+}
+
+function removeVueTypeSuffix(file) {
+  return file.replace(/\?vue&type=.+/, '').replace(/\.vue\.ts$/i, '.vue')
+}
+
 module.exports = {
   concat: concat,
-  uniqueBy: uniqueBy
+  uniqueBy: uniqueBy,
+  removeLoaders
 }
