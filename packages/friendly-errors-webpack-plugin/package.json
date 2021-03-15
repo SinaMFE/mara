@@ -1,6 +1,6 @@
 {
   "name": "@mara/friendly-errors-webpack-plugin",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Recognizes certain classes of webpack errors and cleans, aggregates and prioritizes them to provide a better Developer Experience",
   "main": "lib/index.js",
   "keywords": [
