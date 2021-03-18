@@ -39,7 +39,7 @@ async function getPublicPath({ view, project, version }) {
   }
 }
 
-module.exports = async function getContext({ version, view, project }) {
+module.exports = async function getContext({ version, view, views, project }) {
   const publicPath = await getPublicPath({ view, project, version })
   const buildEnv = getEnv({
     deployEnv,
@@ -50,6 +50,7 @@ module.exports = async function getContext({ version, view, project }) {
 
   return {
     entry: view,
+    views,
     project,
     version,
     publicPath,

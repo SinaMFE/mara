@@ -18,7 +18,7 @@ const updateNotifier = require('../lib/updateNotifier')
 const { bumpProjectVersion, isInstalled } = require('../lib/utils')
 const { cliBadge } = require('@mara/devkit')
 const config = require('../config')
-const getBuildContext = require('../config/context')
+const getBuildContext = require('../config/getContext')
 const { TARGET, DEPLOY_ENV } = require('../config/const')
 const paths = config.paths
 const getWebpackConfig = require('../webpack/webpack.prod.conf')
@@ -53,7 +53,7 @@ async function createContext(entryInput) {
     config.ftp.hybridPublish && entryInput.ftpBranch !== null
   const enableAutoVersion = config.ftp.hybridAutoVersion
   const isWorkspaceDeploy =
-    config.workspace && entryInput.entryArgs.test != undefined
+    config.useWorkspace && entryInput.entryArgs.test != undefined
   const shouldBumpVersion =
     isWorkspaceDeploy || (enableAutoVersion && isHybridMode && isHybridPublish)
 
@@ -71,6 +71,7 @@ async function createContext(entryInput) {
   return getBuildContext({
     version: currentVersion,
     view: entryInput.entry,
+    views: entryInput.views,
     project: entryInput.workspace
   })
 

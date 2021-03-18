@@ -4,6 +4,8 @@ process.env.BABEL_ENV = 'development'
 process.env.NODE_ENV = 'development'
 
 process.on('unhandledRejection', err => {
+  if (err.signal == 'SIGINT') return
+
   throw err
 })
 
@@ -12,7 +14,7 @@ const webpack = require('webpack')
 const DevServer = require('webpack-dev-server')
 const { getFreePort, localIp } = require('@mara/devkit')
 const config = require('../config')
-const getContext = require('../config/context')
+const getContext = require('../config/getContext')
 const { getBuildEntry } = require('../lib/entry')
 const getWebpackConfig = require('../webpack/webpack.dev.conf')
 const createDevServerConfig = require('../webpack/webpack.devServer.conf')
@@ -59,7 +61,7 @@ function createDevServer(webpackConf, opts) {
     spinner,
     protocol: PROTOCOL,
     root: config.paths.root,
-    noTsCheckError: config.compiler.noTsCheckError,
+    noTsTypeError: config.compiler.noTsTypeError,
     host: host,
     clearConsole: true,
     openBrowser: config.devServer.open,
@@ -77,7 +79,8 @@ function createDevServer(webpackConf, opts) {
 async function setup(entryInput) {
   const context = await getContext({
     version: require(config.paths.packageJson).version,
-    view: entryInput.entry
+    view: entryInput.entry,
+    views: entryInput.views
   })
 
   return { context, ...entryInput }
@@ -105,11 +108,10 @@ async function server({ context, entry }) {
   ;['SIGINT', 'SIGTERM'].forEach(sig => {
     process.on(sig, () => {
       spinner.stop()
-      devServer.close()
 
-      setTimeout(() => {
+      devServer.close(() => {
         process.exit(0)
-      }, 0)
+      })
     })
   })
 

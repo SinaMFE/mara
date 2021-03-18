@@ -55,7 +55,7 @@ function getEntryArgs(argv, optField) {
   return { [optField]: val }
 }
 
-function result(entry = '', argv) {
+function result(entry = '', views, argv) {
   // 未启用 ftp 上传时，返回 null
   let ftpBranch = null
   let entryArgs = {}
@@ -91,6 +91,7 @@ function result(entry = '', argv) {
 
   return Promise.resolve({
     entry,
+    views,
     workspace,
     ftpBranch,
     entryArgs
@@ -114,14 +115,14 @@ function chooseOne(views, argv) {
     return chooseEntry(views, argv, 'Incorrect view, please re-pick')
   } else {
     // 无输入时返回默认页
-    return result(views[0], argv)
+    return result(views[0], views, argv)
   }
 }
 
 function chooseMany(views, argv) {
   const entry = argv.rootWorkspace ? argv._[2] : argv._[1]
 
-  if (validEntry(views, entry)) return result(entry, argv)
+  if (validEntry(views, entry)) return result(entry, views, argv)
 
   return chooseEntry(views, argv, entry && 'Incorrect view, please re-pick')
 }
@@ -148,7 +149,7 @@ async function chooseEntry(views, argv, msg) {
   if (!entry) process.exit(0)
   console.log()
 
-  return result(entry, argv)
+  return result(entry, views, argv)
 }
 
 /**

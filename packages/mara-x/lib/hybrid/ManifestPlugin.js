@@ -166,7 +166,7 @@ module.exports = class ManifestPlugin {
         manifest = readJsonFile(this.manifestPath)
       } catch (err) {
         err.message = `Syntax Error: ${err.message}`
-        err.file = paths.getRelativePath(this.manifestPath)
+        err.file = this.manifestPath
 
         throw err
       }

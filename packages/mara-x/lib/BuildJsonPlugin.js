@@ -6,7 +6,7 @@ class BuildJsonPlugin {
       target: '',
       version: '',
       debug: false,
-      workspace: false,
+      useWorkspace: false,
       marax: '',
       env: 'online',
       publicPath: null,

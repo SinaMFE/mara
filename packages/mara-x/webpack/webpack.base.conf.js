@@ -26,7 +26,7 @@ const workspaceResolution = require('../lib/workspaceResolution')
 const paths = config.paths
 
 module.exports = function(
-  { entry, buildEnv, target, publicPath, version },
+  { entry, views, buildEnv, target, publicPath, version },
   cmd
 ) {
   const isDev = process.env.NODE_ENV === 'development'
@@ -44,12 +44,19 @@ module.exports = function(
     // 输出最新语法，交由 babel 二次编译
     target: 'esnext',
     moduleResolution: 'node',
+    skipLibCheck: true,
+    sourceMap: false,
+    inlineSourceMap: false,
+    declarationMap: false,
     resolveJsonModule: true,
     noEmit: true,
     // https://www.tslang.cn/docs/handbook/jsx.html
     // 保留 jsx 语法格式，交由 babel 做后续处理
     jsx: 'preserve'
   }
+  const tsCheckerExclude = views
+    .filter(v => v != entry)
+    .map(v => `${VIEWS_DIR}/${v}`)
 
   // react native web 为 .web. 后缀
   const extensions = [
@@ -121,7 +128,7 @@ module.exports = function(
       // source 为自定义拓展属性，表示源码入口
       mainFields: ['source', 'browser', 'module', 'main'],
       modules: ['node_modules', paths.nodeModules],
-      alias: config.workspace ? workspaceResolution(baseAlias) : baseAlias,
+      alias: config.useWorkspace ? workspaceResolution(baseAlias) : baseAlias,
       plugins: [
         // Adds support for installing with Plug'n'Play, leading to faster installs and adding
         // guards against forgotten dependencies and such.
@@ -263,34 +270,34 @@ module.exports = function(
       // TypeScript type checking
       useTypeScript &&
         new ForkTsCheckerWebpackPlugin({
-          typescript: resolve.sync('typescript', {
-            basedir: paths.nodeModules
-          }),
-          vue: true,
-          async: isDev,
-          // 在 vue 模式下存在 bug，这里保持默认行为（vue 下禁用）
-          // https://github.com/Realytics/fork-ts-checker-webpack-plugin/issues/219
-          // useTypescriptIncrementalApi: true,
-          checkSyntacticErrors: true,
-          tsconfig: paths.tsConfig,
-          compilerOptions: tsCompilerOptions,
-          resolveModuleNameModule: process.versions.pnp
-            ? `${paths.marax}/lib/pnpTs.js`
-            : undefined,
-          resolveTypeReferenceDirectiveModule: process.versions.pnp
-            ? `${paths.marax}/lib/pnpTs.js`
-            : undefined,
-          reportFiles: [
-            // 检查范围缩小到 src，屏蔽第三方模块的错误
-            'src/**',
-            '!**/__tests__/**',
-            '!**/?(*.)(spec|test).*',
-            '!**/src/setupProxy.*',
-            '!**/src/setupTests.*'
-          ],
-          silent: true,
-          // 开发环境通过 MaraDevServerPlugin 格式化
-          formatter: isProd ? tsFormatter : undefined
+          typescript: {
+            typescriptPath: resolve.sync('typescript', {
+              basedir: paths.nodeModules
+            }),
+            memoryLimit: 1024 * 4,
+            configFile: paths.tsConfig,
+            configOverwrite: {
+              compilerOptions: tsCompilerOptions,
+              exclude: tsCheckerExclude
+            },
+            mode: 'write-references',
+            diagnosticOptions: {
+              semantic: true,
+              syntactic: true
+            },
+            extensions: {
+              vue: true
+            }
+          },
+          logger: {
+            infrastructure: 'silent',
+            issues: 'silent',
+            devServer: true
+          },
+          issue: {
+            include: [{ file: 'src/**/*' }],
+            exclude: [{ origin: 'eslint', file: '**/*.spec.ts' }]
+          }
         })
     ].filter(Boolean),
     // Some libraries import Node modules but don't use them in the browser.

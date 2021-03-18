@@ -80,6 +80,14 @@ module.exports = function({ entry, proxy, protocol, publicPath = '/', host }) {
       // This lets us open files from the runtime error overlay.
       app.use(errorOverlayMiddleware())
 
+      app.use(function removeVueTypeSuffix(req, res, next) {
+        if (req.url.startsWith('ws')) {
+          console.log(res)
+        }
+
+        next()
+      })
+
       if (fs.existsSync(paths.proxySetup)) {
         // This registers user provided middleware for proxy reasons
         require(paths.proxySetup)(app)

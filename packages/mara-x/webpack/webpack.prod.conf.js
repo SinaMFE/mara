@@ -208,7 +208,7 @@ module.exports = function(context, spinner) {
         target: context.target,
         env: config.deployEnv,
         version: buildVersion,
-        workspace: config.workspace,
+        useWorkspace: config.useWorkspace,
         marax: require(paths.maraxPackageJson).version
       }),
       new ManifestPlugin({

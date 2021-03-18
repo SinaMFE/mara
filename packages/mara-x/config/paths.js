@@ -21,6 +21,7 @@ function getRelativePath(filePath) {
 
 module.exports = {
   root: rootDirectory,
+  workspaceRoot: process.env.maraxWorkspaceRoot || '',
   dotenv: getRootPath('.env'),
   entryGlob: `${C.VIEWS_DIR}/*/index.@(ts|tsx|js|jsx)`,
   workspaceEntryGlob: `${C.WORKSPACE_PROJECT_DIR}/*/${C.VIEWS_DIR}/*/index.@(ts|tsx|js|jsx)`,

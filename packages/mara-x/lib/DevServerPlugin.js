@@ -86,46 +86,12 @@ module.exports = class MaraDevServerPlugin {
     })
 
     if (this.options.useTypeScript) {
-      this.tsChecker(compiler)
+      this.tapTsChecker(compiler)
     }
 
     compiler.hooks.done.tap(pluginName, async stats => {
       if (this.options.useTypeScript && !stats.hasErrors()) {
-        const delayedMsg = setTimeout(() => {
-          friendErrors.invalidFn(
-            'Files successfully emitted, waiting for typecheck results...'
-          )
-
-          // 清空错误
-          this.options.onTsCheckEnd('errors', [])
-        }, 100)
-
-        const tsMsg = await this.tsMessagesPromise
-        const typeErrorSeverity = this.options.noTsTypeError
-          ? 'warnings'
-          : 'errors'
-
-        clearTimeout(delayedMsg)
-
-        stats.compilation[typeErrorSeverity].push(...tsMsg.errors)
-        stats.compilation.warnings.push(...tsMsg.warnings)
-
-        // 优先抛出错误
-        // 不过滤条数，确保始终刷新 errorOverlay
-        this.options.onTsCheckEnd(
-          typeErrorSeverity,
-          // 在客户端错误遮罩层展示，仅在这里使用 tsErrorFormat
-          tsMsg.errors.map(tsErrorFormat)
-        )
-
-        if (tsMsg.errors.length == 0 && tsMsg.warnings.length > 0) {
-          this.options.onTsCheckEnd(
-            'warnings',
-            tsMsg.warnings.map(tsErrorFormat)
-          )
-        }
-
-        this.clearConsole()
+        await this.tsMessagesPromise
       }
 
       const isSuccessful = !stats.hasErrors() && !stats.hasWarnings()
@@ -152,26 +118,33 @@ module.exports = class MaraDevServerPlugin {
     })
   }
 
-  tsChecker(compiler) {
+  tapTsChecker(compiler) {
+    const checkerHooks = ForkTsCheckerWebpackPlugin.getCompilerHooks(compiler)
     let tsMessagesResolver = noop
 
-    compiler.hooks.beforeCompile.tap('beforeCompile', () => {
+    checkerHooks.start.tap('startTypeScriptCheck', change => {
       this.tsMessagesPromise = new Promise(resolve => {
-        tsMessagesResolver = msgs => resolve(msgs)
+        tsMessagesResolver = issues => resolve(issues)
       })
     })
 
-    ForkTsCheckerWebpackPlugin.getCompilerHooks(compiler).receive.tap(
-      'afterTypeScriptCheck',
-      (diagnostics, lints) => {
-        const allMsgs = [...diagnostics, ...lints]
+    // 等待时间大于 100ms 时，将会触发此事件
+    checkerHooks.waiting.tap('waitingTypeScriptCheck', compilation => {
+      friendErrors.invalidFn(
+        'Files successfully emitted, waiting for typecheck results...'
+      )
 
-        tsMessagesResolver({
-          errors: allMsgs.filter(msg => msg.severity === 'error'),
-          warnings: allMsgs.filter(msg => msg.severity === 'warning')
-        })
-      }
-    )
+      // 清空错误
+      this.options.onTsCheckEnd('errors', [])
+    })
+
+    checkerHooks.issues.tap('cancelTypeScriptCheck', compilation => {
+      tsMessagesResolver([])
+    })
+
+    checkerHooks.issues.tap('afterTypeScriptCheck', (issues, compilation) => {
+      tsMessagesResolver(issues)
+    })
   }
 
   clearConsole() {

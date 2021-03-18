@@ -19,7 +19,7 @@ module.exports = {
   compiler: {
     // 禁用类型检查
     // 设置后将以 warning 级别展示错误信息
-    noTsCheckError: false,
+    noTsTypeError: false,
     // 提取 css 到额外的文件
     cssExtract: true,
     // 多版本依赖检测

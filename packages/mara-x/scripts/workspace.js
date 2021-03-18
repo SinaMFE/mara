@@ -6,12 +6,13 @@ const paths = require('../config/paths')
 const pkgJson = require(paths.packageJson)
 const rootMarax = `${paths.root}/node_modules/.bin/marax`
 
-async function run({ command, cwd, entry }) {
+async function run({ command, cwd, workspaceRoot, entry }) {
   const rawArgv = process.argv.slice(2)
   const options = {
     stdio: 'inherit',
     cwd: cwd,
     env: {
+      maraxWorkspaceRoot: workspaceRoot,
       maraxGlobalConfig: path.resolve('marauder.config.js')
     }
   }
@@ -29,7 +30,7 @@ async function run({ command, cwd, entry }) {
   } else if (command == 'deploy') {
     const child = execa(
       rootMarax,
-      ['build', entry, '--test', '--workspace'],
+      ['build', entry, '--workspace', '--test'],
       options
     )
   }
@@ -60,8 +61,9 @@ module.exports = async function workspace(argv) {
   })
 
   const command = argv._[1]
+  const workspaceRoot = process.cwd()
   const { workspace, entry } = await getBuildEntry(argv)
-  const cwd = `${process.cwd()}/projects/${workspace}`
+  const cwd = `${workspaceRoot}/projects/${workspace}`
 
-  run({ command, cwd, entry })
+  run({ command, cwd, entry, workspaceRoot })
 }
