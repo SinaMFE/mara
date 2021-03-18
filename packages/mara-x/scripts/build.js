@@ -8,10 +8,10 @@ process.on('unhandledRejection', err => {
   throw err
 })
 
+const ora = require('ora')
+const path = require('path')
 const fs = require('fs-extra')
 const chalk = require('chalk')
-const path = require('path')
-const ora = require('ora')
 const webpack = require('webpack')
 const { getBuildEntry } = require('../lib/entry')
 const updateNotifier = require('../lib/updateNotifier')
@@ -74,8 +74,6 @@ async function createContext(entryInput) {
     views: entryInput.views,
     project: entryInput.workspace
   })
-
-  // return { context, ...entryInput }
 }
 
 async function clean(dist) {
@@ -152,6 +150,26 @@ function build(context) {
   })
 }
 
+function getBuildBadge(context) {
+  const versionBadge = cliBadge(
+    'build',
+    `v${context.version}`,
+    context.version.includes('-') ? 'warning' : 'info'
+  )
+  const targetBadge = cliBadge('target', config.target)
+  const envBadge = cliBadge(
+    'env',
+    config.deployEnv,
+    config.deployEnv === DEPLOY_ENV.ONLINE ? 'info' : 'warning'
+  )
+
+  return {
+    version: versionBadge,
+    target: targetBadge,
+    env: envBadge
+  }
+}
+
 function printResult(
   { stats, sizes, publicPath, outputPath, warnings },
   context,
@@ -196,15 +214,9 @@ function printResult(
   // just new line
   console.log()
 
-  const versionBadge = cliBadge('build', `v${context.version}`)
-  const targetBadge = cliBadge('target', config.target)
-  const envBadge = cliBadge(
-    'env',
-    config.deployEnv,
-    config.deployEnv === DEPLOY_ENV.ONLINE ? 'info' : 'warning'
-  )
+  const badge = getBuildBadge(context)
 
-  console.log(`${targetBadge} ${envBadge} ${versionBadge}\n`)
+  console.log(`${badge.target} ${badge.env} ${badge.version}\n`)
 
   if (context.project) {
     console.log(
@@ -333,15 +345,6 @@ async function run(argv) {
 
   const entryInput = await getBuildEntry(argv)
   const dist = path.join(paths.dist, entryInput.entry)
-
-  // @TODO dev 发布检查脚手架版本
-  // if (entryInput.ftpBranch != null) {
-  //   if (updateNotifier.hasUpdate) {
-  //     process.exit(0)
-  //   } else {
-  //     updateNotifier({ interval: 1, forceCheck: true })
-  //   }
-  // }
 
   spinner.start()
 
