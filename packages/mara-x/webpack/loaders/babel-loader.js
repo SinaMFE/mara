@@ -7,12 +7,12 @@ const paths = config.paths
 const getCacheIdentifier = require('../../lib/getCacheIdentifier')
 const inlineJson = require.resolve('../../lib/babelInlineJson')
 const { isInstalled } = require('../../lib/utils')
-
-const externalMoudles = [paths.src, paths.test].concat(
-  // 越来越多的库如 swiper 采用 es6 发布
-  // 将存在潜在的兼容问题，因此编译所有依赖
-  babelExternalMoudles('all')
-)
+const plugins = [
+  // https://github.com/tc39/proposal-optional-chaining
+  require.resolve('@babel/plugin-proposal-optional-chaining'),
+  // https://github.com/tc39/proposal-nullish-coalescing
+  require.resolve('@babel/plugin-proposal-nullish-coalescing-operator')
+].concat(config.babelPlugins)
 
 // 支持对依赖模块进行正则或字符串匹配
 function nodeModulesRegExp(...args) {
@@ -34,31 +34,6 @@ function nodeModulesRegExp(...args) {
     })
 }
 
-function babelExternalMoudles(esm) {
-  if (!(esm && esm.length)) return nodeModulesRegExp(config.esm)
-
-  // 当 esm 为 all 时，编译 node_modules 下所有模块
-  if (esm === 'all') esm = ''
-
-  // 仅编译 @mfelibs 下及 maraConf.esm 指定模块
-  return nodeModulesRegExp([config.esm, esm])
-}
-
-// function babelExternalMoudles(esm) {
-//   // 无法强制约束使用者行为，故采用保守派策略
-//   // 默认编译 node_modules 下所有模块
-//   if (!(esm && esm.length)) return nodeModulesRegExp('')
-
-//   // 仅编译 @mfelibs 下及 maraConf.esm 指定模块
-//   return nodeModulesRegExp([config.esm, esm])
-// }
-
-const plugins = [
-  // https://github.com/tc39/proposal-optional-chaining
-  require.resolve('@babel/plugin-proposal-optional-chaining'),
-  // https://github.com/tc39/proposal-nullish-coalescing
-  require.resolve('@babel/plugin-proposal-nullish-coalescing-operator')
-].concat(config.babelPlugins)
 // 加入了 inline-json，用于去除编译时的引入json（非全量引入）。
 // plugins.push(['inline-json', { matchPattern: '.' }])
 
@@ -91,8 +66,9 @@ const baseLoader = isProd => ({
   }
 })
 
-module.exports.babelLoader = (isProd, useTypeScript) => [
-  merge(baseLoader(isProd), {
+function babelLoader(isProd, useTypeScript) {
+  // 对 src 以及 node_modules 中的指定包进行 ts 等全量处理
+  const appLoader = {
     test: /\.(js|mjs|jsx|ts|tsx)$/,
     include: [paths.src, ...nodeModulesRegExp(config.esm)],
     options: {
@@ -115,9 +91,10 @@ module.exports.babelLoader = (isProd, useTypeScript) => [
         }
       ].filter(Boolean)
     }
-  }),
+  }
+
   // 对 node_modules 中的 js 资源附加处理
-  {
+  const depLoader = {
     test: /\.m?js$/,
     // 排除框架，加速构建
     exclude: [
@@ -149,10 +126,8 @@ module.exports.babelLoader = (isProd, useTypeScript) => [
       sourceMaps: false
     }
   }
-]
 
-module.exports.babelExternalMoudles = externalMoudles
+  return [merge(baseLoader(isProd), appLoader), depLoader]
+}
 
-// ts 中已经内置 decorators，
-// 不要在 babel 中重复添加 decorators 插件
-module.exports.babelForTs = baseLoader
+module.exports = babelLoader

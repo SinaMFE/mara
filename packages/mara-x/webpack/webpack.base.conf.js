@@ -15,7 +15,7 @@ const getStyleLoaders = require('./loaders/style-loader')
 const { SinaHybridPlugin, getCommonPkgConf } = require('../lib/hybrid')
 const config = require('../config')
 const { GLOB, VIEWS_DIR, TARGET } = require('../config/const')
-const { babelLoader } = require('./loaders/babel-loader')
+const babelLoader = require('./loaders/babel-loader')
 const {
   vueLoaderOptions,
   vueLoaderCacheConfig
