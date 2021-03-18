@@ -8,81 +8,86 @@ Marauder 下一代工程化体系。
 
 ## Quick Overview
 
-```sh
+```bash
 npx @mara/create my-app
 cd my-app
 yarn dev
 ```
 
-_npx 依赖 npm v5.2 及更高版本_
+## 安装
 
-## 新建项目
+**依赖 node 10+, TypeScript 2.7+**
 
-**依赖 node 8.10.0+**
+推荐使用 `@mara/create` 一键生成项目：
 
-Marauder 支持多种项目生成方式，以下命令均可一键生成 `Vue` + `Typescript` 项目：
+**npx**
 
-**npx（推荐）**
-
-```sh
+```bash
 npx @mara/create my-app
 ```
 
-_需要 npm 5.2+ 版本_
-
 **npm**
 
-```sh
+```bash
 npm init @mara my-app
 ```
 
-_需要 npm 6+ 版本_
-
 **yarn**
 
-```sh
+```bash
 yarn create @mara my-app
 ```
 
-_需要 yarn 0.25+ 版本_
-
 **Marauder CLI**
 
-```sh
+```bash
 npm i @mara/cli -g
 
 mara create my-app
 ```
 
-### 选择模板
+### 项目预设模板
 
-Marauder 预设 Vue 及 React 模板，可通过 `--preset | -p` 参数指定。
+Marauder 预设以下模板，可通过 `--preset | -p` 参数指定。
 
-默认情况下创建 Vue + Typescript 项目:
+- `vue` Vue 项目模板（js/ts）
+- `react` React 项目模板（js/ts）
 
-```
+#### Vue 模板
+
+未指定预设时，默认创建 `Vue` x `Typescript` 项目:
+
+```bash
 npx @mara/create my-app
 ```
 
-创建 React + Typescript 项目:
+通过 `-p` 指定 `vue` 预设
 
+```bash
+npx @mara/create my-app -p vue
 ```
+
+#### React 模板
+
+指定 `react` 预设，创建 `React` x `Typescript` 项目:
+
+```bash
 npx @mara/create my-app -p react
 ```
 
-#### Vanilla Js 模板
+#### 空白模板
 
-当 `--preset` 参数指定其他非预设值时，将应用 Vanilla Js 模板
+当 `--preset` 参数指定其他非预设值时，将应用空白模板
 
 使用 zepto:
 
-```
+```bash
 npx @mara/create my-app --preset zepto --no-ts
 ```
 
 不使用任何类库：
 
-```
+```bash
 npx @mara/create my-app --preset --no-ts
 ```
 
@@ -94,9 +99,60 @@ npx @mara/create my-app --preset --no-ts
 - `--preset | -p` 指定预设模板，vue | react | other lib
 - `--force | -f` 强制在指定目录生成项目
 
+### 手动安装
+
+以 `my-app` 为例
+
+```bash
+my-app/
+├── README.md
+└── package.json
+```
+
+安装依赖：
+
+```bash
+yarn add @mara/x -D
+```
+
+创建项目结构：
+
+```bash
+mkdir -p src/views/index
+cd src/views/index
+touch index.js index.html
+```
+
+完整结构：
+
+```bash
+my-app/
+├── README.md
+├── package.json
+├── node_modules
+└── src
+    └── views
+        └── index
+            ├── index.js
+            └── index.html
+```
+
+添加 npm scripts
+
+```json
+{
+  "scripts": {
+    "dev": "marax dev",
+    "build": "marax build"
+  }
+}
+```
+
+控制台执行 `yarn build` 命令，正确构建即为安装成功。
+
 ### 项目结构
 
-通过 marauder 创建的项目具有以下典型结构：
+Marauder 项目具有以下结构：
 
 ```bash
 my-app
@@ -126,18 +182,18 @@ marauder 为多页打包工具，我们约定 `src/views` 为**视图目录**，
 
 可识别为入口脚本的文件有：
 
-- index.js
-- index.ts
-- index.jsx
-- index.tsx
+- `index.js`
+- `index.ts`
+- `index.jsx`
+- `index.tsx`
 
 当同时存在多个入口脚本时，遵循以下加载顺序：
 
-```
+```bash
 ts > tsx > js > jsx
 ```
 
-入口文档：index.html
+入口文档：`index.html`
 
 页面示例：
 
@@ -157,23 +213,20 @@ views
 上述示例中 `home` 和 `profile` 目录含有入口脚本与入口文档，因此被识别为**页面**。
 `other` 目录仅含有入口文档，缺少入口脚本，因此不是页面。
 
-## Npm Scripts
+## 命令
 
-### `npm run dev` or `yarn dev`
+### 开发
 
-运行开发模式，在本地 3022 端口（默认）启动开发服务器
+```bash
+yarn dev
+```
 
-### `npm test` or `yarn test`
+运行开发模式，在本地 `3022` 端口（默认）启动开发服务器。
 
-### `npm run build` or `yarn build`
+### 构建
 
-运行生产模式打包资源，在 `dist` 目录下输出项目构建结果
+```bash
+yarn build
+```
 
-## Roadmap
-
-- [] ESLint 强约束
-- [] 建全测试用例
-- [] 完善文档网站
-- [] 开发辅助脚本
-- [] typescript 重构
-- [] 设计器支援
+运行生产模式打包资源，在 `dist` 目录下输出项目构建结果。
