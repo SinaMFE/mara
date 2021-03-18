@@ -32,6 +32,7 @@ module.exports = {
     splitChunks: true,
     // 分离 SNC
     splitSNC: false,
+    base64ImgLimit: 4 * 1024,
     // webpack jsonp 函数名
     jsonpFunction: `webpackJsonp${projectName}`,
     externals: {}

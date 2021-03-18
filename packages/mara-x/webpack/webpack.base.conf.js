@@ -217,7 +217,7 @@ module.exports = function(
           test: /\.(bmp|png|jpe?g|gif|webp)(\?.*)?$/,
           loader: require.resolve('url-loader'),
           options: {
-            limit: 1024 * 4,
+            limit: config.compiler.base64ImgLimit,
             tinifyKeys: config.tinifyKeys,
             minify: isProd,
             fallback: require.resolve('@mara/image-loader'),

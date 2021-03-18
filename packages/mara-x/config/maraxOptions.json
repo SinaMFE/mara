@@ -146,6 +146,19 @@
         "noTsTypeError": {
           "description": "Disable TypeScript checking.",
           "type": "boolean"
+        },
+        "base64ImgLimit": {
+          "description": "Return a DataURL if the file is smaller than a byte limit.",
+          "oneOf": [
+            {
+              "description": "Enable or disable transform files into base64.",
+              "type": "boolean"
+            },
+            {
+              "description": "A Number specifying the maximum size of a file in bytes.",
+              "type": "integer"
+            }
+          ]
         }
       }
     },
@@ -172,7 +185,7 @@
           "type": "boolean"
         },
         "port": {
-          "description": "Specify the port number.",
+          "description": "Specify the port integer.",
           "type": "integer"
         },
         "proxy": {
@@ -209,7 +222,7 @@
           "type": "string"
         },
         "port": {
-          "description": "Ftp server port number.",
+          "description": "Ftp server port integer.",
           "type": "integer"
         },
         "reload": {
