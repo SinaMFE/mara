@@ -122,15 +122,13 @@ function getStyleLoaders(cssOptions = {}, preProcessor) {
       // package.json
       loader: require.resolve('postcss-loader'),
       options: {
-        // Necessary for external CSS imports to work
-        // https://github.com/facebook/create-react-app/issues/2677
-        ident: 'postcss',
-        plugins: getPostCSSPlugins(
-          shouldUseSourceMap,
-          needInlineMinification,
-          !!preProcessor
-        ),
-        sourceMap: shouldUseSourceMap
+        postcssOptions: {
+          plugins: getPostCSSPlugins(
+            shouldUseSourceMap,
+            needInlineMinification,
+            !!preProcessor
+          )
+        }
       }
     }
   ]
