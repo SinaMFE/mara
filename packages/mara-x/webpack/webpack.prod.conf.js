@@ -298,20 +298,26 @@ function copyPublicFiles(entry, distPageDir) {
       from: src,
       // 放置于根路径
       to: distPageDir,
-      // 忽略 manifest.json
-      // 交由 maraManifestPlugin 处理
-      ignore: ['.*', 'manifest.json']
+      globOptions: {
+        // 忽略 manifest.json
+        // 交由 maraManifestPlugin 处理
+        ignore: ['.*', 'manifest.json']
+      }
     }
   }
 
   // 全局 public
   if (fs.existsSync(paths.public)) {
-    plugins.push(new CopyWebpackPlugin([getCopyOption(paths.public)]))
+    plugins.push(
+      new CopyWebpackPlugin({ patterns: [getCopyOption(paths.public)] })
+    )
   }
 
   // 页面级 public，能够覆盖全局 public
   if (fs.existsSync(localPublicDir)) {
-    plugins.push(new CopyWebpackPlugin([getCopyOption(localPublicDir)]))
+    plugins.push(
+      new CopyWebpackPlugin({ patterns: [getCopyOption(localPublicDir)] })
+    )
   }
 
   return plugins
