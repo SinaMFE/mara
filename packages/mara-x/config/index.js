@@ -1,7 +1,7 @@
 'use strict'
 
 const fs = require('fs')
-const merge = require('webpack-merge')
+const { merge } = require('webpack-merge')
 const validateOptions = require('@mara/schema-utils')
 const maraxOptionsSchema = require('./maraxOptions')
 const paths = require('./paths')

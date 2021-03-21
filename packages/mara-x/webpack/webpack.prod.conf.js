@@ -3,7 +3,7 @@
 const fs = require('fs')
 const path = require('path')
 const webpack = require('webpack')
-const merge = require('webpack-merge')
+const { merge } = require('webpack-merge')
 const chalk = require('chalk')
 const { localIp, isObject } = require('@mara/devkit')
 const TerserPlugin = require('terser-webpack-plugin')
