@@ -121,17 +121,17 @@ module.exports = class ManifestPlugin {
     const pluginName = this.constructor.name
 
     if (this.manifestPath || this.isHybrid) {
-      compiler.hooks.make.tapAsync(pluginName, (compilation, callback) => {
+      compiler.hooks.compilation.tap(pluginName, (compilation, callback) => {
         let manifestAsset = null
 
         try {
           manifestAsset = genManifestAsset(this.getManifest())
         } catch (e) {
-          // 非 watch 模式尽早抛出错误
-          if (!compiler.watchMode) return callback(e)
-
-          // watch 模式不阻塞进程
           compilation.errors.push(e)
+
+          // 非 watch 模式尽早抛出错误
+          if (!compiler.watchMode) return
+
           manifestAsset = genManifestAsset({ version: this.version })
         }
 
@@ -150,7 +150,7 @@ module.exports = class ManifestPlugin {
           `window["${HYBRID_MANIFEST_INJECT_NAME}"] = ${manifestAsset.source()};`
         )
 
-        callback()
+        // callback()
       })
     }
   }
