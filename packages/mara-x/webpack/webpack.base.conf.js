@@ -166,8 +166,9 @@ module.exports = function(
         {
           test: /\.module\.css$/,
           oneOf: getStyleLoaders({
-            modules: true,
-            getLocalIdent: getCSSModuleLocalIdent
+            modules: {
+              getLocalIdent: getCSSModuleLocalIdent
+            }
           })
         },
         {
@@ -177,15 +178,6 @@ module.exports = function(
         {
           test: /\.(scss|sass)$/,
           oneOf: getStyleLoaders('sass-loader')
-        },
-        {
-          test: /\.styl(us)?$/,
-          oneOf: getStyleLoaders(
-            {
-              preferPathResolver: 'webpack'
-            },
-            'stylus-loader'
-          )
         },
         {
           test: /\.ejs$/,

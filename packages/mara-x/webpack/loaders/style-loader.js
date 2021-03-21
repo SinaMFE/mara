@@ -110,8 +110,7 @@ function getStyleLoaders(cssOptions = {}, preProcessor) {
       loader: require.resolve('css-loader'),
       options: Object.assign(
         {
-          sourceMap: shouldUseSourceMap,
-          importLoaders: 2 + (preProcessor ? 1 : 0)
+          importLoaders: preProcessor ? 3 : 1
         },
         preProcessor ? undefined : cssOptions
       )
