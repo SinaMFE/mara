@@ -111,19 +111,14 @@ module.exports = function(context, spinner) {
             keep_fnames: config.debug,
             output: {
               ecma: 5,
-              comments: config.debug && /(\sMODULE)|(^\s\d+\s$)/,
+              comments: config.debug ? /(\sMODULE)|(^\s\d+\s$)/ : undefined,
               beautify: config.debug,
               // Turned on because emoji and regex is not minified properly using default
               // https://github.com/facebook/create-react-app/issues/2488
               ascii_only: true
             }
           },
-          // Use multi-process parallel running to improve the build speed
-          // Default number of concurrent runs: os.cpus().length - 1
-          parallel: true,
-          // Enable file caching
-          cache: true,
-          sourceMap: shouldUseSourceMap
+          extractComments: false
         }),
         new OptimizeCSSAssetsPlugin({
           cssProcessorOptions: {
