@@ -1,9 +1,9 @@
 const { getGitRepoName } = require('@mara/devkit')
 const config = require('./index')
-const getEnv = require('./env')
+const getEnv = require('./getEnv')
 const { TARGET, HYBRID_PUBLIC_PATH, DEV_PUBLIC_PATH } = require('./const')
 const resolvePublicPath = require('../lib/resolvePublicPath')
-const { deployEnv, globalEnv, paths, target } = config
+const { deployEnv, globalEnv, paths, target, browserslist } = config
 const isDev = process.env.NODE_ENV === 'development'
 
 // 读取 manifest.json
@@ -45,7 +45,8 @@ module.exports = async function getContext({ version, view, views, project }) {
     deployEnv,
     globalEnv,
     publicPath,
-    version
+    version,
+    browserslist
   })
 
   return {

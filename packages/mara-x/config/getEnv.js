@@ -41,19 +41,13 @@ function loadDotEnv() {
   })
 }
 
-function loadBrowserslist() {
+function loadBrowserslist(listConf) {
   const browserslist = require('browserslist')
 
   // https://github.com/ai/browserslist/blob/master/node.js
   if (!browserslist.findConfig(paths.root)) {
     // 默认浏览器配置，移动为先
-    process.env.BROWSERSLIST = [
-      '> 1%',
-      'last 4 versions',
-      'ios >= 8',
-      'android >= 4.1',
-      'not ie < 9'
-    ]
+    process.env.BROWSERSLIST = listConf
   }
 }
 
@@ -81,7 +75,13 @@ function stringify(raw) {
   }, {})
 }
 
-function getEnv({ publicPath, deployEnv, globalEnv = {}, version }) {
+function getEnv({
+  publicPath,
+  deployEnv,
+  globalEnv = {},
+  version,
+  browserslist
+}) {
   // NODE_ENV，PUBLIC_URL 放在 assign 尾部
   // 防止被用户覆盖
   const baseEnv = Object.assign({}, globalEnv, {
@@ -105,13 +105,13 @@ function getEnv({ publicPath, deployEnv, globalEnv = {}, version }) {
     'process.env': stringify(raw)
   }
 
+  // browserslist 供 babel-preset-env，postcss-env 使用
+  loadBrowserslist(browserslist)
+
   // raw 给 InterpolateHtmlPlugin 插件使用
   return { raw, stringified }
 }
 
 loadDotEnv()
-
-// browserslist 供 babel-preset-env，postcss-env 使用
-loadBrowserslist()
 
 module.exports = getEnv

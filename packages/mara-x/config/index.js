@@ -178,6 +178,13 @@ const maraContext = {
       'css-images-image-set-notation': false
     }
   },
+  browserslist: [
+    '> 1%',
+    'last 4 versions',
+    'ios >= 8',
+    'android >= 4.1',
+    'not ie < 9'
+  ],
   marax: maraConf.marax
 }
 
