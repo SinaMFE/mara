@@ -34,7 +34,6 @@ async function doZip(options) {
       zipFile.outputStream
         .pipe(fs.createWriteStream(`${dest}/${filename}.${extension}`))
         .on('close', function() {
-          console.log('zip done')
           resolve()
         })
 

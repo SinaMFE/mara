@@ -6,7 +6,7 @@ const chalk = require('chalk')
 const semver = require('semver')
 const prependEntryCode = require('../prependEntryCode')
 const ManifestPlugin = require('./ManifestPlugin')
-const { UNI_SNC } = require('../../config/const')
+const { UNI_SNC, COMMON_PKG_NAME } = require('../../config/const')
 const paths = require('../../config/paths')
 
 /**
@@ -52,7 +52,7 @@ class SinaHybridPlugin {
   injectCommonAssets(compilation) {
     if (!this.useCommonPkg) return
 
-    const filePath = 'static/js/__SINA_COMMON_PKG__.js'
+    const filePath = `static/js/${COMMON_PKG_NAME}.js`
 
     compilation.hooks.additionalAssets.tap(this.constructor.name, () => {
       compilation.assets[filePath] = this.genCommonAssets()

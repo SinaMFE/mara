@@ -34,5 +34,6 @@ module.exports = {
   PUBLIC_PATH: './',
   HYBRID_PUBLIC_PATH: './',
   DEV_PUBLIC_PATH: '/',
-  UNI_SNC: '__UNI_SNC__'
+  UNI_SNC: '__UNI_SNC__',
+  COMMON_PKG_NAME: '__HB_COMMON_PKG__'
 }

@@ -19,7 +19,7 @@ const { bumpProjectVersion, isInstalled } = require('../lib/utils')
 const { cliBadge } = require('@mara/devkit')
 const config = require('../config')
 const getBuildContext = require('../config/getContext')
-const { TARGET, DEPLOY_ENV } = require('../config/const')
+const { TARGET, DEPLOY_ENV, COMMON_PKG_NAME } = require('../config/const')
 const paths = config.paths
 const getWebpackConfig = require('../webpack/webpack.prod.conf')
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages')
@@ -358,7 +358,7 @@ async function run(argv) {
   printResult(buildResult, context, preBuildSize)
 
   if (useCommonPkg) {
-    await buildCommonPkg(dist)
+    await forkLitePkg(dist)
   }
 
   await loadHook(argv, context)
@@ -367,26 +367,26 @@ async function run(argv) {
   await deploy(entryInput, remotePath)
 }
 
-async function buildCommonPkg(dist) {
+async function forkLitePkg(dist) {
   const cDist = dist + '.lite'
-  const commonPkgReg = /[\w./-_]+__SINA_COMMON_PKG__\.js/
+  const commonPkgReg = /[\w./-_]+__HB_COMMON_PKG__\.js/
 
   fs.copySync(dist, cDist)
-  fs.remove(`${cDist}/static/js/__SINA_COMMON_PKG__.js`)
+  fs.remove(`${cDist}/static/js/${COMMON_PKG_NAME}.js`)
   fs.remove(`${cDist}/${path.basename(dist)}.php`)
 
   const htmlPath = `${cDist}/index.html`
   const html = fs.readFileSync(htmlPath, 'utf8')
   const repHtml = html.replace(
     commonPkgReg,
-    'http://wap_front.dev.sina.cn/marauder/@mfelibs/hybridcontainer/1.1.4/app/index/static/js/index.min.js'
+    '../../hybridcontainer/index.1/static/js/index.1.min.js'
   )
 
   fs.writeFileSync(htmlPath, repHtml)
 
   return zip({
     src: cDist,
-    filename: path.basename(dist),
+    filename: path.basename(cDist),
     extension: 'php',
     ...config.zipConf
   })

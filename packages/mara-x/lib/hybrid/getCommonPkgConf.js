@@ -17,9 +17,9 @@ function getCommonPkgConf(entryGlob) {
   const commonPkg = require.resolve('@mfelibs/hybridcontainer')
   const commonPkgPath = path.join(
     path.dirname(commonPkg),
-    '../dist/index/static/js/index.min.js'
+    '../dist/index.1/static/js/index.1.min.js'
   )
-  const moduleMap = require('@mfelibs/hybridcontainer')
+  const moduleMap = require('@mfelibs/hybridcontainer/module-map')
   const entryConf = getEntries(entryGlob)
   // 从主入口中排除 SNC 依赖
   const externals = [

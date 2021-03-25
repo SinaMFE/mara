@@ -123,8 +123,8 @@
           "description": "Split initial chunks.",
           "type": "boolean"
         },
-        "splitSNC": {
-          "description": "Split universal-framework.",
+        "useCommonPkg": {
+          "description": "enable hybrid common package",
           "type": "boolean"
         },
         "vueRuntimeOnly": {
