@@ -31,7 +31,6 @@
     "strip-ansi": "^5.2.0"
   },
   "peerDependencies": {
-    "fork-ts-checker-webpack-plugin": "^4.1.6",
     "react-dev-utils": "^11.0.1",
     "webpack": "^4.0.0"
   },
