@@ -39,12 +39,17 @@ const printBuildError = require('../lib/printBuildError')
 const prehandleConfig = require('../lib/prehandleConfig')
 const input = config.argv._
 let webpackDllConfig = require('../webpack/webpack.dll.conf')()
+const SpeedMeasurePlugin = require('speed-measure-webpack-plugin')
+const smp = new SpeedMeasurePlugin({
+  disable: !process.env.MEASURE
+})
 
 const spinner = ora('Building dll...')
 spinner.start()
 
 function build() {
   webpackDllConfig = prehandleConfig({ command: 'dll', webpackDllConfig })
+  webpackDllConfig = smp.wrap(webpackDllConfig)
   const compiler = webpack(webpackDllConfig)
 
   return new Promise((resolve, reject) => {

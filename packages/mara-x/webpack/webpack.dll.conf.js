@@ -6,10 +6,6 @@ const { isObject } = require('@mara/devkit')
 const TerserPlugin = require('terser-webpack-plugin')
 const babelLoader = require('./loaders/babel-loader')
 const library = '[name]_lib'
-const SpeedMeasurePlugin = require('speed-measure-webpack-plugin')
-const smp = new SpeedMeasurePlugin({
-  disable: !process.env.MEASURE
-})
 
 // 支持两种格式配置
 // 数组 vendor: ['react', 'react-dom']
@@ -26,7 +22,7 @@ const namespace = config.vendor.name ? `${config.vendor.name}_` : ''
 module.exports = function buildDll(context) {
   const webpackBaseConf = require('./webpack.base.conf')(context)
 
-  return smp.wrap({
+  return {
     mode: 'production',
     entry: {
       vendor
@@ -118,5 +114,5 @@ module.exports = function buildDll(context) {
     performance: {
       hints: false
     }
-  })
+  }
 }

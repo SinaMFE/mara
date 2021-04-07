@@ -6,15 +6,11 @@ const evalSourceMapMiddleware = require('react-dev-utils/evalSourceMapMiddleware
 const noopServiceWorkerMiddleware = require('react-dev-utils/noopServiceWorkerMiddleware')
 const ignoredFiles = require('react-dev-utils/ignoredFiles')
 const paths = require('../config/paths')
-const SpeedMeasurePlugin = require('speed-measure-webpack-plugin')
-const smp = new SpeedMeasurePlugin({
-  disable: !process.env.MEASURE
-})
 
 module.exports = function({ entry, proxy, protocol, publicPath = '/', host }) {
   const localPublicDir = paths.getRootPath(`${paths.views}/${entry}/public`)
 
-  return smp.wrap({
+  return {
     // 允许修改 host 模拟跨域
     disableHostCheck: true,
     headers: { 'Access-Control-Allow-Origin': '*' },
@@ -107,5 +103,5 @@ module.exports = function({ entry, proxy, protocol, publicPath = '/', host }) {
     },
     // 自行控制浏览器打开
     open: false
-  })
+  }
 }
