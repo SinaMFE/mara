@@ -13,6 +13,10 @@ const { getLibraryExportName } = require('../lib/getLibraryExportName')
 const { banner } = require('../lib/utils')
 const { getEntries } = require('../lib/entry')
 const shouldUseSourceMap = config.build.sourceMap
+const SpeedMeasurePlugin = require('speed-measure-webpack-plugin')
+const smp = new SpeedMeasurePlugin({
+  disable: !process.env.MEASURE
+})
 
 /**
  * 生成生产配置
@@ -128,5 +132,5 @@ module.exports = function(options, context) {
     }
   })
 
-  return webpackConfig
+  return smp.wrap(webpackConfig)
 }

@@ -13,6 +13,10 @@ const InlineUmdHtmlPlugin = require('../lib/InlineUmdHtmlPlugin')
 const { ManifestPlugin } = require('../lib/hybrid')
 const { getServantEntry } = require('../lib/entry')
 const config = require('../config')
+const SpeedMeasurePlugin = require('speed-measure-webpack-plugin')
+const smp = new SpeedMeasurePlugin({
+  disable: !process.env.MEASURE
+})
 
 module.exports = function(context, spinner) {
   const entry = context.entry
@@ -73,5 +77,5 @@ module.exports = function(context, spinner) {
     ].filter(Boolean)
   })
 
-  return webpackConfig
+  return smp.wrap(webpackConfig)
 }
