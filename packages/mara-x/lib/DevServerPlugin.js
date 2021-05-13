@@ -148,7 +148,9 @@ module.exports = class MaraDevServerPlugin {
   }
 
   clearConsole() {
-    if (!process.env.MEASURE) isInteractive && clearConsole()
+    if (!process.env.MEASURE_DEBUG && isInteractive) {
+      clearConsole()
+    }
   }
 
   getServerURL() {

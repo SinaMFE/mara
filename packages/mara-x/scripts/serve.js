@@ -23,10 +23,6 @@ const DevServerPlugin = require('../lib/DevServerPlugin')
 const DEFAULT_PORT = parseInt(process.env.PORT, 10) || config.devServer.port
 const PROTOCOL = config.devServer.https === true ? 'https' : 'http'
 const spinner = ora('Starting development server...')
-const SpeedMeasurePlugin = require('speed-measure-webpack-plugin')
-const smp = new SpeedMeasurePlugin({
-  disable: !process.env.MEASURE
-})
 
 function getDevCompiler(entry, webpackConf) {
   const confEntry = webpackConf.entry
@@ -101,7 +97,13 @@ async function server({ context, entry }) {
     entry: entry
   })
 
-  webpackConfig = smp.wrap(webpackConfig)
+  // 脚手架性能 debug
+  if (process.env.MEASURE_DEBUG) {
+    const SpeedMeasurePlugin = require('speed-measure-webpack-plugin')
+    const smp = new SpeedMeasurePlugin()
+
+    webpackConfig = smp.wrap(webpackConfig)
+  }
 
   const port = await getFreePort(DEFAULT_PORT)
   const devServer = createDevServer(webpackConfig, {

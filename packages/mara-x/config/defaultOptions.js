@@ -30,8 +30,6 @@ module.exports = {
     dropConsole: false,
     // 分离 initial chunk
     splitChunks: true,
-    // 使用共享包
-    useCommonPkg: false,
     base64ImgLimit: 4 * 1024,
     // webpack jsonp 函数名
     jsonpFunction: `webpackJsonp${projectName}`,

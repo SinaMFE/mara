@@ -26,10 +26,6 @@ const BuildJsonPlugin = require('../lib/BuildJsonPlugin')
 const ZenJsPlugin = require('../lib/ZenJsPlugin')
 const config = require('../config')
 const paths = require('../config/paths')
-const SpeedMeasurePlugin = require('speed-measure-webpack-plugin')
-const smp = new SpeedMeasurePlugin({
-  disable: !process.env.MEASURE
-})
 
 const shouldUseSourceMap = !!config.build.sourceMap
 
@@ -290,7 +286,7 @@ module.exports = function(context, spinner) {
     )
   }
 
-  return smp.wrap(webpackConfig)
+  return webpackConfig
 }
 
 function copyPublicFiles(entry, distPageDir) {

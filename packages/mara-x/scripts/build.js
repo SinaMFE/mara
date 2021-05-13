@@ -93,6 +93,14 @@ function build(context) {
     entry: context.entry
   })
 
+  // 脚手架性能 debug
+  if (process.env.MEASURE_DEBUG) {
+    const SpeedMeasurePlugin = require('speed-measure-webpack-plugin')
+    const smp = new SpeedMeasurePlugin()
+
+    webpackConfig = smp.wrap(webpackConfig)
+  }
+
   const compiler = webpack(webpackConfig)
 
   return new Promise((resolve, reject) => {

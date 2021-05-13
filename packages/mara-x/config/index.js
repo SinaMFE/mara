@@ -192,8 +192,6 @@ const isHybridMode = maraContext.hybrid && target === TARGET.APP
 
 maraContext.isHybridMode = isHybridMode
 maraContext.useCommonPkg =
-  isHybridMode &&
-  maraContext.compiler.useCommonPkg &&
-  isInstalled('@mfelibs/hybridcontainer')
+  isHybridMode && isInstalled('@mfelibs/hybridcontainer')
 
 module.exports = maraContext

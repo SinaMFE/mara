@@ -123,10 +123,6 @@
           "description": "Split initial chunks.",
           "type": "boolean"
         },
-        "useCommonPkg": {
-          "description": "enable hybrid common package",
-          "type": "boolean"
-        },
         "vueRuntimeOnly": {
           "description": "Compile with vue runtime.",
           "type": "boolean"
