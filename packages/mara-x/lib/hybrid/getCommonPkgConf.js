@@ -13,14 +13,22 @@ function isSNCEntry(context, request) {
   return sncPath.includes(filePath)
 }
 
-function getCommonPkgConf(entryGlob) {
+function getCommonPkgConf(entryGlob, isHybrid) {
   const commonPkg = require.resolve('@mfelibs/hybridcontainer')
   const commonPkgPath = path.join(
     path.dirname(commonPkg),
     '../dist/index.1/static/js/index.1.min.js'
   )
   const moduleMap = require('@mfelibs/hybridcontainer/module-map')
-  const entryConf = getEntries(entryGlob)
+  let entryConf
+
+  if (isHybrid) {
+    entryConf = getEntries(entryGlob)
+  } else {
+    // 非 hb 模式将依赖包注入至主入口
+    entryConf = getEntries(entryGlob, commonPkgPath)
+  }
+
   // 从主入口中排除 SNC 依赖
   const externals = [
     moduleMap,

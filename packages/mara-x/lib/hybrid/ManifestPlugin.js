@@ -103,17 +103,8 @@ module.exports = class ManifestPlugin {
       'prefer_related_applications'
     ]
     this.entry = options.entry
-    this.rootFilePath = paths.getRootPath(
-      `${VIEWS_DIR}/${this.entry}/${MANIFEST}`
-    )
-    this.publicFilePath = paths.getRootPath(
-      `${VIEWS_DIR}/${this.entry}/public/${MANIFEST}`
-    )
-    this.hasRootFile = fs.existsSync(this.rootFilePath)
-    this.hasPublicFile = fs.existsSync(this.publicFilePath)
     this.isHybrid = options.target === TARGET.APP
     this.version = options.version || require(paths.packageJson).version
-
     this.manifestPath = ManifestPlugin.getManifestPath(this.entry)
   }
 

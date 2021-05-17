@@ -26,7 +26,7 @@ const workspaceResolution = require('../lib/workspaceResolution')
 const paths = config.paths
 
 module.exports = function(
-  { entry, views, buildEnv, target, publicPath, version },
+  { entry, views, buildEnv, target, publicPath, version, useCommonPkg },
   cmd
 ) {
   const isDev = process.env.NODE_ENV === 'development'
@@ -82,7 +82,7 @@ module.exports = function(
   let entryConf = {}
   let commonPkgPath = ''
 
-  const useCommonPkg = isDevOrBuildCmd && config.useCommonPkg
+  useCommonPkg = isDevOrBuildCmd && useCommonPkg
 
   const baseAlias = {
     // 使用 `~` 作为 src 别名
@@ -96,7 +96,7 @@ module.exports = function(
 
   // hybrid SDK 提升，以尽快建立 jsbridge
   if (useCommonPkg) {
-    const sncConf = getCommonPkgConf(entryGlob)
+    const sncConf = getCommonPkgConf(entryGlob, isHybridMode)
 
     // 使用拆分后的 entry 配置
     entryConf = sncConf.entry

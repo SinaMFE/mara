@@ -9,7 +9,6 @@ const argv = require('./argv')
 const { isObject } = require('@mara/devkit')
 const defConf = require('./defaultOptions')
 const { DEPLOY_ENV, TARGET } = require('./const')
-const { isInstalled } = require('../lib/utils')
 const maraxVersion = require(paths.maraxPackageJson).version
 
 const maraConf = getMaraConf()
@@ -191,7 +190,5 @@ const maraContext = {
 const isHybridMode = maraContext.hybrid && target === TARGET.APP
 
 maraContext.isHybridMode = isHybridMode
-maraContext.useCommonPkg =
-  isHybridMode && isInstalled('@mfelibs/hybridcontainer')
 
 module.exports = maraContext

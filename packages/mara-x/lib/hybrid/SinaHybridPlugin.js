@@ -34,7 +34,10 @@ class SinaHybridPlugin {
     compiler.hooks.compilation.tap(this.constructor.name, compilation => {
       const maraCtx = compiler['maraContext'] || {}
 
-      this.injectCommonAssets(compilation)
+      if (this.useCommonPkg) {
+        this.injectCommonAssets(compilation)
+      }
+
       this.injectDataSource(compilation, maraCtx.dataSource)
       this.genVersionFile(compilation)
     })
@@ -50,8 +53,6 @@ class SinaHybridPlugin {
   }
 
   injectCommonAssets(compilation) {
-    if (!this.useCommonPkg) return
-
     const filePath = `static/js/${COMMON_PKG_NAME}.js`
 
     compilation.hooks.additionalAssets.tap(this.constructor.name, () => {

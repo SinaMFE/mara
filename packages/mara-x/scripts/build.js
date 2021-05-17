@@ -33,7 +33,6 @@ const {
 const prehandleConfig = require('../lib/prehandleConfig')
 const zip = require('../lib/zip')
 const isHybridMode = config.isHybridMode
-const useCommonPkg = config.useCommonPkg
 
 const { name: pkgJsonName, version: latestVersion } = require(config.paths
   .packageJson)
@@ -76,8 +75,8 @@ async function createContext(entryInput) {
   })
 }
 
-async function clean(dist) {
-  if (useCommonPkg) {
+async function clean(dist, context) {
+  if (context.useCommonPkg) {
     fs.remove(dist + '.lite')
   }
 
@@ -359,13 +358,13 @@ async function run(argv) {
   const context = await createContext(entryInput)
   const preBuildSize = await getLastBuildSize(dist)
 
-  await clean(dist)
+  await clean(dist, context)
 
   const buildResult = await build(context)
 
   printResult(buildResult, context, preBuildSize)
 
-  if (useCommonPkg) {
+  if (isHybridMode && context.useCommonPkg) {
     await forkLitePkg(dist)
   }
 

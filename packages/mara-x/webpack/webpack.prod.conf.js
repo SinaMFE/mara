@@ -1,6 +1,7 @@
 'use strict'
 
 const fs = require('fs')
+const glob = require('glob')
 const path = require('path')
 const webpack = require('webpack')
 const { merge } = require('webpack-merge')
@@ -293,6 +294,10 @@ function copyPublicFiles(entry, distPageDir) {
   const localPublicDir = paths.getRootPath(`${paths.views}/${entry}/public`)
   const plugins = []
 
+  function notEmpty(dir) {
+    return glob.sync(`${dir}/**/*`).length > 0
+  }
+
   function getCopyOption(src) {
     return {
       from: src,
@@ -307,14 +312,14 @@ function copyPublicFiles(entry, distPageDir) {
   }
 
   // 全局 public
-  if (fs.existsSync(paths.public)) {
+  if (notEmpty(paths.public)) {
     plugins.push(
       new CopyWebpackPlugin({ patterns: [getCopyOption(paths.public)] })
     )
   }
 
   // 页面级 public，能够覆盖全局 public
-  if (fs.existsSync(localPublicDir)) {
+  if (notEmpty(localPublicDir)) {
     plugins.push(
       new CopyWebpackPlugin({ patterns: [getCopyOption(localPublicDir)] })
     )

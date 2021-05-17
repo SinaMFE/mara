@@ -3,6 +3,8 @@ const config = require('./index')
 const getEnv = require('./getEnv')
 const { TARGET, HYBRID_PUBLIC_PATH, DEV_PUBLIC_PATH } = require('./const')
 const resolvePublicPath = require('../lib/resolvePublicPath')
+const ManifestPlugin = require('../lib/hybrid/ManifestPlugin')
+const { isInstalled } = require('../lib/utils')
 const { deployEnv, globalEnv, paths, target, browserslist } = config
 const isDev = process.env.NODE_ENV === 'development'
 
@@ -48,6 +50,14 @@ module.exports = async function getContext({ version, view, views, project }) {
     version,
     browserslist
   })
+  let useCommonPkg = false
+
+  try {
+    const manifest = require(ManifestPlugin.getManifestPath(view))
+    const hasDep = manifest.dependencies['hybridcontainer/index']
+
+    useCommonPkg = hasDep && isInstalled('@mfelibs/hybridcontainer')
+  } catch (e) {}
 
   return {
     entry: view,
@@ -56,6 +66,7 @@ module.exports = async function getContext({ version, view, views, project }) {
     version,
     publicPath,
     buildEnv,
+    useCommonPkg,
     // 优先读取 target，其次以 jsbridgeBuildType 回退
     target
   }
