@@ -30,7 +30,7 @@ async function run({ command, cwd, workspaceRoot, entry }) {
   } else if (command == 'deploy') {
     const child = execa(
       rootMarax,
-      ['build', entry, '--workspace', '--test'],
+      ['build', entry, '--workspace', '--test', ...rawArgv],
       options
     )
   }

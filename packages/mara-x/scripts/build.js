@@ -57,7 +57,7 @@ async function createContext(entryInput) {
     isWorkspaceDeploy || (enableAutoVersion && isHybridMode && isHybridPublish)
 
   // hybrid dev 发布模式下版本号自动递增
-  if (shouldBumpVersion) {
+  if (shouldBumpVersion && !entryInput.entryArgs.noBump) {
     // e.g. v1.2.3-1
     const { stdout } = bumpProjectVersion(
       isWorkspaceDeploy ? 'patch' : 'prerelease'
