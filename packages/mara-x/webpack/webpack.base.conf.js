@@ -211,6 +211,7 @@ module.exports = function(
           options: {
             limit: config.compiler.base64ImgLimit,
             tinifyKeys: config.tinifyKeys,
+            esModule: false,
             minify: isProd,
             fallback: require.resolve('@mara/image-loader'),
             name: `${assetsDir}img/[name].[contenthash:8].[ext]`
@@ -231,14 +232,16 @@ module.exports = function(
           loader: require.resolve('file-loader'),
           options: {
             // 不支持 contenthash
-            name: `${assetsDir}fonts/[name].[hash:8].[ext]`
+            name: `${assetsDir}fonts/[name].[hash:8].[ext]`,
+            esModule: false
           }
         },
         {
           test: /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/,
           loader: require.resolve('file-loader'),
           options: {
-            name: `${assetsDir}media/[name].[contenthash:8].[ext]`
+            name: `${assetsDir}media/[name].[contenthash:8].[ext]`,
+            esModule: false
           }
         },
         {
