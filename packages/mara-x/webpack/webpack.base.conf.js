@@ -96,7 +96,7 @@ module.exports = function(
 
   // hybrid SDK 提升，以尽快建立 jsbridge
   if (useCommonPkg) {
-    const sncConf = getCommonPkgConf(entryGlob, isHybridMode)
+    const sncConf = getCommonPkgConf(entryGlob, config.isApp)
 
     // 使用拆分后的 entry 配置
     entryConf = sncConf.entry
@@ -336,18 +336,17 @@ module.exports = function(
       }
     }
 
-    if (isHybridMode) {
-      // 确保在 copy Files 之前
-      baseConfig.plugins.push(
-        new SinaHybridPlugin(require('html-webpack-plugin'), {
-          entry: entry,
-          version: version,
-          publicPath: publicPath,
-          useCommonPkg: useCommonPkg,
-          commonPkgPath: commonPkgPath
-        })
-      )
-    }
+    // 确保在 copy Files 之前
+    baseConfig.plugins.push(
+      new SinaHybridPlugin(require('html-webpack-plugin'), {
+        entry: entry,
+        version: version,
+        isHybridMode: isHybridMode,
+        publicPath: publicPath,
+        useCommonPkg: useCommonPkg,
+        commonPkgPath: commonPkgPath
+      })
+    )
   }
 
   if (!isLib && isInstalled('@mara/plugin-extract-comp-meta')) {

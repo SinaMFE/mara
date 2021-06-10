@@ -20,6 +20,7 @@ class SinaHybridPlugin {
     this.version = options.version || require(paths.packageJson).version
     this.htmlWebpackPlugin = htmlWebpackPlugin
     this.useCommonPkg = options.useCommonPkg
+    this.isHybridMode = options.isHybridMode
     this.commonPkgPath = options.commonPkgPath
     this.rewriteField = genRewriteFn(ManifestPlugin.getManifestPath(this.entry))
 
@@ -32,14 +33,16 @@ class SinaHybridPlugin {
     // 确保在 emit 前调用
     // zip plugin 会在 emit 时打包
     compiler.hooks.compilation.tap(this.constructor.name, compilation => {
-      const maraCtx = compiler['maraContext'] || {}
+      if (this.isHybridMode) {
+        const maraCtx = compiler['maraContext'] || {}
+
+        this.injectDataSource(compilation, maraCtx.dataSource)
+        this.genVersionFile(compilation)
+      }
 
       if (this.useCommonPkg) {
         this.injectCommonAssets(compilation)
       }
-
-      this.injectDataSource(compilation, maraCtx.dataSource)
-      this.genVersionFile(compilation)
     })
   }
 
@@ -53,11 +56,19 @@ class SinaHybridPlugin {
   }
 
   injectCommonAssets(compilation) {
-    const filePath = `static/js/${COMMON_PKG_NAME}.js`
+    let commonPkgPath
 
-    compilation.hooks.additionalAssets.tap(this.constructor.name, () => {
-      compilation.assets[filePath] = this.genCommonAssets()
-    })
+    if (this.isHybridMode) {
+      const filePath = `static/js/${COMMON_PKG_NAME}.js`
+
+      compilation.hooks.additionalAssets.tap(this.constructor.name, () => {
+        compilation.assets[filePath] = this.genCommonAssets()
+      })
+
+      commonPkgPath = this.publicPath + filePath
+    } else {
+      commonPkgPath = this.commonPkgPath
+    }
 
     const hooks = this.htmlWebpackPlugin.getHooks(compilation)
 
@@ -65,7 +76,7 @@ class SinaHybridPlugin {
       assets.headTags.push({
         tagName: 'script',
         attributes: {
-          src: this.publicPath + filePath
+          src: commonPkgPath
         },
         closeTag: true
       })

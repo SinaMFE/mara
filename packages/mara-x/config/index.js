@@ -107,6 +107,7 @@ function getHashConf(hash) {
 const maraContext = {
   argv,
   target,
+  isApp: target === TARGET.APP,
   // 为了防止不同文件夹下的同名资源文件冲突
   // 资源文件不提供 hash 修改权限
   hash: getHashConf(maraConf.hash),
@@ -187,7 +188,7 @@ const maraContext = {
   marax: maraConf.marax
 }
 
-const isHybridMode = maraContext.hybrid && target === TARGET.APP
+const isHybridMode = maraContext.hybrid && maraContext.isApp
 
 maraContext.isHybridMode = isHybridMode
 

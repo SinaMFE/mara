@@ -13,20 +13,21 @@ function isSNCEntry(context, request) {
   return sncPath.includes(filePath)
 }
 
-function getCommonPkgConf(entryGlob, isHybrid) {
+function getCommonPkgConf(entryGlob, isApp) {
   const commonPkg = require.resolve('@mfelibs/hybridcontainer')
-  const commonPkgPath = path.join(
-    path.dirname(commonPkg),
-    '../dist/index.1/static/js/index.1.min.js'
-  )
   const moduleMap = require('@mfelibs/hybridcontainer/module-map')
-  let entryConf
+  const { version } = require('@mfelibs/hybridcontainer/package.json')
+  const entryConf = getEntries(entryGlob)
+  let commonPkgPath
 
-  if (isHybrid) {
-    entryConf = getEntries(entryGlob)
+  if (isApp) {
+    commonPkgPath = path.join(
+      path.dirname(commonPkg),
+      '../dist/index.1/static/js/index.1.min.js'
+    )
   } else {
-    // 非 hb 模式将依赖包注入至主入口
-    entryConf = getEntries(entryGlob, commonPkgPath)
+    // web 模式使用 cdn 资源
+    commonPkgPath = `https://mjs.sinaimg.cn//wap/project/hybridcontainer/${version}/index.1/static/js/index.1.min.js`
   }
 
   // 从主入口中排除 SNC 依赖
@@ -41,12 +42,6 @@ function getCommonPkgConf(entryGlob, isHybrid) {
       callback()
     }
   ]
-
-  // 拆分 SNC，由于依赖 Promise，因此一并添加 polyfills
-  // entryConf[UNI_SNC] = [
-  //   require.resolve('../polyfills'),
-  //   path.join(commonFile)
-  // ]
 
   return { entry: entryConf, externals, commonPkgPath }
 }
