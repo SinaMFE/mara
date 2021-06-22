@@ -290,7 +290,7 @@ module.exports = async function testDeploy({
 
   const tagPrefix = `tag__${entry}`
   const userInfo = await getGitUserEmailName()
-  const tagName = `${tagPrefix}__${target}:${version}(${branchName})__${userInfo}`
+  const tagName = `${tagPrefix}__${target}/${version}(${branchName})__${userInfo}`
   const commitMsg = `${entry}@${version} (${branchName})`
   const tagMsg = argv.test || `deploy test ${entry}@${version}`
 
