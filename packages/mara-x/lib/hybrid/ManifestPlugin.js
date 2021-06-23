@@ -8,8 +8,6 @@ const { isObject } = require('../utils')
 const { VIEWS_DIR, TARGET, MANIFEST } = require('../../config/const')
 const paths = require('../../config/paths')
 
-const HYBRID_MANIFEST_INJECT_NAME = '__HB_MANIFEST'
-
 function readJsonFile(filePath) {
   if (typeof filePath !== 'string') throw new Error(`${MANIFEST} 路径错误`)
 
@@ -135,13 +133,6 @@ module.exports = class ManifestPlugin {
         compilation.hooks.additionalAssets.tap(pluginName, () => {
           compilation.assets[MANIFEST] = manifestAsset
         })
-
-        prependEntryCode(
-          compilation,
-          `window["${HYBRID_MANIFEST_INJECT_NAME}"] = ${manifestAsset.source()};`
-        )
-
-        // callback()
       })
     }
   }

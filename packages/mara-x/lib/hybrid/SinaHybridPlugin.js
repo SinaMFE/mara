@@ -6,8 +6,9 @@ const chalk = require('chalk')
 const semver = require('semver')
 const prependEntryCode = require('../prependEntryCode')
 const ManifestPlugin = require('./ManifestPlugin')
-const { UNI_SNC, COMMON_PKG_NAME } = require('../../config/const')
+const { UNI_SNC, COMMON_PKG_NAME, MANIFEST } = require('../../config/const')
 const paths = require('../../config/paths')
+const HYBRID_MANIFEST_INJECT_NAME = '__HB_MANIFEST'
 
 /**
  * 生成版本文件
@@ -37,6 +38,7 @@ class SinaHybridPlugin {
         const maraCtx = compiler['maraContext'] || {}
 
         this.injectDataSource(compilation, maraCtx.dataSource)
+        this.injectManifest(compilation)
         this.genVersionFile(compilation)
       }
 
@@ -76,9 +78,35 @@ class SinaHybridPlugin {
       assets.headTags.push({
         tagName: 'script',
         attributes: {
+          id: 'COMMON_PKG',
           src: commonPkgPath
         },
         closeTag: true
+      })
+    })
+  }
+
+  injectManifest(compilation) {
+    const hooks = this.htmlWebpackPlugin.getHooks(compilation)
+
+    compilation.hooks.afterSeal.tap(this.constructor.name, () => {
+      hooks.alterAssetTagGroups.tap(this.constructor.name, assets => {
+        const manifest = compilation.assets[MANIFEST].source()
+        const tagObject = {
+          tagName: 'script',
+          attributes: {
+            id: 'HB_MANIFEST'
+          },
+          innerHTML: `var ${HYBRID_MANIFEST_INJECT_NAME} = ${manifest}`,
+          closeTag: true
+        }
+
+        const commonPkgIdx = assets.headTags.findIndex(
+          e => e.attributes.id == 'COMMON_PKG'
+        )
+
+        // 确保在 common pkg 资源之前
+        assets.headTags.splice(commonPkgIdx, 0, tagObject)
       })
     })
   }
