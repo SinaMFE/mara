@@ -1,6 +1,6 @@
 {
   "name": "@mara/x",
-  "version": "2.15.3",
+  "version": "2.15.4",
   "description": "支持 React / Vue + Ts 的多页应用打包工具",
   "keywords": [
     "ts",
