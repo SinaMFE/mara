@@ -1,15 +1,16 @@
 'use strict'
 
 const fs = require('fs')
+const path = require('path')
 const Vinyl = require('vinyl')
 const chalk = require('chalk')
 const { fetch, md5, ensureSlash, getGitRepoName } = require('@mara/devkit')
 const config = require('../../config')
+const paths = require('../../config/paths')
 const C = require('../../config/const')
-const { uploadVinylFile } = require('../ftp')
+const { uploadVinylFile, basePath } = require('../ftp')
 const ManifestPlugin = require('./ManifestPlugin')
-const { rootPath } = require('../utils')
-const CONF_DIR = '/wap_front/hybrid/config/'
+const CONF_DIR = path.posix.join(basePath, 'hybrid', 'config')
 const CONF_NAME = getHbConfName(config.ciConfig)
 const CONF_URL = `http://wap_front.dev.sina.cn/hybrid/config/${CONF_NAME}`
 
