@@ -23,6 +23,7 @@ class SinaHybridPlugin {
     this.useCommonPkg = options.useCommonPkg
     this.isHybridMode = options.isHybridMode
     this.commonPkgPath = options.commonPkgPath
+    this.pkgMaps = options.pkgMaps
     this.rewriteField = genRewriteFn(ManifestPlugin.getManifestPath(this.entry))
 
     if (!semver.valid(this.version)) {
@@ -48,8 +49,8 @@ class SinaHybridPlugin {
     })
   }
 
-  genCommonAssets() {
-    const source = fs.readFileSync(this.commonPkgPath, 'utf8')
+  genCommonAssets(commonPkgPath) {
+    const source = fs.readFileSync(commonPkgPath, 'utf8')
 
     return {
       source: () => source,
@@ -58,32 +59,48 @@ class SinaHybridPlugin {
   }
 
   injectCommonAssets(compilation) {
-    let commonPkgPath
-
     if (this.isHybridMode) {
-      const filePath = `static/js/${COMMON_PKG_NAME}.js`
+      for (let index = 0; index < this.commonPkgPath.length; index++) {
+        const element = this.commonPkgPath[index]
+        let pkg = this.pkgMaps[index]
+        let new_Common_pkg_name = `${COMMON_PKG_NAME}${pkg['moduleName']}-${
+          pkg['view']
+        }-${pkg['mainVer']}`
+        const filePath = `static/js/${new_Common_pkg_name}.js`
+        compilation.hooks.additionalAssets.tap(this.constructor.name, () => {
+          compilation.assets[filePath] = this.genCommonAssets(element)
+        })
 
-      compilation.hooks.additionalAssets.tap(this.constructor.name, () => {
-        compilation.assets[filePath] = this.genCommonAssets()
-      })
+        let commonPkgPath = this.publicPath + filePath
 
-      commonPkgPath = this.publicPath + filePath
+        const hooks = this.htmlWebpackPlugin.getHooks(compilation)
+        hooks.alterAssetTagGroups.tap(this.constructor.name, assets => {
+          assets.headTags.push({
+            tagName: 'script',
+            attributes: {
+              id: 'COMMON_PKG',
+              src: commonPkgPath
+            },
+            closeTag: true
+          })
+        })
+      }
     } else {
-      commonPkgPath = this.commonPkgPath
+      for (let index = 0; index < this.commonPkgPath.length; index++) {
+        const element = this.commonPkgPath[index]
+        const hooks = this.htmlWebpackPlugin.getHooks(compilation)
+        hooks.alterAssetTagGroups.tap(this.constructor.name, assets => {
+          assets.headTags.push({
+            tagName: 'script',
+            attributes: {
+              id: 'COMMON_PKG',
+              src: element
+            },
+            closeTag: true
+          })
+        })
+      }
     }
-
-    const hooks = this.htmlWebpackPlugin.getHooks(compilation)
-
-    hooks.alterAssetTagGroups.tap(this.constructor.name, assets => {
-      assets.headTags.push({
-        tagName: 'script',
-        attributes: {
-          id: 'COMMON_PKG',
-          src: commonPkgPath
-        },
-        closeTag: true
-      })
-    })
   }
 
   injectManifest(compilation) {

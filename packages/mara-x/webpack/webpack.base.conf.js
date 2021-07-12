@@ -81,6 +81,7 @@ module.exports = function(
   let externals = [config.compiler.externals]
   let entryConf = {}
   let commonPkgPath = ''
+  let pkgMaps = []
 
   useCommonPkg = isDevOrBuildCmd && useCommonPkg
 
@@ -101,6 +102,7 @@ module.exports = function(
     // 使用拆分后的 entry 配置
     entryConf = sncConf.entry
     commonPkgPath = sncConf.commonPkgPath
+    pkgMaps = sncConf.pkgMaps
     externals.push(...sncConf.externals)
   } else {
     entryConf = getEntries(entryGlob, require.resolve('../lib/polyfills'))
@@ -344,7 +346,8 @@ module.exports = function(
         isHybridMode: isHybridMode,
         publicPath: publicPath,
         useCommonPkg: useCommonPkg,
-        commonPkgPath: commonPkgPath
+        commonPkgPath: commonPkgPath,
+        pkgMaps
       })
     )
   }

@@ -14,36 +14,69 @@ function isSNCEntry(context, request) {
 }
 
 function getCommonPkgConf(entryGlob, isApp) {
-  const commonPkg = require.resolve('@mfelibs/hybridcontainer')
-  const moduleMap = require('@mfelibs/hybridcontainer/module-map')
-  const { version } = require('@mfelibs/hybridcontainer/package.json')
   const entryConf = getEntries(entryGlob)
-  let commonPkgPath
+  let dir = path.dirname(entryConf.index)
 
-  if (isApp) {
-    commonPkgPath = path.join(
-      path.dirname(commonPkg),
-      '../dist/index.1/static/js/index.1.min.js'
-    )
-  } else {
-    // web 模式使用 cdn 资源
-    commonPkgPath = `https://mjs.sinaimg.cn//wap/project/hybridcontainer/${version}/index.1/static/js/index.1.min.js`
+  let { dependencies } = require(`${dir}/public/manifest.json`)
+
+  let commonPkgPath = []
+  let moduleMaps = {}
+  let pkgMaps = []
+
+  let sncFunc
+
+  for (const key in dependencies) {
+    if (Object.hasOwnProperty.call(dependencies, key)) {
+      let matchArr = key.match(/([^\/]*)\/(\w*)/)
+      let moduleName = matchArr[1]
+      let view = matchArr[2]
+
+      const commonPkg = require.resolve(`@mfelibs/${moduleName}`)
+      const moduleMap = require(`@mfelibs/${moduleName}/module-map`)
+      const { version } = require(`@mfelibs/${moduleName}/package.json`)
+      const mainVer = version.match(/(\d{0,1})(\.\d{0,1})*/)[1]
+      if (moduleMap['@mfelibs/universal-framework'])
+        sncFunc = moduleMap['@mfelibs/universal-framework']
+
+      let commonPath
+
+      if (isApp) {
+        commonPath = path.join(
+          path.dirname(commonPkg),
+          `../dist/${view}.${mainVer}/static/js/${view}.${mainVer}.min.js`
+        )
+
+        pkgMaps.push({
+          moduleName,
+          view,
+          mainVer
+        })
+      } else {
+        // web 模式使用 cdn 资源
+        commonPath = `https://mjs.sinaimg.cn//wap/project/${moduleName}/${version}/${view}.${mainVer}/static/js/${view}.${mainVer}.min.js`
+      }
+
+      commonPkgPath.push(commonPath)
+      Object.assign(moduleMaps, moduleMap)
+    }
   }
 
   // 从主入口中排除 SNC 依赖
+  console.log('sncFunc---------', sncFunc)
+  console.log('moduleMaps: ', moduleMaps)
   const externals = [
-    moduleMap,
+    moduleMaps,
     (context, request, callback) => {
       // 排除 universal 内部 apis 对自身的引用
       if (isSNCEntry(context, request)) {
-        return callback(null, moduleMap['@mfelibs/universal-framework'])
+        return callback(null, sncFunc)
       }
 
       callback()
     }
   ]
 
-  return { entry: entryConf, externals, commonPkgPath }
+  return { entry: entryConf, externals, commonPkgPath, pkgMaps }
 }
 
 module.exports = getCommonPkgConf

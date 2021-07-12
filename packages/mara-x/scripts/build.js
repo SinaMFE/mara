@@ -105,6 +105,7 @@ function build(context) {
   return new Promise((resolve, reject) => {
     compiler.run((err, stats) => {
       let messages
+
       spinner.stop()
 
       if (err) {
@@ -360,14 +361,22 @@ async function run(argv) {
 
   await clean(dist, context)
 
-  const buildResult = await build(context)
+  console.log(2222222222)
+
+  let buildResult
+  try {
+    buildResult = await build(context)
+  } catch (error) {
+    console.log('error: ', error)
+  }
+
+  console.log(3333333333)
 
   printResult(buildResult, context, preBuildSize)
 
   if (isHybridMode && context.useCommonPkg) {
     await forkLitePkg(dist)
   }
-
   await loadHook(argv, context)
 
   const remotePath = await ftpUpload(entryInput, context)
@@ -376,18 +385,21 @@ async function run(argv) {
 
 async function forkLitePkg(dist) {
   const cDist = dist + '.lite'
-  const commonPkgReg = /[\w./-_]+__HB_COMMON_PKG__\.js/
+  const commonPkgReg = /[\w./-_]+__HB_COMMON_PKG__(\w+)-(\w+)-(\d)\.js/g
 
   fs.copySync(dist, cDist)
-  fs.remove(`${cDist}/static/js/${COMMON_PKG_NAME}.js`)
+  let files = fs.readdirSync(`${cDist}/static/js`)
+  for (let index = 0; index < files.length; index++) {
+    const file = files[index]
+    if (/__HB_COMMON_PKG__/.test(file)) fs.remove(`${cDist}/static/js/${file}`)
+  }
   fs.remove(`${cDist}/${path.basename(dist)}.php`)
 
   const htmlPath = `${cDist}/index.html`
   const html = fs.readFileSync(htmlPath, 'utf8')
-  const repHtml = html.replace(
-    commonPkgReg,
-    '../../hybridcontainer/index.1/static/js/index.1.min.js'
-  )
+  const repHtml = html.replace(commonPkgReg, ($1, $2, $3, $4) => {
+    return `../../${$2}/${$3}.${$4}/static/js/${$3}.${$4}.min.js`
+  })
 
   fs.writeFileSync(htmlPath, repHtml)
 
