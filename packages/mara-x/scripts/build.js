@@ -361,8 +361,6 @@ async function run(argv) {
 
   await clean(dist, context)
 
-  console.log(2222222222)
-
   let buildResult
   try {
     buildResult = await build(context)
@@ -370,10 +368,7 @@ async function run(argv) {
     console.log('error: ', error)
   }
 
-  console.log(3333333333)
-
   printResult(buildResult, context, preBuildSize)
-
   if (isHybridMode && context.useCommonPkg) {
     await forkLitePkg(dist)
   }

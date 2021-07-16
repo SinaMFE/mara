@@ -40,17 +40,17 @@ function getCommonPkgConf(entryGlob, isApp) {
 
       let commonPath
 
+      pkgMaps.push({
+        moduleName,
+        view,
+        mainVer
+      })
+
       if (isApp) {
         commonPath = path.join(
           path.dirname(commonPkg),
           `../dist/${view}.${mainVer}/static/js/${view}.${mainVer}.min.js`
         )
-
-        pkgMaps.push({
-          moduleName,
-          view,
-          mainVer
-        })
       } else {
         // web 模式使用 cdn 资源
         commonPath = `https://mjs.sinaimg.cn//wap/project/${moduleName}/${version}/${view}.${mainVer}/static/js/${view}.${mainVer}.min.js`

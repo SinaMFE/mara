@@ -78,7 +78,7 @@ class SinaHybridPlugin {
           assets.headTags.push({
             tagName: 'script',
             attributes: {
-              id: 'COMMON_PKG',
+              id: `COMMON_PKG_${pkg['moduleName']}`,
               src: commonPkgPath
             },
             closeTag: true
@@ -88,12 +88,13 @@ class SinaHybridPlugin {
     } else {
       for (let index = 0; index < this.commonPkgPath.length; index++) {
         const element = this.commonPkgPath[index]
+        let pkg = this.pkgMaps[index]
         const hooks = this.htmlWebpackPlugin.getHooks(compilation)
         hooks.alterAssetTagGroups.tap(this.constructor.name, assets => {
           assets.headTags.push({
             tagName: 'script',
             attributes: {
-              id: 'COMMON_PKG',
+              id: `COMMON_PKG_${pkg['moduleName']}`,
               src: element
             },
             closeTag: true
