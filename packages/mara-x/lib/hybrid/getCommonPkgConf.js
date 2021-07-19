@@ -15,8 +15,7 @@ function isSNCEntry(context, request) {
 
 function getCommonPkgConf(entryGlob, isApp) {
   const entryConf = getEntries(entryGlob)
-  let dir = path.dirname(entryConf.index)
-
+  let dir = path.dirname(Object.values(entryConf)[0])
   let { dependencies } = require(`${dir}/public/manifest.json`)
 
   let commonPkgPath = []
