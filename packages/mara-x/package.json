@@ -39,7 +39,7 @@
     "@mara/friendly-errors-webpack-plugin": "^2.0.2",
     "@mara/image-loader": "^1.0.3",
     "@mara/schema-utils": "^1.0.2",
-    "axios": "^0.21.1",
+    "axios": "^1.8.2",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.2.2",
     "babel-plugin-inline-json": "^1.2.2",
